@@ -18,13 +18,15 @@ class User(db.Model):
 	lastName = db.Column(db.String(80), nullable=False)
 	firstName = db.Column(db.String(80), nullable=False)
 	team = db.Column(db.String(80), nullable=False)
+	userType = db.Column(db.String(80), nullable=False)
 
-	def __init__(self, email, password, firstName, lastName, team):
+	def __init__(self, email, password, firstName, lastName, team, userType):
 		self.email = email
 		self.password = bcrypt.generate_password_hash(password)
 		self.firstName = firstName
 		self.lastName = lastName
 		self.team = team
+		self.userType = userType
 
 	@staticmethod
 	def authenticate(_email, _password):

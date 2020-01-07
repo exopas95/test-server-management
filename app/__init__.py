@@ -457,7 +457,8 @@ def register():
                         password=request.form.get('password'),
                         lastName=request.form.get('lastName'),
                         firstName=request.form.get('firstName'),
-                        team=request.form.get('team'))
+                        team=request.form.get('team',
+                        userType=request.fomr.get('radio')))
         db.session.add(new_user)
         db.session.commit()
         return render_template('login.html')
