@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container login-container">
+  <div class="row">
+      <div class="form-login">
+          <h3>Spirent Communication</h3>
+          <form action="/login" method="POST">
+              <div class="form-group">
+                  <input type="email" class="form-control" name="email" placeholder="Your Spirent Offical Email *" value="" />
+              </div>
+              <div class="form-group">
+                  <input type="password" class="form-control" name="password" placeholder="Your Password *" value="" />
+              </div>
+              <div class="form-group">
+                  <input type="submit" class="btnSubmit" value="Login" />
+              </div>
+              <div class="form-group">
+                <a href="/register" class="register">Don't have account?</a>
+            </div>
+              <div class="form-group">
+                  <a href="#" class="ForgetPwd">Forget Password?</a>
+              </div>
+          </form>
+      </div>
+  </div>
+</div>
+{% endblock %}

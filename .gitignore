@@ -1,0 +1,7 @@
+*.csv
+*.log
+*.pyc
+*.pynew
+*.db
+*.out
+*.pybak

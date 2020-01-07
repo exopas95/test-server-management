@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Landslide TSmanagement</title>
+    <base href="/">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- Optional theme -->
+    <!--
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+        integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    -->
+    <link href="https://fonts.googleapis.com/css?family=Comfortaa" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet"/>
+
+	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+	        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+	        crossorigin="anonymous"></script>
+	<!-- DataTable script libarary --!>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/js/jquery.dataTables.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/js/dataTables.bootstrap.min.js"></script>
+	<script src="https://cdn.datatables.net/plug-ins/1.10.15/sorting/stringMonthYear.js"></script>
+    <style>
+        /* You can add global styles to this file, and also import other style files */
+        body {
+            padding-top: 80px;
+            font-family: 'Comfortaa', cursive;
+        }
+		.modal-content {
+			margin: 15% auto;
+			padding: 20px;
+			border: 1px solid #888;
+			width: 80%;
+		}
+		.modalbox .box {
+			background-color:white;
+		}
+		.btn btn-info btn-lg {
+			height:40px;
+			width:80px;
+		}
+
+		
+
+		.custom-select {
+			position: relative;
+			font-family: 'Comfortaa', cursive;
+		}
+		/* the container must be positioned relative*/
+		.custom-select select {
+			display: none;
+			z-index:2;
+		}
+		.select-selected {
+			background-color: DodgerBlue;
+			display:inline-block;
+		}
+		.select-selected:after {
+			position:absolute;
+			content="";
+			top:14px;
+			right:10px;
+			width:0;
+			height:0;
+			border:6px solid transparent;
+			border-color: #fff transparent transparent transparent;
+		}
+		/* style the arrow inside the select element */
+		.select-selected.select-arrow-active:after {
+			border-color: transparent transparent #fff transparent;
+			top: 7px;
+		}
+		/* style the items, including the selected item */
+		.select-items div,.select-selected {
+			color: #ffffff;
+			padding: 8px 16px;
+			border: 1px solid transparent;
+			border-color: transparent transparent rgba(0,0,0,0.1) transparent;
+			cursor: pointer;
+		}
+		/* style items */
+		.select-items {
+			background-color: DodgerBlue;
+			top: 100%;
+			left: 0;
+			right: 0;
+			z-index: 99;
+		}
+		/* hide the items when the select box is closed */
+		.select-hide {
+			display: none;
+		}
+		.select-items div:hover, .same-as-selected {
+			background-color: rgba(0,0,0,0.1);
+		}
+
+
+
+
+
+
+/*
+		.typo, .list a {
+			font-size: 24px;
+			font-weight: 1000;
+			font-family: 'Comfortaa', cursive;
+			color: #585858;
+			text-decoration: none;
+			position: relative;
+			z-index: 1;
+		}
+		.typo option, .list a option {
+			font-size: 28px
+		}
+
+		.transition {
+			transition: all .4s ease-in-out;
+		}
+
+		body {
+			text-align: left;
+		}
+		.wrapper {
+			padding-top: 50px;
+			height: 1000;
+			font-size: 28px;
+		}
+
+		.list {
+			display: inline-block;
+			position: relative;
+			margin-left: 6px;
+		}
+		.list ul {
+			text-align: left;
+			position: absolute;
+			z-index: 1;
+			padding: 0;
+			top: 0;
+			left: 0;
+			display: none;
+		}
+		.list ul .active {
+			display: block;
+		}
+		.list li {
+			list-style: none;
+		}
+		.list li:first-child a {
+			color: #7d40bf;
+		}
+		.list a {
+			transition: all .4s;
+			color: #7b40bf;
+			position: relative;
+		}
+		.list a:after {
+			position: absolute;
+			content: '';
+			height: 5px;
+			width: 0;
+			left: 0;
+			background: #b066ff;
+			bottom: 0;
+			transition: all .4s ease-out;
+		}
+		.list a:hover {
+			cursor: pointer;
+			color: #b066ff;
+		}
+		.list a:hover:after {
+			width: 100%;
+		}
+
+
+		select {
+			display: inline;
+			border: 0;
+			width: auto;
+			margin-left: 10px;
+			outline: none;
+			-webkit-appearance: none;
+			-moz-appearance: none;
+			border-bottom: 2px solid #555;
+			color: #7b00ff;
+			transition: all .4s ease-in-out;
+		}
+		select:hover {
+			cursor: pointer;
+		}
+		select option {
+			border: 0;
+			border-bottom: 1px solid $dark;
+			padding: 10px;
+			-webkit-appearance: none;
+			-moz-appearance: none;
+		}
+			
+
+		.placeholder {
+			border-bottom: 4px solid;
+			cursor: pointer;
+		}
+		.placeholder:hover {
+			color: #888888;
+		}
+
+		
+
+*/
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand"><strong style="font-size:22px">TS Management</strong></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
+                    <a [routerLink]="['/home']">Home</a>
+                </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
+                    <a [routerLink]="['/about']">About</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="panel-body">
+    <table id="sortedTable" class="display">
+        <thead>
+        <tr>
+            <th>TS</th>
+            <th>Owner</th>
+            <th>TAS</th>
+            <th>Name</th>
+            <th>Platform</th>
+            <th>Memory</th>
+            <th>OS</th>
+            <th>Version</th>
+            <th>State</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for TS in tsList %}
+            <tr>
+                <th>{{ TS['info']['managementIp'] }}</th>
+                <td>{{ TS['owner'] }}</td>
+                <td><span id="TAS">{{ TS['tas'] }}</span></td>
+                <td>{{ TS['name'] }}</td>
+                <td>{{ TS['info']['platform'] }}</td>
+                <td>{{ TS['info']['memory'] }}</td>
+                <td>{{ TS['info']['os'] }}</td>
+                <td>{{ TS['version'] }}</td>
+                <td>
+                    {% if 'NOT_READY' in TS['state'] %}
+                        <span class="label label-danger">
+                    {% elif 'READY' in TS['state'] %}
+                        <span class="label label-success">
+                    {% else %}
+                        <span class="label label-warning">
+                    {% endif %}
+                    {{ TS['state'] }}
+                    </span>
+                </td>
+                <td style="width:30px">
+                    <div class="btn-group">
+						<button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#configuration">TEST</button>
+						<div id="configuration" class="modal" role="dialog">
+							<div class="modal-content">
+								<div class="modal-header">
+									<h4 class="modal-title">TestServer Configuration</h4>
+								</div>
+								<div class="modal-body">
+									<h1> moving test server </h1>
+									<!--
+									<div class="wrapper type" style="display:inline;">TS Relocated by 
+										<div class="list"><span class="placeholder">who</span>
+											<ul class="list__ul">
+												<li><a href="">10.140.92.100(Common)</a></li>
+												<li><a href="">10.140.92.210(Aniket)</a></li>
+												<li><a href="">10.140.92.211(Dat)</a></li>
+												<li><a href="">10.140.92.212(Been)</a></li>
+												<li><a href="">10.140.92.213(Grace)</a></li>
+												<li><a href="">10.140.92.214(In)</a></li>
+												<li><a href="">10.140.92.215(Eum)</a></li>
+												<li><a href="">10.140.92.217(Nga)</a></li>
+												<li><a href="">10.140.92.218(Tami)</a></li>
+												<li><a href="">10.140.92.219(Akhtar)</a></li>
+												<li><a href="">10.140.92.226(Mike)</a></li>
+											</ul>
+										</div>
+									</div>
+									
+									<div class="wrapper typo" style="display:inline;">, Target TAS is 
+										<div class="list"><span class="placeholderTAS">select</span>
+											<ul class="list__ulTAS">
+											{% for TAS in tasList %}
+												<li><a href="" value="{{ TAS }}">{{ TAS }}</a></li>
+											{% endfor %}
+												<li><a href="">10.140.92.100(Common)</a></li>
+												<li><a href="">10.140.92.210(Aniket)</a></li>
+												<li><a href="">10.140.92.211(Dat)</a></li>
+												<li><a href="">10.140.92.212(Been)</a></li>
+												<li><a href="">10.140.92.213(Grace)</a></li>
+												<li><a href="">10.140.92.214(In)</a></li>
+												<li><a href="">10.140.92.215(Eum)</a></li>
+												<li><a href="">10.140.92.217(Nga)</a></li>
+												<li><a href="">10.140.92.218(Tami)</a></li>
+												<li><a href="">10.140.92.219(Akhtar)</a></li>
+												<li><a href="">10.140.92.226(Mike)</a></li>
+											</ul>
+										</div>
+									</div>
+									-->
+
+									<div class="custom-select">Current User : 
+										<select>
+											{% for TAS in tasList %}
+												<option value=""> {{ TAS }} </option>
+											{% endfor %}
+											<!--
+											<option value="Common">10.140.92.100(Common)</option>
+											<option value="Aniket">10.140.92.210(Aniket)</option>
+											<option value="Dat">10.140.92.211(Dat)</option>
+											<option value="Been">10.140.92.212(Been)</option>
+											<option value="Grace">10.140.92.213(Grace)</option>
+											<option value="In">10.140.92.214(In)</option>
+											<option value="Eum">10.140.92.215(Eum)</option>
+											<option value="Nga">10.140.92.217(Nga)</option>
+											<option value="Tami">10.140.92.218(Tami)</option>
+											<option value="Ahktar">10.140.92.219(Akhtar)</option>
+											<option value="Mike">10.140.92.226(Mike)</option>
+											-->
+										</select>
+									</div>
+
+									<div class="custom-select">Target TAS     : 
+										<select>
+											{% for TAS in tasList %}
+												<option value="" style="position:absolute;"> {{ TAS }} </option>
+											{% endfor %}
+											<!--
+											<option value="Common">10.140.92.100(Common)</option>
+											<option value="Aniket">10.140.92.210(Aniket)</option>
+											<option value="Dat">10.140.92.211(Dat)</option>
+											<option value="Been">10.140.92.212(Been)</option>
+											<option value="Grace">10.140.92.213(Grace)</option>
+											<option value="In">10.140.92.214(In)</option>
+											<option value="Eum">10.140.92.215(Eum)</option>
+											<option value="Nga">10.140.92.217(Nga)</option>
+											<option value="Tami">10.140.92.218(Tami)</option>
+											<option value="Ahktar">10.140.92.219(Akhtar)</option>
+											<option value="Mike">10.140.92.226(Mike)</option>
+											-->
+										</select>
+									</div>
+
+								
+								</div>
+								<div class="modal-body" style="z-index:10;">
+									<p> lock system </p>
+								</div>
+								<div class="modal-body" style="z-index:10;">
+									<p> reservation system </p>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+								</div>
+							</div>
+						</div>
+                        <button type="submit" onclick="modify('{{ TS.info.managementIp }}')" class="btn btn-primary">
+                            <img src="{{url_for('static', filename='gear.jpg')}}"
+                                 height="24px" weight="24px"/></button>
+					</div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#sortedTable").DataTable({
+			"columnDefs": [{ "searchable": false, "targets": 9 }]
+        });
+    });
+
+	///////////////////// ajax for fancy selection dropdown ////////////////////////
+	var el = {};
+
+	$('.placeholder').on('click', function (ev) {
+		$('.placeholder').css('opacity', '0');
+		$('.list__ul').toggle();
+	});
+
+	$('.placeholderTAS').on('click', function (ev) {
+		$('.placeholderTAS').css('opacity', '0');
+		$('.list__ulTAS').toggle();
+	});
+
+	$('.list__ul a').on('click', function (ev) {
+		ev.preventDefault();
+		var index = $(this).parent().index();
+		$('.placeholder').text( $(this).text() ).css('opacity', '1');
+		console.log($('.list__ul').find('li').eq(index).html());
+		$('.list__ul').find('li').eq(index).prependTo('.list__ul');
+		$('.list__ul').toggle();
+	});
+
+	$('.list__ulTAS a').on('click', function (ev) {
+		ev.preventDefault();
+		var index = $(this).parent().index();
+		$('.placeholderTAS').text( $(this).text() ).css('opacity', '1');
+		console.log($('.list__ulTAS').find('li').eq(index).html());
+		$('.list__ulTAS').find('li').eq(index).prependTo('.list__ulTAS');
+		$('.list__ulTAS').toggle();
+	});
+
+	$('select').on('change', function (e) {
+		// Set text on placeholder hidden element
+		$('.placeholder').text(this.value);
+		
+		// Animate select width as placeholder
+		$(this).animate({width: $('.placeholder').width() + 'px' });
+	});
+
+	$('select').on('change', function (e) {
+		// Set text on placeholder hidden element
+		$('.placeholderTAS').text(this.value);
+		
+		// Animate select width as placeholder
+		$(this).animate({width: $('.placeholderTAS').width() + 'px' });
+	});
+
+
+	/////////////////////////////////////////////////////////////////////////////////
+
+
+
+	//////////////// DodgerBlue style drop-down implementation //////////////////////
+	var dropdownlist, selElmnt, selectdiv, tempdiv, optiondiv, i, j;
+
+	/* Look for any elements with the class "custom-select": */
+	dropdownlist = document.getElementsByClassName("custom-select");
+
+	for (i = 0; i < dropdownlist.length; i++) {
+		selElmnt = dropdownlist[i].getElementsByTagName("select")[0];
+
+		/* For each element, create a new DIV that will act as the selected item: */
+		selectdiv = document.createElement("DIV");
+		selectdiv.setAttribute("class", "select-selected");
+		selectdiv.innerHTML = selElmnt.options[selElmnt.selectedIndex].innerHTML;
+		dropdownlist[i].appendChild(selectdiv);
+
+		/* For each element, create a new DIV that will contain the option list: */
+		tempdiv = document.createElement("DIV");
+		tempdiv.setAttribute("class", "select-items select-hide");
+
+		for (j = 1; j < selElmnt.length; j++) {
+			/* For each option in the original select element,
+			   create a new DIV that will act as an option item: */
+			optiondiv = document.createElement("DIV");
+			optiondiv.innerHTML = selElmnt.options[j].innerHTML;
+			optiondiv.addEventListener("click", function(e) {
+				/* When an item is clicked, update the original select box,
+					and the selected item: */
+				var targetNode, selectNode, previousNode, i, k;
+				selectNode = this.parentNode.parentNode.getElementsByTagName("select")[0];
+				previousNode = this.parentNode.previousSibling;
+
+				for (i = 0; i < selectNode.length; i++) {
+					if (selectNode.options[i].innerHTML == this.innerHTML) {
+						selectNode.selectedIndex = i;
+						previousNode.innerHTML = this.innerHTML;
+						targetNode = this.parentNode.getElementsByClassName("same-as-selected");
+
+						for (k = 0; k < targetNode.length; k++) {
+							targetNode[k].removeAttribute("class");
+						}
+						this.setAttribute("class", "same-as-selected");
+						break;
+					}
+				}
+			previousNode.click();
+		});
+		tempdiv.appendChild(optiondiv);
+	}
+
+	dropdownlist[i].appendChild(tempdiv);
+	selectdiv.addEventListener("click", function(e) {
+		/* When the select box is clicked, close any other select boxes,
+			and open/close the current select box: */
+		e.stopPropagation();
+		closeAllSelect(this);
+		this.nextSibling.classList.toggle("select-hide");
+		this.classList.toggle("select-arrow-active");
+		});
+	}
+	
+	function closeAllSelect(elmnt) {
+		/* A function that will close all select boxes in the document,
+			except the current select box: */
+		var dropdownlist, targetNode, arrNo = [], i;
+		dropdownlist = document.getElementsByClassName("select-items");
+		targetNode = document.getElementsByClassName("select-selected");
+
+		for (i = 0; i < targetNode.length; i++) {
+			if (elmnt == targetNode[i]) {
+				arrNo.push(i)
+			} else {
+				targetNode[i].classList.remove("select-arrow-active");
+			}
+		}
+
+		for (i = 0; i < dropdownlist.length; i++) {
+			if (arrNo.indexOf(i)) {
+				dropdownlist[i].classList.add("select-hide");
+			}
+		}
+	}
+	
+	/* If the user clicks anywhere outside the select box,
+	then close all select boxes: */
+	document.addEventListener("click", closeAllSelect);
+
+	///////////////////////////////////////////////////////////////////////////////
+
+    function modify(TSaddr) {
+        var targetTASaddr = prompt("target TAS ip address to move TS:" + TSaddr, "target TAS ip address");
+        if (validateIpAddr(targetTASaddr)) {
+            //window.location.href = window.location.href + "lock/" + TSaddr;
+            //sleep(1000)
+            window.location.href = window.location.href + "modify/" + TSaddr + "/" + targetTASaddr;
+            // change the status of target TS directly..
+        } else {
+            alert("ERROR: input value is not ip address format");
+        }
+    }
+
+    function validateIpAddr(ipAddr) {
+        if (/^(?!0)(?!.*\.$)((1?\d?\d|25[0-5]|2[0-4]\d)(\.|$)){4}$/.test(ipAddr)) {
+            return (true)
+        }
+        return (false)
+    }
+
+    function sleep(ms) {
+        var start = new Date().getTime();
+        for (var i = 0; i < 1e7; i++) {
+            if ((new Date().getTime() - start) > ms) {
+                break;
+            }
+        }
+    }
+
+</script>
+</body>
+</html>
+
+

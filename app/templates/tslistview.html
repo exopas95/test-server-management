@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Landslide TSmanagement</title>
+    <base href="/">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+	<link rel="icon" type="image/x-icon" href="favicon.ico">
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Comfortaa" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/3.1.3/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+
+	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+	<script src="https://code.jquery.com/jquery-2.2.4.min.js"
+            integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+			crossorigin="anonymous"></script>
+			
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+	        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+			crossorigin="anonymous"></script>
+			
+	<!-- DataTable script libarary -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/js/jquery.dataTables.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/js/dataTables.bootstrap.min.js"></script>
+	<script src="https://cdn.datatables.net/plug-ins/1.10.15/sorting/stringMonthYear.js"></script>
+
+	<style>
+		/* You can add global styles to this file, and also import other style files */
+		body {
+			padding-top: 60px;
+			font-family: 'Comfortaa', cursive;
+		}
+		.modal-content {
+			margin: 15% auto;
+			padding: 20px;
+			border: 1px solid #888;
+			width: 80%;
+		}
+		.modalbox .box {
+			background-color:white;
+		}
+		.modal-backdrop {
+			z-index: 3;
+		}
+		.btn btn-info btn-lg {
+			height:40px;
+			width:80px;
+		}
+
+		.edit-button {
+			color: #9d9d9d;
+			padding-top: 15px;
+			padding-bottom: 15px;
+			background-color: transparent;
+			border-color: transparent;
+			border: none;
+		}
+		.edit-button:hover {
+			color: White;
+		}
+		.custom-select {
+			position: relative;
+			font-family: 'Comfortaa', cursive;
+		}
+		/* the container must be positioned relative*/
+		.custom-select select {
+			display: none;
+			z-index:2;
+		}
+		.select-selected {
+			background-color: White;
+			display:inline-block;
+		}
+		.select-selected:after {
+			position:absolute;
+			content:"";
+			top:14px;
+			right:10px;
+			width:0;
+			height:0;
+			border:6px solid transparent;
+			border-color: #fff transparent transparent transparent;
+		}
+		/* style the arrow inside the select element */
+		.select-selected.select-arrow-active:after {
+			border-color: transparent transparent #fff transparent;
+			top: 7px;
+		}
+		/* style the items, including the selected item */
+		.select-items div,.select-selected {
+			color: #000000;
+			padding: 8px 16px;
+			border: 1px solid transparent;
+			border-color: transparent transparent rgba(0,0,0,0.1) transparent;
+			cursor: pointer;
+		}
+		/* style items */
+		.select-items {
+			background-color: White;
+			top: 100%;
+			left: 0;
+			right: 0;
+			z-index: 99;
+		}
+		/* hide the items when the select box is closed */
+		.select-hide {
+			display: none;
+		}
+		.select-items div:hover, .same-as-selected {
+			background-color: rgba(0,0,0,0.1);
+		}
+		.dataTables_wrapper .dataTables_paginate {
+			width: 100%;
+			float: none;
+			text-align: center;
+		}
+		.form-check {
+			display: inline-block;
+			font-weight: bold;
+		}
+		.form-check-label {
+			font-weight: normal;
+		}
+		.form-check-inline {
+			margin-left: 10px;
+		}
+		.glyphicon-plus {
+			font-size: 10px;
+		}
+		.form-control {
+			display: inline-block;
+			width: 70%;
+		}
+		.input-group-btn {
+			display: inline-block;
+		}
+		.table-list td {
+			font-size: 14px; 
+			height: 100%;
+		}
+		.navbar {
+			margin-bottom: 0px;
+		}
+
+		/* style tab */
+		.tabinator {
+			background: #fff;
+			padding: 10px;
+		}
+		.tabinator input {
+			display: none;
+		}
+		.tabinator label.tab-list {
+			box-sizing: border-box;
+			display: inline-block;
+			padding: 15px 25px;
+			color: #ccc;
+			margin-bottom: -1px;
+			margin-left: -1px;
+		}
+		.tabinator label.tab-list:before {
+			content:'';
+			display:block;
+			width:100%;
+			height:15px;
+			background-color:#fff;
+			position:absolute;
+			bottom:-11px;
+			left:0;
+			z-index:2;  
+		}
+		.tabinator label.tab-list:hover {
+			color: #888;
+			cursor: pointer;
+		}
+		.tabinator input:checked + label.tab-list {
+			position: relative;
+			color: #000;
+			background: #fff;
+			border: 1px solid #bbb;
+			border-bottom: 1px solid #fff;
+			border-radius: 5px 5px 0 0;
+		}
+		.tabinator input:checked + label.tab-list:after {
+			display: block;
+			content: '';
+			position: absolute;
+			top: 0; right: 0; bottom: 0; left: 0;
+		}
+		#content1, #content2, #content3, #content4 {
+			display: none;
+			border-top: 1px solid #bbb;
+			padding: 15px;
+			z-index: -10;
+		}
+		#tab1:checked ~ #content1,
+		#tab2:checked ~ #content2,
+		#tab3:checked ~ #content3,
+		#tab4:checked ~ #content4 {
+			display: block;
+			box-shadow: 0 0 15px #939393;
+		}
+	</style>
+</head>
+<body onload="showMessage('{{ message }}');">
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="/" class="navbar-brand"><strong style="font-size:22px">TS Management</strong></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+				<li [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
+					<button type="button" class="edit-button" data-toggle="modal" data-target="#myModal">Edit TAS</button>
+					<div class="modal fade" id="myModal" role="dialog">
+					  	<div class="modal-dialog">
+							<div class="modal-content">
+						  		<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal">&times;</button>
+									<h4 class="modal-title">Edit TAS</h4>
+						  		</div>
+								<form action="/edit_server" method="POST">
+									<div class="modal-body">
+										<div class="custom-select">
+											<div class="form-check">
+												<p>Action:</p>
+											</div>
+											<div class="form-check form-check-inline">    
+												<input class="form-check-input" type="radio" name="action-type" value="add">
+												<label class="form-check-label" for="inlineRadio1">Add</label>
+											</div>
+											<div class="form-check form-check-inline">
+												<input class="form-check-input" type="radio" name="action-type" value="remove">
+												<label class="form-check-label" for="inlineRadio2">Remove</label>
+											</div>
+										</div>
+										<div class="custom-select">
+											<div class="form-check">
+												<p>TAS Address:</p>
+											</div>
+											<div class="form-check form-check-inline">
+												<input class="form-control" type="text" name="server-name" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}">
+											</div>
+										</div>
+										<div class="custom-select">
+											<div class="form-check">
+												<p>TS Address:</p>
+											</div>
+											<div class="form-check form-check-inline">
+												<input class="form-control" type="text" name="server-name" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}">
+												<span class="input-group-btn">
+													<button class="btn btn-info" type="button">
+														<span class="glyphicon glyphicon-plus"></span>
+													</button>
+												</span>								
+											</div>
+										</div>
+									</div>
+									<div class="modal-footer">
+										<input type="submit" class="btn btn-info" value="Edit">
+										<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+									</div>
+								</form>
+							</div>
+					  	</div>
+					</div>
+				</li>
+				<li [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
+					<a href="/history" [routerLink]="['/home']">History</a>
+				</li>
+				<li [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
+                    <a href="/about" [routerLink]="['/about']">About</a>
+                </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+				{% if session['email'] %}
+                <li [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
+                  	<a href="/logout" [routerLink]="['/logout']"><span class="glyphicon glyphicon-log-in"></span> Log out</a>
+				{% else %}
+                <li [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
+                  	<a href="/login" [routerLink]="['/login']"><span class="glyphicon glyphicon-log-in"></span> Log in</a>
+				</li>
+				{% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class = "tabinator">
+	<input type = "radio" id = "tab1" name = "tabs" checked>
+	<label class="tab-list" for = "tab1">San Jose</label>
+	<input type = "radio" id = "tab2" name = "tabs">
+	<label class="tab-list" for = "tab2">Plano</label>
+	<input type = "radio" id = "tab3" name = "tabs">
+	<label class="tab-list" for = "tab3">BDC</label>
+	<div id = "content1">
+		<div class="panel-body">
+			<table id="sortedTable" class="display">
+				<thead>
+				<tr>
+					<th>TS</th>
+					<th>Owner</th>
+					<th>TAS</th>
+					<th>Name</th>
+					<th>Platform</th>
+					<th>Memory</th>
+					<th>OS</th>
+					<th>Version</th>
+					<th>State</th>
+					<th></th>
+				</tr>
+				</thead>
+				<tbody class="table-list">
+				{% for TS in tsList.values() %}
+					<tr>
+						<th>{{ TS['info']['managementIp'] }}</th>
+						<td>{{ TS['owner'] }}</td>
+						<td><span id="TAS">{{ TS['tas'] }}</span></td>
+						<td>{{ TS['name'] }}</td>
+						<td>{{ TS['info']['platform'] }}</td>
+						<td>{{ TS['info']['memory'] }}</td>
+						<td>{{ TS['info']['os'] }}</td>
+						<td>{{ TS['version'] }}</td>
+						<td>
+							{% if 'NOT_READY' in TS['state'] %}
+								<span class="label label-danger">
+							{% elif 'READY' in TS['state'] %}
+								<span class="label label-success">
+							{% elif 'LOCK' in TS['state'] %}
+								<span class="label label-danger">
+							{% else %}
+								<span class="label label-warning">
+							{% endif %}
+							{{ TS['state'] }}
+							</span>
+						</td>
+						<td style="width:30px">
+							<div class="btn-group">
+								<button type="button" style="padding:5px 9px;" class="btn btn-primary" data-toggle="modal" data-target="#configuration{{ loop.index }}"><img src="{{url_for('static', filename='gear.jpg')}}" height="20px" weight="20px"/></button>
+								<div id="configuration{{ loop.index }}" class="modal" role="dialog">
+								<div class="modal-content">
+									<div class="modal-header">
+										<h4 class="modal-title">TestServer Configuration</h4>
+									</div>
+		
+									<ul class="nav nav-tabs" id="tabContent">
+										<li class="active"><a href="#relocate{{ loop.index }}" data-toggle="tab">Relocate</a></li>
+										<li><a href="#lock{{ loop.index }}" data-toggle="tab">Lock System</a></li>
+										<li><a href="#reserve{{ loop.index }}" data-toggle="tab">Resevation</a></li>
+									</ul>
+		
+									<div class="tab-content">
+										<div class="tab-pane active" id="relocate{{ loop.index }}">
+											<div class="modal-body">
+												<div class="custom-select" id="{{ loop.index }}">Current User : 
+													<select>
+														<option value="">Select User</option>
+														{% for TAS in tasList %}
+															{% set value = TAS.split(',') %}
+															<option value="{{ value[0] }}"> {{ value[1] }} </option>
+														{% endfor %}
+													</select>
+												</div>
+		
+												<div class="custom-select" id="{{ loop.index }}">Target TAS     : 
+													<select>
+														<option value="">Select TAS</option>
+														{% for TAS in tasList %}
+															{% set value = TAS.split(',') %}
+															<option value="{{ value[0] }}"> {{ value[0] }}({{ value[1] }}) </option>
+														{% endfor %}
+													</select>
+												</div>
+		
+												<button style="margin-top:30px;" type="submit" onclick="modify('{{ TS.info.managementIp }}', '{{ loop.index }}')" class="btn btn-primary">Relocate</button>
+											</div>
+										</div>
+		
+										<div class="tab-pane" id="lock{{ loop.index }}">
+											<button type="submit" class="btn btn-info" onclick="lock('{{ TS.info.managementIp }}')">Lock</button>
+											<button type="submit" class="btn btn-warning" onclick="unlock('{{ TS.info.managementIp }}')">Unlock</button>
+										</div>
+										<div class="tab-pane" id="reserve{{ loop.index }}">
+											<div>Booked list</div>
+											<div style="overflow:auto; width:100%; height:200px;">
+												<table id="sortedTable" class="display" width="100%">
+												<thead>
+													<tr>
+														<th>Resever</th>
+														<th>TAS</th>
+														<th>Start</th>
+														<th>Return</th>
+														<th></th>
+													</tr>
+													</thead>
+													<tbody>
+														{% for booked in getbooklist(TS.info.managementIp) %}
+														<tr>
+															<th>{{ booked[0] }}</th>
+															<td>{{ booked[1] }}</td>
+															<td>{{ booked[2] }}</td>
+															<td>{{ booked[3] }}</td>
+															<td>{{ loop.index }}</td>
+															<td><a href="/cancelReserve/{{ TS.info.managementIp }}/{{ loop.index }}">Cancel</a></td>
+														</tr>
+														{% endfor %}
+													</tbody>
+													</table>												
+											</div>
+											<div style="height: auto; width: 100%; border-top:2px solid rgb(86, 91, 94); margin-top: 10px;margin-bottom: 10px;">
+												<div>TAS to Relocate
+													{% for TAS in tasList %}
+													{% set value = TAS.split(',') %}
+													<option value="{{ value[0] }}"> {{ value[1] }} </option>
+													{% endfor %}
+												</div>
+												<p>Date/Time: <span id="datetime"></span></p>
+		
+												<script>
+												var dt = new Date();
+												document.getElementById("datetime").innerHTML = (("0"+(dt.getMonth()+1)).slice(-2)) +"/"+ (("0"+dt.getDate()).slice(-2)) +"/"+ (dt.getFullYear()) +" "+ (("0"+dt.getHours()+1).slice(-2)) +":"+ (("0"+dt.getMinutes()+1).slice(-2));
+												</script>
+												<div>Start Time</div>
+											<div>Month
+												<select class="StartMonth" id="StartMonth{{ loop.index }}">
+													{% for i in range(1, 13) %}
+													<option value="{{ i }}">{{ i }}</option>
+													{% endfor %}
+												</select>
+												Day
+												<select class="StartDay" id="StartDay{{ loop.index }}">
+													{% for i in range(1, 32) %}
+													<option value="{{ i }}">{{ i }}</option>
+													{% endfor %}
+												</select>
+												Hour
+												<select class="StartHour" id="StartHour{{ loop.index }}">
+													{% for i in range(1, 13) %}
+													<option value="{{ i }}">{{ i }}</option>
+													{% endfor %}
+												</select>
+												Minute
+												<select class="StartMinute" id="StartMinute{{ loop.index }}">
+													{% for i in range(0, 12) %}
+													<option value="{{ i*5 }}">{{ i*5 }}</option>
+													{% endfor %}
+												</select>
+		
+												<select class="StartAmPm" id="StartAmPm{{ loop.index }}">
+													<option value="0" selected="selected">am</option>
+													<option value="1">pm</option>
+												</select>
+											</div>
+		
+											<div> End Time</div>
+											<div>Month
+												<select class="EndMonth" id="EndMonth{{ loop.index }}">
+													{% for i in range(1, 13) %}
+													<option value="{{ i }}">{{ i }}</option>
+													{% endfor %}
+												</select>
+												Day
+												<select class="EndDay" id="EndDay{{ loop.index }}">
+													{% for i in range(1, 32) %}
+													<option value="{{ i }}">{{ i }}</option>
+													{% endfor %}
+												</select>
+												Hour
+												<select class="EndHour" id="EndHour{{ loop.index }}">
+													{% for i in range(1, 13) %}
+													<option value="{{ i }}">{{ i }}</option>
+													{% endfor %}
+												</select>
+												Minute
+												<select class="EndMinute" id="EndMinute{{ loop.index }}">
+													{% for i in range(0, 12) %}
+													<option value="{{ i*5 }}">{{ i*5 }}</option>
+													{% endfor %}
+												</select>
+		
+												<select class="EndAmPm" id="EndAmPm{{ loop.index }}">
+													<option value="0" selected="selected">am</option>
+													<option value="1">pm</option>
+												</select>
+											</div>
+											</div>									
+											<button type="submit" class="btn btn-info" onclick="reserveing('{{ TS.info.managementIp }}','{{ myTasAddress }}', '{{ loop.index }}','{{ userName }}')">Reserve</button>
+										</div>
+									</div>
+									<div class="modal-footer">
+										<button id="closeButton" type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+									</div>
+								</div>
+								</div>
+							</div>
+						</td>
+					</tr>
+				{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<div id = "content2">
+	</div>
+	<div id = "content3">
+	</div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#sortedTable").DataTable({
+            "order": [[1, "asc"]],
+            "iDisplayLength": 10,
+            "columnDefs": [{ "searchable": false, "targets": 9 }],
+            "dom": 'fltp'
+        });
+		$('div.dataTables_filter input').focus();
+		
+		$("#content2").html($("#content1").html());
+		$("#content3").html($("#content1").html());
+	});
+
+	//////////////// drop-down implementation //////////////////////
+	var dropdownlist, selElmnt, selectdiv, tempdiv, optiondiv, i, j;
+
+	/* Look for any elements with the class "custom-select": */
+	dropdownlist = document.getElementsByClassName("custom-select");
+
+	for (i = 0; i < dropdownlist.length; i++) {
+		selElmnt = dropdownlist[i].getElementsByTagName("select")[0];
+
+		/* For each element, create a new DIV that will act as the selected item: */
+		selectdiv = document.createElement("DIV");
+		selectdiv.setAttribute("class", "select-selected");
+		selectdiv.innerHTML = selElmnt.options[selElmnt.selectedIndex].innerHTML;
+		dropdownlist[i].appendChild(selectdiv);
+
+		/* For each element, create a new DIV that will contain the option list: */
+		tempdiv = document.createElement("DIV");
+		tempdiv.setAttribute("class", "select-items select-hide");
+
+		for (j = 1; j < selElmnt.length; j++) {
+			/* For each option in the original select element,
+			   create a new DIV that will act as an option item: */
+			optiondiv = document.createElement("DIV");
+			optiondiv.innerHTML = selElmnt.options[j].innerHTML;
+			optiondiv.addEventListener("click", function(e) {
+				/* When an item is clicked, update the original select box,
+					and the selected item: */
+				var targetNode, selectNode, previousNode, i, k;
+				selectNode = this.parentNode.parentNode.getElementsByTagName("select")[0];
+				previousNode = this.parentNode.previousSibling;
+
+				for (i = 0; i < selectNode.length; i++) {
+					if (selectNode.options[i].innerHTML == this.innerHTML) {
+						selectNode.selectedIndex = i;
+						previousNode.innerHTML = this.innerHTML;
+						targetNode = this.parentNode.getElementsByClassName("same-as-selected");
+
+						for (k = 0; k < targetNode.length; k++) {
+							targetNode[k].removeAttribute("class");
+						}
+						this.setAttribute("class", "same-as-selected");
+						break;
+					}
+				}
+			previousNode.click();
+		});
+		tempdiv.appendChild(optiondiv);
+	}
+
+	dropdownlist[i].appendChild(tempdiv);
+	selectdiv.addEventListener("click", function(e) {
+		/* When the select box is clicked, close any other select boxes,
+			and open/close the current select box: */
+		e.stopPropagation();
+		closeAllSelect(this);
+		this.nextSibling.classList.toggle("select-hide");
+		this.classList.toggle("select-arrow-active");
+		});
+	}
+	
+	/* If the user clicks anywhere outside the select box,
+	then close all select boxes: */
+	document.addEventListener("click", closeAllSelect);
+
+	function showMessage(message) {
+		if (message == "same_ts_use") {
+			alert("WARNING: This TS is already in progress of relocation!");
+		}
+	}
+</script>
+</body>
+</html>
+
+
