@@ -88,11 +88,14 @@ class TASList(db.Model):
 		
 		for index in TASlist:
 			TASaddr = index.tasAddress
-			tempList.add(TASaddr.rstrip())
-	
+				
+			# if len(tempList) is not 0:
+			# 	tempList.clear()
+
 			if len(tempInfoList) is not 0:
 				del tempInfoList[:]
 
+			tempList.add(TASaddr.rstrip())
 			for tas in tempList:
 				tempInfoList.append(tas)
 

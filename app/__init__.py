@@ -22,7 +22,6 @@ tsList = {}
 tsList_sanJose = {}
 tsList_plano = {}
 tsList_bdc = {}
-tasList, tasInfoList = TASList.getTASListFromDB()
 reservedTsList = reserveTS.LinkedList()
 relocatedTsList = []
 
@@ -66,6 +65,7 @@ def getTSListFromAPI():
 
     # we already have tasList. Check each tas
     #originTASaddr = ""
+    tasList, tasInfoList = TASList.getTASListFromDB()
     for tas in tasList:
         tasAddr = tas
         tasData = TASList.query.filter_by(tasAddress = tasAddr).first()
@@ -329,9 +329,10 @@ def index():
     firstName = user.firstName
     lastName = user.lastName
     userName = firstName + " " + lastName
-    print(userName)
+    userType = user.userType
     temp = TASList.query.filter_by(tasName = userName).first()
-    print(temp)
+
+    tasList, tasInfoList = TASList.getTASListFromDB()
 
     if temp is not None:
         myTasAddress = temp.tasAddress
@@ -366,7 +367,8 @@ def index():
                             tasList=tasInfoList, 
                             message=tempMessage, 
                             userName=userName, 
-                            myTasAddress=myTasAddress)
+                            myTasAddress=myTasAddress,
+                            userType=userType)
 # route for the lock feature
 @app.route('/lock/<ts>')
 def locking(ts):
@@ -387,6 +389,8 @@ def unlocking(ts):
 @app.route('/modify/<ts>/<user>/<tas>')
 def tasmodification(ts, user, tas):
     # check TS availability first
+    tasList, tasInfoList = TASList.getTASListFromDB()
+
     if checkTsAvailability(ts):
         relocateTsList.append(ts)
 
@@ -410,26 +414,64 @@ def tasmodification(ts, user, tas):
             message.append("same_ts_use")
     return redirect(url_for('index'))
 
-@app.route('/edit_server', methods=['GET', 'POST'])
-def edit_server():
+#route for edit TAS feature
+@app.route('/edit_tas_server', methods=['GET', 'POST'])
+def edit_tas_server():
+    tasList, tasInfoList = TASList.getTASListFromDB()
     if request.method == 'POST':
         email = session['email']
         user = User.query.filter_by(email = email).first()
-        firstName = user.firstName
-        lastName = user.lastName
-        userName = firstName + " " + lastName
         Team = user.team
+        Type = user.userType
 
-        if request.form.get('action-type') == 'add':
+        if request.form.get('tas-action-type') == 'add':
+            if Type == "admin":
+                if request.form.get('common-action-type') == 'yes':
+                    userName = "Common TAS"
+                else:
+                    firstName = request.form.get("owner-firstname")
+                    lastName =request.form.get("owner-lastname")
+                    userName = firstName + " " + lastName
+            else:
+                firstName = user.firstName
+                lastName = user.lastName
+                userName = firstName + " " + lastName
+
             new_tas = TASList(tasAddress=request.form.get('server-name'), tasUsername=userName, tasTeam=Team)
             db.session.add(new_tas)
             db.session.commit()
             return redirect(url_for('index'))
         else:
-            delete_tas = TASList(tasAddress=request.form.get('server-name'), tasUsername=userName)
+            tas_addr = request.form.get('server-name')
+            delete_tas = TASList.query.filter_by(tasAddress=tas_addr).first()
             db.session.delete(delete_tas)
             db.session.commit()
             return redirect(url_for('index'))
+    else:
+        print("error2")
+    return redirect(url_for('index'))
+
+#route for edit TS feature
+@app.route('/edit_ts_server', methods=['GET', 'POST'])
+def edit_ts_server():
+    if request.method == 'POST':
+        origin_tas = request.form.get('tas-server-name')
+    
+        if not TASList.query.filter_by(tasAddress = origin_tas).first():
+            print("error")
+        
+        temp_ts_1 = request.form.get('ts-server-name-1')
+        temp_ts_2 = request.form.get('ts-server-name-2')
+
+        selected_ts_1 = TSList.query.filter_by(tsAddress=temp_ts_1).first()
+        selected_ts_2 = TSList.query.filter_by(tsAddress=temp_ts_2).first()
+        
+        selected_ts_1.originTAS = origin_tas
+        selected_ts_2.originTAS = origin_tas
+
+        db.session.add(selected_ts_1)
+        db.session.add(selected_ts_2)
+        db.session.commit()
     else:
         print("error2")
     return redirect(url_for('index'))
@@ -488,8 +530,8 @@ def register():
                         password=request.form.get('password'),
                         lastName=request.form.get('lastName'),
                         firstName=request.form.get('firstName'),
-                        team=request.form.get('team',
-                        userType=request.fomr.get('radio')))
+                        team=request.form.get('team'),
+                        userType=request.form.get('radio'))
         db.session.add(new_user)
         db.session.commit()
         return render_template('login.html')

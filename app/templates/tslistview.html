@@ -52,6 +52,14 @@
 			height:40px;
 			width:80px;
 		}
+		.notice {
+			width: 100%;
+			display: block;
+			font-size: 12px;
+			background-color: rgb(185, 185, 185);
+			padding: 10px;
+			border-radius: 1rem;
+		}
 
 		.edit-button {
 			color: #9d9d9d;
@@ -68,6 +76,7 @@
 			position: relative;
 			font-family: 'Comfortaa', cursive;
 			margin: 5px;
+			padding-top: 5px;
 		}
 		/* the container must be positioned relative*/
 		.custom-select select {
@@ -137,9 +146,6 @@
 		.form-control {
 			display: inline-block;
 			width: 70%;
-		}
-		.input-group-btn {
-			display: inline-block;
 		}
 		.table-list td {
 			font-size: 14px; 
@@ -225,26 +231,32 @@
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
 				<li [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
-					<button type="button" class="edit-button" data-toggle="modal" data-target="#myModal">Edit TAS</button>
-					<div class="modal fade" id="myModal" role="dialog">
+					<button type="button" class="edit-button" data-toggle="modal" data-target="#tasModal">Edit TAS</button>
+					<div class="modal fade" id="tasModal" role="dialog">
 					  	<div class="modal-dialog">
 							<div class="modal-content">
 						  		<div class="modal-header">
 									<button type="button" class="close" data-dismiss="modal">&times;</button>
 									<h4 class="modal-title">Edit TAS</h4>
 						  		</div>
-								<form action="/edit_server" method="POST">
+								<form action="/edit_tas_server" method="POST">
 									<div class="modal-body">
+										<div>
+											<p class="notice">
+												This tab is to add your TAS into TS Management system.<br>
+												This is necessary if you want to use your TAS on the system.
+											</p>
+										</div>
 										<div class="custom-select">
 											<div class="form-check">
 												<p>Action:</p>
 											</div>
 											<div class="form-check form-check-inline">    
-												<input class="form-check-input" type="radio" name="action-type" value="add">
+												<input class="form-check-input" type="radio" name="tas-action-type" value="add" checked="checked" onclick="ableField()">
 												<label class="form-check-label" for="inlineRadio1">Add</label>
 											</div>
 											<div class="form-check form-check-inline">
-												<input class="form-check-input" type="radio" name="action-type" value="remove">
+												<input class="form-check-input" type="radio" name="tas-action-type" value="remove" onclick="disableField()">
 												<label class="form-check-label" for="inlineRadio2">Remove</label>
 											</div>
 										</div>
@@ -256,38 +268,79 @@
 												<input class="form-control" type="text" name="server-name" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx">
 											</div>
 										</div>
+										{% if userType == "admin" %}
 										<div class="custom-select">
 											<div class="form-check">
-												<p>Comman TAS?</p>
+												<p>Common TAS?</p>
 											</div>
 											<div class="form-check form-check-inline">    
-												<input class="form-check-input" type="radio" name="action-type" value="yes" onclick="disableField()">
+												<input class="form-check-input" type="radio" name="common-action-type" value="yes" onclick="disableField()">
 												<label class="form-check-label" for="inlineRadio1">Yes</label>
 											</div>
 											<div class="form-check form-check-inline">
-												<input class="form-check-input" type="radio" name="action-type" value="no">
+												<input class="form-check-input" type="radio" name="common-action-type" value="no" onclick="ableField()" checked="checked">
 												<label class="form-check-label" for="inlineRadio2">No</label>
 											</div>
 										</div>
 										<div class="custom-select">
+											<div class="form-check" style="display: inline-block";>
+												<p >TAS Owner:</p>
+											</div>
+											<div class="form-check form-check-inline" style="width: 75%";>
+												<input id="input-tas-owner-firstname" class="form-control" type="text" name="owner-firstname" placeholder="First Name" style="width: 40%;text-transform: capitalize;">
+												<input id="input-tas-owner-lastname" class="form-control" type="text" name="owner-lastname" placeholder="Last Name" style="width: 40%;text-transform: capitalize;">								
+											</div>
+										</div>
+										{% endif %}
+									</div>
+									<div class="modal-footer">
+										<input type="submit" class="btn btn-info" value="Edit">
+										<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+									</div>
+								</form>
+							</div>
+					  	</div>
+					</div>
+				</li>
+				<li [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
+					<button type="button" class="edit-button" data-toggle="modal" data-target="#tsModal">Allocate TS</button>
+					<div class="modal fade" id="tsModal" role="dialog">
+					  	<div class="modal-dialog">
+							<div class="modal-content">
+						  		<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal">&times;</button>
+									<h4 class="modal-title">Allocate TS</h4>
+						  		</div>
+								<form action="/edit_ts_server" method="POST">
+									<div class="modal-body">
+										<div>
+											<p class="notice">
+												This tab is to determine which TAS your TS belongs to.<br>
+												This is necessary for using the reservation function and for the TS to return to its original TAS
+											</p>
+										</div>
+										<div class="custom-select">
 											<div class="form-check">
-												<p>TAS Owner:</p>
+												<p>TAS Address:</p>
 											</div>
 											<div class="form-check form-check-inline">
-												<input id="input-tas-addr" class="form-control" type="text" name="server-name" placeholder="Enter TAS owner's name" style="width: 100%;">
+												<input class="form-control" type="text" name="tas-server-name" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx">
 											</div>
 										</div>
 										<div class="custom-select">
 											<div class="form-check">
-												<p>TS Address:</p>
+												<p>TS Address #1:</p>
 											</div>
 											<div class="form-check form-check-inline">
-												<input class="form-control" type="text" name="server-name" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx">
-												<span class="input-group-btn">
-													<button class="btn btn-info" type="button">
-														<span class="glyphicon glyphicon-plus"></span>
-													</button>
-												</span>								
+												<input class="form-control" type="text" name="ts-server-name-1" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx">							
+											</div>
+										</div>
+										<div class="custom-select">
+											<div class="form-check">
+												<p>TS Address #2:</p>
+											</div>
+											<div class="form-check form-check-inline">
+												<input class="form-control" type="text" name="ts-server-name-2" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx">						
 											</div>
 										</div>
 									</div>
@@ -716,7 +769,13 @@
 	}
 
 	function disableField() {
-    	document.getElementById("input-tas-addr").disabled = true;
+		document.getElementById("input-tas-owner-firstname").disabled = true;
+		document.getElementById("input-tas-owner-lastname").disabled = true;
+	}
+
+	function ableField() {
+		document.getElementById("input-tas-owner-firstname").disabled = false;
+		document.getElementById("input-tas-owner-lastname").disabled = false;
 	}
 </script>
 </body>
