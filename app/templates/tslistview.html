@@ -60,6 +60,12 @@
 			padding: 10px;
 			border-radius: 1rem;
 		}
+		.gear {
+			transition: transform 2s ease-in-out
+		}
+		.gear:hover{
+			transform: rotate(5turn);
+		}
 
 		.edit-button {
 			color: #9d9d9d;
@@ -423,7 +429,7 @@
 						</td>
 						<td style="width:30px">
 							<div class="btn-group">
-								<button type="button" style="padding:5px 9px;" class="btn btn-primary" data-toggle="modal" data-target="#configuration_sanjose{{ loop.index }}"><img src="{{url_for('static', filename='gear.jpg')}}" height="20px" weight="20px"/></button>
+								<button type="button" style="padding:3px 7px;" class="btn btn-primary" data-toggle="modal" data-target="#configuration_sanjose{{ loop.index }}"><img class="gear" src="{{url_for('static', filename='gear.jpg')}}" height="22px" weight="22px"/></button>
 								<div id="configuration_sanjose{{ loop.index }}" class="modal" role="dialog">
 								<div class="modal-content">
 									<div class="modal-header">
@@ -521,7 +527,7 @@
 						</td>
 						<td style="width:30px">
 							<div class="btn-group">
-								<button type="button" style="padding:5px 9px;" class="btn btn-primary" data-toggle="modal" data-target="#configuration_plano{{ loop.index }}"><img src="{{url_for('static', filename='gear.jpg')}}" height="20px" weight="20px"/></button>
+								<button type="button" style="padding:3px 7px;" class="btn btn-primary" data-toggle="modal" data-target="#configuration_plano{{ loop.index }}"><img class="gear" src="{{url_for('static', filename='gear.jpg')}}" height="22px" weight="22px"/></button>
 								<div id="configuration_plano{{ loop.index }}" class="modal" role="dialog">
 								<div class="modal-content">
 									<div class="modal-header">
@@ -619,7 +625,7 @@
 						</td>
 						<td style="width:30px">
 							<div class="btn-group">
-								<button type="button" style="padding:5px 9px;" class="btn btn-primary" data-toggle="modal" data-target="#configuration_bdc{{ loop.index }}"><img src="{{url_for('static', filename='gear.jpg')}}" height="20px" weight="20px"/></button>
+								<button type="button" style="padding:3px 7px;" class="btn btn-primary" data-toggle="modal" data-target="#configuration_bdc{{ loop.index }}"><img class="gear" src="{{url_for('static', filename='gear.jpg')}}" height="22px" weight="22px"/></button>
 								<div id="configuration_bdc{{ loop.index }}" class="modal" role="dialog">
 								<div class="modal-content">
 									<div class="modal-header">
@@ -652,7 +658,6 @@
 														{% endfor %}
 													</select>
 												</div>
-		
 												<button style="margin-top:30px;" type="submit" onclick="modify('{{ TS.info.managementIp }}', '{{ loop.index }}')" class="btn btn-primary">Relocate</button>
 											</div>
 										</div>
