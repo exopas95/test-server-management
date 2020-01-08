@@ -199,7 +199,6 @@ class LinkedList:
     def display_list(self):
         relocatingTsList = []
         temp = self.head
-        print("current list")
         while temp is not None:
             temp.data -= 1
             if(temp.data == 0):

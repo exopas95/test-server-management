@@ -18,13 +18,15 @@ class User(db.Model):
 	lastName = db.Column(db.String(80), nullable=False)
 	firstName = db.Column(db.String(80), nullable=False)
 	team = db.Column(db.String(80), nullable=False)
+	userType = db.Column(db.String(80), nullable=False)
 
-	def __init__(self, email, password, firstName, lastName, team):
+	def __init__(self, email, password, firstName, lastName, team, userType):
 		self.email = email
 		self.password = bcrypt.generate_password_hash(password)
 		self.firstName = firstName
 		self.lastName = lastName
 		self.team = team
+		self.userType = userType
 
 	@staticmethod
 	def authenticate(_email, _password):
@@ -70,10 +72,12 @@ class TASList(db.Model):
 	id = db.Column(db.Integer, primary_key = True)
 	tasAddress = db.Column(db.String(120), unique = True, nullable=False)
 	tasName = db.Column(db.String(80), nullable=False)
+	tasTeam = db.Column(db.String(80), nullable=False)
 
-	def __init__(self, tasAddress, tasUsername):
+	def __init__(self, tasAddress, tasUsername, tasTeam):
 		self.tasAddress = tasAddress
 		self.tasName = tasUsername
+		self.tasTeam = tasTeam
 
 	# get TAS list data from database
 	@staticmethod

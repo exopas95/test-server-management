@@ -23,13 +23,29 @@
               <div class="form-group">
                 <select class="form-control" name="team">
                   <option selected disabled>Please select your Team</option>
-                  <option>LandSlide</option>
+                  <option>San Jose</option>
                   <option>Plano</option>
+                  <option>BDC</option>
                 </select>
               </div>
               <div class="form-group">
-                <input type="submit" class="btnSubmit" value="Sign Up" />
+                <label class="checkbox-container">Guest
+                  <input type="radio" checked="chekced" name="radio" value="guest">
+                  <span class="checkmark"></span>
+                </label>
+                <label class="checkbox-container">Admin
+                  <input type="radio" name="radio" value="admin">
+                  <span class="checkmark"></span>
+                </label>
+              <div>
+                <span class="notice">*** Select admin if you are a manger</span>
+                <span class="notice" style="margin-left: 20px;">If not, please select Guest</span>
               </div>
+              </div>
+              <div class="form-group">
+                <input type="submit" class="btnSubmit" value="Sign Up" />
+                <input type="button" class="btnCancel" value="Cancel" onclick="history.back()"/>
+              </div>              
           </form>
       </div>
   </div>
