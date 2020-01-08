@@ -95,3 +95,4 @@ function reserveing(TSaddr, relocateTAS, index, reservPerson){
 function cancelReserve(TSaddr, index){
     window.location.href = window.location.href + "cancelReserve/" + TSaddr + "/" + parseint(index);
 }
+

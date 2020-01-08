@@ -72,10 +72,12 @@ class TASList(db.Model):
 	id = db.Column(db.Integer, primary_key = True)
 	tasAddress = db.Column(db.String(120), unique = True, nullable=False)
 	tasName = db.Column(db.String(80), nullable=False)
+	tasTeam = db.Column(db.String(80), nullable=False)
 
-	def __init__(self, tasAddress, tasUsername):
+	def __init__(self, tasAddress, tasUsername, tasTeam):
 		self.tasAddress = tasAddress
 		self.tasName = tasUsername
+		self.tasTeam = tasTeam
 
 	# get TAS list data from database
 	@staticmethod

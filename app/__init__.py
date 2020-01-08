@@ -19,6 +19,9 @@ relocateTsList = Manager().list()
 lockTsList = Manager().list()
 message = Manager().list()
 tsList = {}
+tsList_sanJose = {}
+tsList_plano = {}
+tsList_bdc = {}
 tasList, tasInfoList = TASList.getTASListFromDB()
 reservedTsList = reserveTS.LinkedList()
 relocatedTsList = []
@@ -54,15 +57,21 @@ def connectSSH(ip, usn, pwd):
 # get TS data from API
 def getTSListFromAPI():
     # if tsList is already exist, remove it
-    if len(tsList) is not 0:
+    list_sum = len(tsList) + len(tsList_sanJose) + len(tsList_plano) + len(tsList_bdc)
+    if list_sum is not 0:
         tsList.clear()
+        tsList_bdc.clear()
+        tsList_plano.clear()
+        tsList_sanJose.clear()
 
     # we already have tasList. Check each tas
     #originTASaddr = ""
     for tas in tasList:
         tasAddr = tas
-        temp = TASList.query.filter_by(tasAddress = tasAddr).first()
-        tasOwner = temp.tasName
+        tasData = TASList.query.filter_by(tasAddress = tasAddr).first()
+        tasOwner = tasData.tasName
+        tasTeam = tasData.tasTeam
+
         try:
             # encode necessary data. Use defaulty id/pw(sms:a1b2c3d4)
             encodedAuthData = base64.encodestring('sms:a1b2c3d4').rstrip('\t\r\n\0')
@@ -87,6 +96,31 @@ def getTSListFromAPI():
                 # store necessary data in the dictionary
                 if 'NOT_READY' not in ts['state'] or ts['info']['managementIp'] not in tsList:
                     if 'NOT_READY (NO COMM)' != ts['state']:
+                        if tasTeam == 'San Jose':
+                            tsList_sanJose[ts['info']['managementIp']] = {}
+                            tsList_sanJose[ts['info']['managementIp']]['state'] = ts['state']
+                            tsList_sanJose[ts['info']['managementIp']]['name'] = ts['name']
+                            tsList_sanJose[ts['info']['managementIp']]['version'] = ts['version']
+                            tsList_sanJose[ts['info']['managementIp']]['info'] = ts['info']
+                            tsList_sanJose[ts['info']['managementIp']]['tas'] = tasAddr
+                            tsList_sanJose[ts['info']['managementIp']]['owner'] = tasOwner
+                        elif tasTeam == "Plano":
+                            tsList_plano[ts['info']['managementIp']] = {}
+                            tsList_plano[ts['info']['managementIp']]['state'] = ts['state']
+                            tsList_plano[ts['info']['managementIp']]['name'] = ts['name']
+                            tsList_plano[ts['info']['managementIp']]['version'] = ts['version']
+                            tsList_plano[ts['info']['managementIp']]['info'] = ts['info']
+                            tsList_plano[ts['info']['managementIp']]['tas'] = tasAddr
+                            tsList_plano[ts['info']['managementIp']]['owner'] = tasOwner
+                        elif tasTeam == "BDC":
+                            tsList_bdc[ts['info']['managementIp']] = {}
+                            tsList_bdc[ts['info']['managementIp']]['state'] = ts['state']
+                            tsList_bdc[ts['info']['managementIp']]['name'] = ts['name']
+                            tsList_bdc[ts['info']['managementIp']]['version'] = ts['version']
+                            tsList_bdc[ts['info']['managementIp']]['info'] = ts['info']
+                            tsList_bdc[ts['info']['managementIp']]['tas'] = tasAddr
+                            tsList_bdc[ts['info']['managementIp']]['owner'] = tasOwner
+
                         tsList[ts['info']['managementIp']] = {}
                         tsList[ts['info']['managementIp']]['state'] = ts['state']
                         tsList[ts['info']['managementIp']]['name'] = ts['name']
@@ -97,10 +131,6 @@ def getTSListFromAPI():
 
                         if TSList.query.filter_by(tsAddress = ts['info']['managementIp']).first():
                             edit_ts = TSList.query.filter_by(tsAddress = ts['info']['managementIp']).first()
-                            # originTASaddr = edit_ts.originTAS
-                            # if originTASaddr == "":
-                            #     originTASaddr = tasAddr
-
                             edit_ts.tasAddress = tsList[ts['info']['managementIp']]['tas']
                             edit_ts.tsName = ts['name'] 
                             edit_ts.tsVersion = ts['version'] 
@@ -108,13 +138,7 @@ def getTSListFromAPI():
                             edit_ts.tsManagementIp = ts['info']['managementIp']
                             edit_ts.tsPlatform = ts['info']['platform']
                             edit_ts.tsMemory = ts['info']['memory']
-                            edit_ts.tsOS = ts['info']['os']#,
-                            #edit_ts.originTAS = originTASaddr
-
-                            #originTASaddr = ""
-                            # db.session.delete(edit_ts)
-                            # db.session.commit()
-
+                            edit_ts.tsOS = ts['info']['os']
                         else:
                             new_ts = TSList(tsAddress = ts['info']['managementIp'],
                                             tasAddress = tasAddr, 
@@ -129,7 +153,6 @@ def getTSListFromAPI():
                                             )
                             db.session.add(new_ts)
                             db.session.commit()
-
         except Exception as e:
             print ("error")
     return tsList
@@ -335,8 +358,15 @@ def index():
         tempMessage = message[0]
         message.remove(message[0])
 
-    return render_template('tslistview.html', tsList=tsList, tasList=tasInfoList, message=tempMessage, userName=userName, myTasAddress=myTasAddress)
-
+    return render_template('tslistview.html', 
+                            tsList=tsList, 
+                            tsList_sanJose=tsList_sanJose,
+                            tsList_plano=tsList_plano,
+                            tsList_bdc=tsList_bdc,
+                            tasList=tasInfoList, 
+                            message=tempMessage, 
+                            userName=userName, 
+                            myTasAddress=myTasAddress)
 # route for the lock feature
 @app.route('/lock/<ts>')
 def locking(ts):
@@ -388,9 +418,10 @@ def edit_server():
         firstName = user.firstName
         lastName = user.lastName
         userName = firstName + " " + lastName
+        Team = user.team
 
         if request.form.get('action-type') == 'add':
-            new_tas = TASList(tasAddress=request.form.get('server-name'), tasUsername=userName)
+            new_tas = TASList(tasAddress=request.form.get('server-name'), tasUsername=userName, tasTeam=Team)
             db.session.add(new_tas)
             db.session.commit()
             return redirect(url_for('index'))
@@ -537,11 +568,4 @@ def relocateReservedTS():
     #         if temp.tasAddress != relocatedTs[1]:
     #             #if ts is not belongs to reserved tas, relocate again
     #             tasmodification(relocatedTs[0], temp.tasAddress, relocatedTs[1])
-
-    print("minute : " , datetime.datetime.now().minute)
-    print ("relocated are")
-    print (relocatedTsList)
-    reservedTsList.showList()
     threading.Timer(20, relocateReservedTS).start()
-
-relocateReservedTS()
