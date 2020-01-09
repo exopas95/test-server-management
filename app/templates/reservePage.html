@@ -1,0 +1,890 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Landslide TSmanagement</title>
+    <base href="/">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="static/styles/timetablejs.css">
+    <link rel="stylesheet" href="static/styles/demo.css">
+	<link rel="icon" type="image/x-icon" href="favicon.ico">
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Comfortaa" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/3.1.3/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+
+	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+	<script src="https://code.jquery.com/jquery-2.2.4.min.js"
+            integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+			crossorigin="anonymous"></script>
+			
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+	        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+			crossorigin="anonymous"></script>
+			
+	<!-- DataTable script libarary -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/js/jquery.dataTables.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/js/dataTables.bootstrap.min.js"></script>
+	<script src="https://cdn.datatables.net/plug-ins/1.10.15/sorting/stringMonthYear.js"></script>
+
+	<style>
+		/* You can add global styles to this file, and also import other style files */
+		input{
+            border:1px solid #C0C0C0;
+            border-radius: 0px;
+        }
+        body {
+			padding-top: 60px;
+			font-family: 'Comfortaa', cursive;
+		}
+		.modal-content {
+			margin: 15% auto;
+			padding: 20px;
+			border: 1px solid #888;
+			width: 80%;
+		}
+		.modalbox .box {
+			background-color:white;
+		}
+		.modal-backdrop {
+			z-index: 3;
+		}
+		.btn btn-info btn-lg {
+			height:40px;
+			width:80px;
+		}
+		.notice {
+			width: 100%;
+			display: block;
+			font-size: 12px;
+			background-color: rgb(185, 185, 185);
+			padding: 10px;
+			border-radius: 1rem;
+		}
+
+		.edit-button {
+			color: #9d9d9d;
+			padding-top: 15px;
+			padding-bottom: 15px;
+			background-color: transparent;
+			border-color: transparent;
+			border: none;
+		}
+		.edit-button:hover {
+			color: White;
+		}
+		.custom-select {
+			position: relative;
+			font-family: 'Comfortaa', cursive;
+			margin: 5px;
+		}
+		/* the container must be positioned relative*/
+		.custom-select select {
+			display: none;
+			z-index:2;
+		}
+		.select-selected {
+			background-color: White;
+			display:inline-block;
+		}
+		.select-selected:after {
+			position:absolute;
+			content:"";
+			top:14px;
+			right:10px;
+			width:0;
+			height:0;
+			border:6px solid transparent;
+			border-color: #fff transparent transparent transparent;
+		}
+		/* style the arrow inside the select element */
+		.select-selected.select-arrow-active:after {
+			border-color: transparent transparent #fff transparent;
+			top: 7px;
+		}
+		/* style the items, including the selected item */
+		.select-items div,.select-selected {
+			color: #000000;
+			padding: 8px 16px;
+			border: 1px solid transparent;
+			border-color: transparent transparent rgba(0,0,0,0.1) transparent;
+			cursor: pointer;
+		}
+		/* style items */
+		.select-items {
+			background-color: White;
+			top: 100%;
+			left: 0;
+			right: 0;
+			z-index: 99;
+		}
+		/* hide the items when the select box is closed */
+		.select-hide {
+			display: none;
+		}
+		.select-items div:hover, .same-as-selected {
+			background-color: rgba(0,0,0,0.1);
+		}
+		.dataTables_wrapper .dataTables_paginate {
+			width: 100%;
+			float: none;
+			text-align: center;
+		}
+		.form-check {
+			display: inline-block;
+			font-weight: bold;
+		}
+		.form-check-label {
+			font-weight: normal;
+		}
+		.form-check-inline {
+			margin-left: 10px;
+		}
+		.glyphicon-plus {
+			font-size: 10px;
+		}
+		.form-control {
+			display: inline-block;
+			width: 70%;
+		}
+		.input-group-btn {
+			display: inline-block;
+		}
+		.table-list td {
+			font-size: 14px; 
+			height: 100%;
+		}
+		.navbar {
+			margin-bottom: 0px;
+		}
+
+		/* style tab */
+		.tabinator {
+			background: #fff;
+			padding: 10px;
+		}
+		.tabinator input {
+			display: none;
+		}
+		.tabinator label.tab-list {
+			box-sizing: border-box;
+			display: inline-block;
+			padding: 15px 25px;
+			color: #ccc;
+			margin-bottom: -1px;
+			margin-left: -1px;
+		}
+		.tabinator label.tab-list:before {
+			content:'';
+			display:block;
+			width:100%;
+			height:15px;
+			background-color:#fff;
+			position:absolute;
+			bottom:-11px;
+			left:0;
+			z-index:2;  
+		}
+		.tabinator label.tab-list:hover {
+			color: #888;
+			cursor: pointer;
+		}
+		.tabinator input:checked + label.tab-list {
+			position: relative;
+			color: #000;
+			background: #fff;
+			border: 1px solid #bbb;
+			border-bottom: 1px solid #fff;
+			border-radius: 5px 5px 0 0;
+		}
+		.tabinator input:checked + label.tab-list:after {
+			display: block;
+			content: '';
+			position: absolute;
+			top: 0; right: 0; bottom: 0; left: 0;
+		}
+		#content1, #content2, #content3, #content4 ,#book1,#book2,#book3{
+			display: none;
+			border-top: 1px solid #bbb;
+			padding: 15px;
+			z-index: -10;
+		}
+		#tab1:checked ~ #content1,
+		#tab2:checked ~ #content2,
+		#tab3:checked ~ #content3,
+		#tab4:checked ~ #content4,
+        #book1:checked ~ #book1,
+        #book2:checked ~ #book2,
+        #book3:checked ~ #book3,
+        #team1:checked ~ #team1,
+        #team2:checked ~ #team2,
+        #team3:checked ~ #team3 {
+			display: block;
+			box-shadow: 0 0 15px #939393;
+		}
+        #tsAddrToReserve,
+        #tsAddrToReserve2 {
+            display: inline-block;
+            width: 20%;
+        }
+        .alert {
+			width: 100%;
+			padding-right: 4rem;
+			position: relative;
+			padding: .75rem 1.25rem;
+			margin-bottom: 1rem;
+			border: 1px solid transparent;
+			border-radius: .25rem;
+			transition: opacity .15s linear;
+			font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+			font-size: 16px;
+			font-weight: 400;
+			line-height: 1.5;
+			text-align: left;
+		}
+		.alert-error {
+			color: #721c24;
+    		background-color: #f8d7da;
+			border-color: #f5c6cb;
+		}
+		.alert-primary {
+			color: #004085;
+			background-color: #cce5ff;
+			border-color: #b8daff;
+		}
+		.flashes {
+        	padding-inline-start: 0px;
+		}
+		.notice-nav {
+			font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+			font-size: 13px;
+		}
+	</style>
+</head>
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                        aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a href="/" class="navbar-brand"><strong style="font-size:22px">TS Management</strong></a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
+                        <button type="button" class="edit-button" data-toggle="modal" data-target="#tasModal">Edit TAS</button>
+                        <div class="modal fade" id="tasModal" role="dialog">
+                              <div class="modal-dialog">
+                                <div class="modal-content">
+                                      <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">Edit TAS</h4>
+                                      </div>
+                                    <form action="/edit_tas_server" method="POST">
+                                        <div class="modal-body">
+                                            <div>
+                                                <p class="notice notice-nav">
+                                                    This tab is to add <strong>your TAS</strong> into TS Management system by your name.
+                                                    This is necessary if you want to use your TAS on the system.
+                                                </p>
+                                            </div>
+                                            <div class="custom-select">
+                                                <div class="form-check">
+                                                    <p>Action:</p>
+                                                </div>
+                                                <div class="form-check form-check-inline">    
+                                                    <input class="form-check-input" type="radio" name="tas-action-type" value="add" checked="checked" onclick="ableField()">
+                                                    <label class="form-check-label" for="inlineRadio1">Add</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="tas-action-type" value="remove" onclick="disableField()">
+                                                    <label class="form-check-label" for="inlineRadio2">Remove</label>
+                                                </div>
+                                            </div>
+                                            <div class="custom-select">
+                                                <div class="form-check">
+                                                    <p>TAS Address:</p>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-control" type="text" name="server-name" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx" required>
+                                                </div>
+                                            </div>
+                                            <div class="custom-select">
+                                                <div class="form-check">
+                                                    <p>TAS Owner:</p>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-control" type="text" name="server-name" placeholder={{userName}} required disabled=true>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <input type="submit" class="btn btn-info" value="Edit">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </form>
+                                </div>
+                              </div>
+                        </div>
+                    </li>
+                    <li [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
+                        <button type="button" class="edit-button" data-toggle="modal" data-target="#commonModal">Edit Commmon TAS/TS</button>
+                        <div class="modal fade" id="commonModal" role="dialog">
+                              <div class="modal-dialog">
+                                <div class="modal-content">
+                                      <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">Edit Commmon TAS/TS</h4>
+                                      </div>
+                                    <form action="/edit_common_server" method="POST">
+                                        <div class="modal-body">
+                                            <div>
+                                                <p class="notice notice-nav">
+                                                    This tab is to modify common TAS/TS into TS Management system.
+                                                    Only admin can add/remove the common system.<br><br>
+                                                    <strong>1) Add TAS:</strong> TAS will be added to the system database<br>
+                                                    <strong>2) Remove TAS:</strong> TAS will be removed from the system database<br>
+                                                    <strong>3) Add TS:</strong> TS owner will be updated to <strong>Common</strong><br>
+                                                    <strong>4) Remove TS:</strong> TS owner will be updated to <strong>Private</strong> 				
+                                                </p>
+                                            </div>
+                                            {% if userType == "admin" %}
+                                            <div class="custom-select">
+                                                <div class="form-check">
+                                                    <p>Action:</p>
+                                                </div>
+                                                <div class="form-check form-check-inline">    
+                                                    <input class="form-check-input" type="radio" name="common-action-type" value="add" checked="checked">
+                                                    <label class="form-check-label" for="inlineRadio1">Add</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="common-action-type" value="remove">
+                                                    <label class="form-check-label" for="inlineRadio2">Remove</label>
+                                                </div>
+                                            </div>
+                                            <div class="custom-select">
+                                                <div class="form-check">
+                                                    <p>Type:</p>
+                                                </div>
+                                                <div class="form-check form-check-inline">    
+                                                    <input class="form-check-input" type="radio" name="common-select-type" value="tas" onclick="disableTSField(); ableTASField()" checked="checked">
+                                                    <label class="form-check-label" for="inlineRadio1">TAS</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="common-select-type" onclick="ableTSField(); disableTASField()" value="ts">
+                                                    <label class="form-check-label" for="inlineRadio2">TS</label>
+                                                </div>
+                                            </div>
+                                            <div class="custom-select">
+                                                <div class="form-check">
+                                                    <p>TAS Address:</p>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input id=tas class="form-control" type="text" name="common-servername-tas" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx" required>
+                                                </div>
+                                            </div>
+                                            <div class="custom-select">
+                                                <div class="form-check">
+                                                    <p>TS Address #1:</p>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input id="ts_1" class="form-control" type="text" name="common-servername-ts1" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx" required disabled="true">							
+                                                </div>
+                                            </div>
+                                            <div class="custom-select">
+                                                <div class="form-check">
+                                                    <p>TS Address #2:</p>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input id="ts_2" class="form-control" type="text" name="common-servername-ts2" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx" required disabled="true">						
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="modal-footer">
+                                            <input type="submit" class="btn btn-info" value="Edit">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </form>
+                                </div>
+                              </div>
+                        </div>
+                    </li>
+                    <li [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
+                        <button type="button" class="edit-button" data-toggle="modal" data-target="#tsModal">Allocate TS</button>
+                        <div class="modal fade" id="tsModal" role="dialog">
+                              <div class="modal-dialog">
+                                <div class="modal-content">
+                                      <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">Allocate TS</h4>
+                                      </div>
+                                    <form action="/edit_ts_server" method="POST">
+                                        <div class="modal-body">
+                                            <div>
+                                                <p class="notice notice-nav">
+                                                    This tab is to determine which TAS your TS belongs to.<br>
+                                                    This is necessary for using the reservation function and for the TS to return to its original TAS
+                                                </p>
+                                            </div>
+                                            <div class="custom-select">
+                                                <div class="form-check">
+                                                    <p>TAS Address:</p>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-control" type="text" name="tas-server-name" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx" required>
+                                                </div>
+                                            </div>
+                                            <div class="custom-select">
+                                                <div class="form-check">
+                                                    <p>TS Address #1:</p>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-control" type="text" name="ts-server-name-1" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx" required>							
+                                                </div>
+                                            </div>
+                                            <div class="custom-select">
+                                                <div class="form-check">
+                                                    <p>TS Address #2:</p>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-control" type="text" name="ts-server-name-2" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx" required>						
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <input type="submit" class="btn btn-info" value="Edit">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </form>
+                                </div>
+                              </div>
+                        </div>
+                    </li>
+                    <li [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
+                        <a href="/history" [routerLink]="['/home']">History</a>
+                    </li>
+                    <li [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
+                        <a href="/about" [routerLink]="['/about']">About</a>
+                    </li>
+                    <li [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
+                        <a href="/reservePage" [routerLink]="['/reservePage']">Resevation</a>
+                    </li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    {% if session['email'] %}
+                    <li [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
+                          <a href="/logout" [routerLink]="['/logout']"><span class="glyphicon glyphicon-log-in"></span> Log out</a>
+                    {% else %}
+                    <li [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
+                          <a href="/login" [routerLink]="['/login']"><span class="glyphicon glyphicon-log-in"></span> Log in</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+  <ul class=flashes>
+  {% for message in messages %}
+  <div class="alert alert-primary" role="alert">
+	<strong>{{ message }}</strong>
+	<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+	  <span aria-hidden="true">&times;</span>
+	</button>
+  </div>
+  {% endfor %}
+  </ul>
+{% endif %}
+{% endwith %}
+{% if error %}
+<div class="alert alert-error" role="alert">
+	<strong>{{ error }}</strong>
+	<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+		<span aria-hidden="true">&times;</span>
+	  </button>
+</div>
+{% endif %} 
+<div style="float:left; width:20%;">
+<div class = "tabinator">
+	<input type = "radio" id = "book1" name = "team" checked>
+    <label class="tab-list" for = "book1">Plano</label>
+	<input type = "radio" id = "book2" name = "team">
+    <label class="tab-list" for = "book2">San Jose</label>
+    <input type = "radio" id = "book3" name = "team">
+	<label class="tab-list" for = "book3">BDC</label>
+	<div id = "book1">
+		<div class="panel-body" style="overflow:auto; height: 700px;">
+			<table id="sortedTable_Plano" class="display">
+				<thead>
+				<tr>
+                    <th style="width: 45%;">TS</th>
+                    <th style="width: 45%;">TAS</th>
+                    <th style="width: 10%;">State</th>
+				</tr>
+                </thead>
+                <tbody>
+                    {% for TS in tsList_plano.values() %}
+                    <tr>
+                        <th>{{ TS['info']['managementIp'] }}</th>
+                        <td><span id="tsList_plano{{ loop.index }}">{{ TS['tas'] }}</span></td>
+                        <td>
+							{% if 'NOT_READY' in TS['state'] %}
+								<span class="label label-danger">
+							{% elif 'READY' in TS['state'] %}
+								<span class="label label-success">
+							{% elif 'LOCK' in TS['state'] %}
+								<span class="label label-danger">
+							{% else %}
+								<span class="label label-warning">
+							{% endif %}
+							{{ TS['state'] }}
+							</span>
+						</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+			</table>
+		</div>
+	</div>
+	<div id = "book2">
+        <div class="panel-body" style="overflow:auto; height: 700px;">
+			<table id="sortedTable_SanJose" class="display">
+				<thead>
+				<tr>
+                    <th style="width: 45%;">TS</th>
+                    <th style="width: 45%;">TAS</th>
+                    <th style="width: 10%;">State</th>
+				</tr>
+                </thead>
+                <tbody>
+                    {% for TS in tsList_sanJose.values() %}
+                    <tr>
+                        <th>{{ TS['info']['managementIp'] }}</th>
+                        <td><span id="TAS_sanjose{{ loop.index }}">{{ TS['tas'] }}</span></td>
+                        <td>
+							{% if 'NOT_READY' in TS['state'] %}
+								<span class="label label-danger">
+							{% elif 'READY' in TS['state'] %}
+								<span class="label label-success">
+							{% elif 'LOCK' in TS['state'] %}
+								<span class="label label-danger">
+							{% else %}
+								<span class="label label-warning">
+							{% endif %}
+							{{ TS['state'] }}
+							</span>
+						</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+			</table>
+		</div>
+    </div>
+    <div id = "book3">
+		<div class="panel-body" style="overflow:auto; height: 700px;">
+			<table id="sortedTable_BDC" class="display">
+				<thead>
+				<tr>
+                    <th style="width: 45%;">TS</th>
+                    <th style="width: 45%;">TAS</th>
+                    <th style="width: 10%;">State</th>
+				</tr>
+                </thead>
+                <tbody>
+                    {% for TS in tsList_bdc.values() %}
+                    <tr>
+                        <th>{{ TS['info']['managementIp'] }}</th>
+                        <td><span id="tsList_bdc{{ loop.index }}">{{ TS['tas'] }}</span></td>
+                        <td>
+							{% if 'NOT_READY' in TS['state'] %}
+								<span class="label label-danger">
+							{% elif 'READY' in TS['state'] %}
+								<span class="label label-success">
+							{% elif 'LOCK' in TS['state'] %}
+								<span class="label label-danger">
+							{% else %}
+								<span class="label label-warning">
+							{% endif %}
+							{{ TS['state'] }}
+							</span>
+						</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+			</table>
+		</div>
+	</div>
+</div>
+</div>
+<div style="float:left; width:80%;">
+<div style="overflow-x:auto; overflow-y: auto; width:100%; height:450px;">
+    <div class="timetable"></div>
+
+    <script src="{{ url_for('static',filename='scripts/timetable.js') }}"></script>
+
+    <script>
+    var timetable = new Timetable();        
+    timetable.setScope(9,18)
+    var todaysList = '{{todayList|tojson}}';
+    var items = todaysList.replace(/\[/g, "").replace(/\]/g, "").replace(/ /g, "").replace(/\"/g, "").split(",");
+    var TSaddrs = [];
+    var tsListlen = '{{tslen}}';
+    var tsList = '{{commonTS|tojson}}';
+    var tsListItems = tsList.replace(/\[/g, "").replace(/\]/g, "").replace(/ /g, "").replace(/\"/g, "").split(",");
+    console.log(tsListItems);
+    for(var i=0; i < tsListItems.length; i++){
+        console.log(tsListItems[i]);
+        TSaddrs.push(tsListItems[i]);
+    }
+
+    timetable.addLocations(TSaddrs);
+
+
+    for(var i =0; i< items.length/12; i++){
+        console.log(items[12*i +5])
+        timetable.addEvent(items[12*i +0], items[12*i +1], 
+                new Date(items[12*i +2],items[12*i +3],items[12*i +4],items[12*i +5],items[12*i +6]), 
+                new Date(items[12*i +7],items[12*i +8],items[12*i +9],items[12*i +10],items[12*i +11]));
+    }
+
+    var renderer = new Timetable.Renderer(timetable);
+    renderer.draw('.timetable');
+    </script>
+</div>
+<div class = "tabinator">
+	<input type = "radio" id = "tab1" name = "tabs" checked>
+    <label class="tab-list" for = "tab1">Your Reservation</label>
+	<input type = "radio" id = "tab2" name = "tabs">
+	<label class="tab-list" for = "tab2">Reserve TS</label>
+	<div id = "content1">
+		<div class="panel-body">
+			<table id="sortedTable" class="display">
+				<thead>
+				<tr>
+                    <th>Index</th>
+                    <th>TAS</th>
+                    <th>Start time</th>
+                    <th>End time</th>
+                    <th>State</th>
+                    <th></th>
+				</tr>
+                </thead>
+                <tbody>
+                    {% for booked in getMybooklist(userName) %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ booked[1] }}</td>
+                        <td>{{ booked[2] }}</td>
+                        <td>{{ booked[3] }}</td>
+                        <td>
+                            {% if booked[4] == true %}
+                                <span class="label label-warning">
+                                On Going
+                            {% else %}
+                                <span class="label label-success">
+                                Waiting
+                            {% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            {% if booked[4] == false %}
+                                <a href="/reservePage/cancelReserve/{{ userName }}/{{ loop.index }}">Cancel</a>
+                            {% endif %}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+			</table>
+		</div>
+	</div>
+	<div id = "content2">
+        <form>
+            <div>
+                <label for="tsAddrToReserve">TS Address#1</label>
+                <input type="text" id="tsAddrToReserve" name="tsAddrToReserve">
+            </div>
+            <div>
+                <label for="tsAddrToReserve2">TS Address#2</label>
+                <input type="text" id="tsAddrToReserve2" name="tsAddrToReserve2">
+            </div>
+        </form>
+            <div>Start Time</div>
+        <div>
+            Month
+            <select class="form-check" id="StartMonth">
+                {% for i in range(1, 13) %}
+                <option value="{{ i }}">{{ i }}</option>
+                {% endfor %}
+            </select>
+            Day
+            <select class="form-check" id="StartDay">
+                {% for i in range(1, 32) %}
+                <option value="{{ i }}">{{ i }}</option>
+                {% endfor %}
+            </select>
+            Hour
+            <select class="form-check" id="StartHour">
+                {% for i in range(0,12) %}
+                <option value="{{ i }}">{{ i }}</option>
+                {% endfor %}
+            </select>
+            Minute
+            <select class="form-check" id="StartMinute">
+                {% for i in range(0, 12) %}
+                <option value="{{ i*5 }}">{{ i*5 }}</option>
+                {% endfor %}
+            </select>
+
+            <select class="form-check" id="StartAmPm">
+                <option value="0" selected="selected">am</option>
+                <option value="1">pm</option>
+            </select>
+        </div>
+
+        <div> End Time</div>
+        <div>Month
+            <select class="form-check" id="EndMonth">
+                {% for i in range(1, 13) %}
+                <option value="{{ i }}">{{ i }}</option>
+                {% endfor %}
+            </select>
+            Day
+            <select class="form-check" id="EndDay">
+                {% for i in range(1, 32) %}
+                <option value="{{ i }}">{{ i }}</option>
+                {% endfor %}
+            </select>
+            Hour
+            <select class="form-check" id="EndHour">
+                {% for i in range(0,12) %}
+                <option value="{{ i }}">{{ i }}</option>
+                {% endfor %}
+            </select>
+            Minute
+            <select class="form-check" id="EndMinute">
+                {% for i in range(0, 12) %}
+                <option value="{{ i*5 }}">{{ i*5 }}</option>
+                {% endfor %}
+            </select>
+
+            <select class="form-check" id="EndAmPm">
+                <option value="0" selected="selected">am</option>
+                <option value="1">pm</option>
+            </select>
+        </div>									
+
+        <footer>
+            <button type="submit" class="btn btn-info" onclick="reserveing('{{ myTasAddress }}','{{ userName }}')">Reserve</button>
+        </footer>
+	</div>
+</div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#sortedTable").DataTable({
+            "order": [[1, "asc"]],
+            "iDisplayLength": 10,
+            "columnDefs": [{ "searchable": false, "targets": 5 }],
+            "dom": 'fltp'
+		});
+		$("#sortedTable2").DataTable({
+            "order": [[1, "asc"]],
+            "iDisplayLength": 10,
+            "columnDefs": [{ "searchable": false, "targets": 5 }],
+            "dom": 'fltp'
+        });
+        // $("#sortedTable_Plano").DataTable({
+        //     "order": [[1, "asc"]],
+        //     "iDisplayLength": 10,
+        //     "columnDefs": [{ "searchable": false, "targets": 3 }],
+        //     "dom": 'fltp'
+        // });
+        // $("#sortedTable_SanJose").DataTable({
+        //     "order": [[1, "asc"]],
+        //     "iDisplayLength": 10,
+        //     "columnDefs": [{ "searchable": false, "targets": 3 }],
+        //     "dom": 'fltp'
+        // });
+        // $("#sortedTable_BDC").DataTable({
+        //     "order": [[1, "asc"]],
+        //     "iDisplayLength": 10,
+        //     "columnDefs": [{ "searchable": false, "targets": 3 }],
+        //     "dom": 'fltp'
+        // });
+		$('div.dataTables_filter input').focus();
+	});
+
+function reserveing(relocateTAS, reservPerson){
+    var month_1, date_1, hour_1, minute_1, ampm_1, month_2, date_2, hour_2, minute_2, ampm_2,TSaddr;
+    month_1 = parseInt(document.getElementById("StartMonth").value);
+    date_1 = parseInt(document.getElementById("StartDay").value);
+    hour_1 = parseInt(document.getElementById("StartHour").value);
+    minute_1 = parseInt(document.getElementById("StartMinute").value);
+    ampm_1 = parseInt(document.getElementById("StartAmPm").value);
+    month_2 = parseInt(document.getElementById("EndMonth").value);
+    date_2 = parseInt(document.getElementById("EndDay").value);
+    hour_2 = parseInt(document.getElementById("EndHour").value);
+    minute_2 = parseInt(document.getElementById("EndMinute").value);
+    ampm_2 = parseInt(document.getElementById("EndAmPm").value);
+    TSaddr = document.getElementById("tsAddrToReserve").value;
+    TSaddr2 = document.getElementById("tsAddrToReserve2").value;
+    
+    var TSaddrs = [];
+    var tsListlen = '{{tslen}}';
+    var tsList = '{{commonTS|tojson}}';
+    var isFound = false;
+    var isFound2 = false;
+    var tsListItems = tsList.replace(/\[/g, "").replace(/\]/g, "").replace(/ /g, "").replace(/\"/g, "").split(",");
+    console.log(TSaddr);
+    for(var i=0; i < tsListItems.length; i++){
+        if(tsListItems[i] == TSaddr){
+            isFound = true
+            console.log("found!")
+        }
+        console.log(tsListItems[i]);
+    }
+    for(var i=0; i < tsListItems.length; i++){
+        if(tsListItems[i] == TSaddr2){
+            isFound2 = true
+            console.log("found!")
+        }
+        console.log(tsListItems[i]);
+    }
+    if(isFound == true && isFound2 == true){
+        window.location.href = window.location.href + "/reserve2/" + month_1 + "/" + date_1 + "/" + hour_1 + "/" + minute_1 + "/" + ampm_1 + "/"
+                                                        + month_2 + "/" + date_2 + "/" + hour_2 + "/" + minute_2 + "/" + ampm_2 + "/" 
+                                                        + TSaddr + "/" + TSaddr2 + "/" + relocateTAS + "/" + reservPerson;
+    }else if(isFound == true){
+        window.location.href = window.location.href + "/reserve/" + month_1 + "/" + date_1 + "/" + hour_1 + "/" + minute_1 + "/" + ampm_1 + "/"
+                                                        + month_2 + "/" + date_2 + "/" + hour_2 + "/" + minute_2 + "/" + ampm_2 + "/" 
+                                                        + TSaddr + "/" + relocateTAS + "/" + reservPerson;
+    }else if(isFound2 == true){
+        window.location.href = window.location.href + "/reserve/" + month_1 + "/" + date_1 + "/" + hour_1 + "/" + minute_1 + "/" + ampm_1 + "/"
+                                                        + month_2 + "/" + date_2 + "/" + hour_2 + "/" + minute_2 + "/" + ampm_2 + "/" 
+                                                        + TSaddr2 + "/" + relocateTAS + "/" + reservPerson;
+    }
+    else{
+        alert("The TS address is not valid.");
+    }
+}
+
+function cancelReserve(TSaddr, index){
+    window.location.href = window.location.href + "cancelReserve/" + TSaddr + "/" + parseint(index);
+}
+</script>
+</body>
+</html>
+
+

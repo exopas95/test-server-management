@@ -465,6 +465,9 @@
 				<li [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
                     <a href="/about" [routerLink]="['/about']">About</a>
                 </li>
+                <li [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
+                    <a href="/reservePage" [routerLink]="['/reservePage']">Resevation</a>
+                </li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
 				{% if session['email'] %}
