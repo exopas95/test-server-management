@@ -271,7 +271,7 @@
 												<p>TAS Address:</p>
 											</div>
 											<div class="form-check form-check-inline">
-												<input class="form-control" type="text" name="server-name" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx">
+												<input class="form-control" type="text" name="server-name" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx" required>
 											</div>
 										</div>
 										{% if userType == "admin" %}
@@ -293,8 +293,8 @@
 												<p >TAS Owner:</p>
 											</div>
 											<div class="form-check form-check-inline" style="width: 75%";>
-												<input id="input-tas-owner-firstname" class="form-control" type="text" name="owner-firstname" placeholder="First Name" style="width: 40%;text-transform: capitalize;">
-												<input id="input-tas-owner-lastname" class="form-control" type="text" name="owner-lastname" placeholder="Last Name" style="width: 40%;text-transform: capitalize;">								
+												<input id="input-tas-owner-firstname" class="form-control" type="text" name="owner-firstname" placeholder="First Name" style="width: 40%;text-transform: capitalize;" required>
+												<input id="input-tas-owner-lastname" class="form-control" type="text" name="owner-lastname" placeholder="Last Name" style="width: 40%;text-transform: capitalize;" required>								
 											</div>
 										</div>
 										{% endif %}
@@ -330,7 +330,7 @@
 												<p>TAS Address:</p>
 											</div>
 											<div class="form-check form-check-inline">
-												<input class="form-control" type="text" name="tas-server-name" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx">
+												<input class="form-control" type="text" name="tas-server-name" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx" required>
 											</div>
 										</div>
 										<div class="custom-select">
@@ -338,7 +338,7 @@
 												<p>TS Address #1:</p>
 											</div>
 											<div class="form-check form-check-inline">
-												<input class="form-control" type="text" name="ts-server-name-1" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx">							
+												<input class="form-control" type="text" name="ts-server-name-1" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx" required>							
 											</div>
 										</div>
 										<div class="custom-select">
@@ -346,7 +346,7 @@
 												<p>TS Address #2:</p>
 											</div>
 											<div class="form-check form-check-inline">
-												<input class="form-control" type="text" name="ts-server-name-2" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx">						
+												<input class="form-control" type="text" name="ts-server-name-2" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx" required>						
 											</div>
 										</div>
 									</div>
