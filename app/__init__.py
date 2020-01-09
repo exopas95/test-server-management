@@ -22,6 +22,7 @@ tsList = {}
 tsList_sanJose = {}
 tsList_plano = {}
 tsList_bdc = {}
+tsList_common = {}
 reservedTsList = reserveTS.LinkedList()
 relocatedTsList = []
 
@@ -86,16 +87,58 @@ def getTSListFromAPI():
             URL = 'http://'+ tasAddr +':8080/api/testServers'
 
             # get the tas data to send API request. Get data by json format
-            tasData = requests.get(URL, headers=headers).json()
+            _tasData = requests.get(URL, headers=headers).json()
 
             # loop in ts list
-            for ts in tasData['testServers']:
+            for ts in _tasData['testServers']:
                 # send API request again for the ts data. Also get data by json format
                 ts['info'] = requests.get(ts['url'], headers=headers).json()
 
                 # store necessary data in the dictionary
                 if 'NOT_READY' not in ts['state'] or ts['info']['managementIp'] not in tsList:
                     if 'NOT_READY (NO COMM)' != ts['state']:
+                        
+                        # bring TS information from database
+                        ts_database = TSList.query.filter_by(tsAddress = ts['info']['managementIp']).first()
+                        
+                        # If TS is a common TS
+                        if ts_database.tsCommon == 1:
+                            ts_user_name = "Common TS"
+
+                        # If TS is a private TS
+                        else:
+                            # If TS doesn't have origin TAS, TS user name is set to located TAS user name
+                            if ts_database.originTAS is None:
+                                ts_user_name = tasOwner
+
+                            # If TS has origin TAS information
+                            else:
+                                ts_origin_tas = ts_database.originTAS
+                                tas_database = TASList.query.filter_by(tasAddress = ts_origin_tas).first()
+                            
+                                # update TS user name as origin TAS's user name
+                                ts_user_name = tas_database.tasName
+
+                        # update TS List
+                        tsList[ts['info']['managementIp']] = {}
+                        tsList[ts['info']['managementIp']]['state'] = ts['state']
+                        tsList[ts['info']['managementIp']]['name'] = ts['name']
+                        tsList[ts['info']['managementIp']]['version'] = ts['version']
+                        tsList[ts['info']['managementIp']]['info'] = ts['info']
+                        tsList[ts['info']['managementIp']]['tas'] = tasAddr
+                        tsList[ts['info']['managementIp']]['owner'] = ts_user_name
+
+                        # update Common TS List                        
+                        if ts_database.tsCommon == 1:
+                            tsList_common[ts['info']['managementIp']] = {}
+                            tsList_common[ts['info']['managementIp']]['state'] = ts['state']
+                            tsList_common[ts['info']['managementIp']]['name'] = ts['name']
+                            tsList_common[ts['info']['managementIp']]['version'] = ts['version']
+                            tsList_common[ts['info']['managementIp']]['info'] = ts['info']
+                            tsList_common[ts['info']['managementIp']]['tas'] = tasAddr
+                            tsList_common[ts['info']['managementIp']]['owner'] = ts_user_name
+
+                        # update TS List for team San Jose
                         if tasTeam == 'San Jose':
                             tsList_sanJose[ts['info']['managementIp']] = {}
                             tsList_sanJose[ts['info']['managementIp']]['state'] = ts['state']
@@ -103,7 +146,8 @@ def getTSListFromAPI():
                             tsList_sanJose[ts['info']['managementIp']]['version'] = ts['version']
                             tsList_sanJose[ts['info']['managementIp']]['info'] = ts['info']
                             tsList_sanJose[ts['info']['managementIp']]['tas'] = tasAddr
-                            tsList_sanJose[ts['info']['managementIp']]['owner'] = tasOwner
+                            tsList_sanJose[ts['info']['managementIp']]['owner'] = ts_user_name
+                        # update TS List for team Plano
                         elif tasTeam == "Plano":
                             tsList_plano[ts['info']['managementIp']] = {}
                             tsList_plano[ts['info']['managementIp']]['state'] = ts['state']
@@ -111,7 +155,8 @@ def getTSListFromAPI():
                             tsList_plano[ts['info']['managementIp']]['version'] = ts['version']
                             tsList_plano[ts['info']['managementIp']]['info'] = ts['info']
                             tsList_plano[ts['info']['managementIp']]['tas'] = tasAddr
-                            tsList_plano[ts['info']['managementIp']]['owner'] = tasOwner
+                            tsList_plano[ts['info']['managementIp']]['owner'] = ts_user_name
+                        # update TS List for team BDC
                         elif tasTeam == "BDC":
                             tsList_bdc[ts['info']['managementIp']] = {}
                             tsList_bdc[ts['info']['managementIp']]['state'] = ts['state']
@@ -119,16 +164,9 @@ def getTSListFromAPI():
                             tsList_bdc[ts['info']['managementIp']]['version'] = ts['version']
                             tsList_bdc[ts['info']['managementIp']]['info'] = ts['info']
                             tsList_bdc[ts['info']['managementIp']]['tas'] = tasAddr
-                            tsList_bdc[ts['info']['managementIp']]['owner'] = tasOwner
+                            tsList_bdc[ts['info']['managementIp']]['owner'] = ts_user_name
 
-                        tsList[ts['info']['managementIp']] = {}
-                        tsList[ts['info']['managementIp']]['state'] = ts['state']
-                        tsList[ts['info']['managementIp']]['name'] = ts['name']
-                        tsList[ts['info']['managementIp']]['version'] = ts['version']
-                        tsList[ts['info']['managementIp']]['info'] = ts['info']
-                        tsList[ts['info']['managementIp']]['tas'] = tasAddr
-                        tsList[ts['info']['managementIp']]['owner'] = tasOwner
-
+                        # update database if TS already exist
                         if TSList.query.filter_by(tsAddress = ts['info']['managementIp']).first():
                             edit_ts = TSList.query.filter_by(tsAddress = ts['info']['managementIp']).first()
                             edit_ts.tasAddress = tsList[ts['info']['managementIp']]['tas']
@@ -139,6 +177,11 @@ def getTSListFromAPI():
                             edit_ts.tsPlatform = ts['info']['platform']
                             edit_ts.tsMemory = ts['info']['memory']
                             edit_ts.tsOS = ts['info']['os']
+                            
+                            # update database
+                            db.session.commit()
+                        
+                        # add TS to the database when TS doesn't exist
                         else:
                             new_ts = TSList(tsAddress = ts['info']['managementIp'],
                                             tasAddress = tasAddr, 
@@ -149,13 +192,14 @@ def getTSListFromAPI():
                                             tsPlatform = ts['info']['platform'], 
                                             tsMemory = ts['info']['memory'], 
                                             tsOS = ts['info']['os'],
-                                            originTAS = tasAddr
+                                            originTAS = tasAddr,
+                                            tsCommon = 0
                                             )
+                            # update database
                             db.session.add(new_ts)
                             db.session.commit()
         except Exception as e:
-            # need 404 for this error
-            print ("error")
+            return redirect(url_for('error_404'))
     return tsList
     
 # check ts is available to relocate or not
@@ -366,10 +410,17 @@ def index():
                             tsList_sanJose=tsList_sanJose,
                             tsList_plano=tsList_plano,
                             tsList_bdc=tsList_bdc,
+                            tsList_common=tsList_common,
                             tasList=tasInfoList,
                             message=tempMessage,
                             userName=userName,
                             userType=userType)
+
+# route for the about list feature
+@app.route('/error_404')
+def error_404():
+    error = None
+    return render_template('error_404.html', error=error)
 
 # route for the lock feature
 @app.route('/lock/<ts>')
@@ -452,7 +503,7 @@ def edit_tas_server():
             if TASList.query.filter_by(tasAddress = tasAddr).first() is not None:
                 error = "TAS is already registered. Please check."
                 session['error'] = error
-                return redirect(url_for('index'))          # return error
+                return redirect(url_for('index'))                       # return error
             else:
                 # update database
                 new_tas = TASList(tasAddress=tasAddr, tasUsername=userName, tasTeam=user_team)
@@ -469,7 +520,7 @@ def edit_tas_server():
             if TASList.query.filter_by(tasAddress = tasAddr).first() is None:
                 error = "TAS doesn't exist. Please use 'Edit TAS' to add your TAS and use this function."
                 session['error'] = error
-                return redirect(url_for('index'))          # return error
+                return redirect(url_for('index'))                       # return error
 
             else:
                 # update database
@@ -483,11 +534,11 @@ def edit_tas_server():
         else:
             error = "Edit TAS Failed. Please try again."
             session['error'] = error
-            return redirect(url_for('index'))              # return error
+            return redirect(url_for('index'))                           # return error
     else:
         error = "Edit TAS Failed. Please try again."
         session['error'] = error
-        return redirect(url_for('index'))                  # return error
+        return redirect(url_for('index'))                               # return error
 
     return redirect(url_for('index'))
 
@@ -504,20 +555,17 @@ def edit_ts_server():
         selected_ts_1 = TSList.query.filter_by(tsAddress=temp_ts_1).first()     # database
         selected_ts_2 = TSList.query.filter_by(tsAddress=temp_ts_2).first()     # database
 
-        print(selected_ts_1)
-        print(selected_ts_2)
-
         # check whether TAS exist
         if TASList.query.filter_by(tasAddress = tasAddr).first() is None:
             error = "TAS not exist. Please use 'Edit TAS' to add your TAS and use this function."
             session['error'] = error
-            return redirect(url_for('index'))                      # return error
+            return redirect(url_for('index'))                           # return error
 
         # check wheter TS exist
         if selected_ts_1 is None or selected_ts_2 is None:
             error = "TS not exist. Please mount your TS to TAS manually using LandSlide Application."
             session['error'] = error
-            return redirect(url_for('index'))                      # return error
+            return redirect(url_for('index'))                           # return error
 
         # update origin TAS information
         selected_ts_1.originTAS = tasAddr
@@ -533,7 +581,168 @@ def edit_ts_server():
     else:
         error = "Allocate TS Failed. Please try again."
         session['error'] = error
-        return redirect(url_for('index'))                          # return error
+        return redirect(url_for('index'))                               # return error
+
+    return redirect(url_for('index'))
+
+#route for edit TS feature
+@app.route('/edit_common_server', methods=['GET', 'POST'])
+def edit_common_server():
+    error = None
+    if request.method == 'POST':
+        # when modifying common TAS
+        if request.form.get('common-select-type') == 'tas':
+            user_email = session['email']  
+            tasAddr = request.form.get('common-servername-tas')         # website
+            commonName = "Common TAS"                                   # set new TAS's user name as "Common TAS"
+            user = User.query.filter_by(email = user_email).first()     # get user information from the database
+            userName = user.firstName + " " + user.lastName
+            user_team = user.team                                       # user's team information (San Jose / Plano / BDC)
+
+            # when adding common TAS
+            if request.form.get('common-action-type') == 'add':
+                selected_tas = TASList.query.filter_by(tasAddress = tasAddr).first()
+                if selected_tas is not None:
+                    # update TAS user to Common
+                    if selected_tas.tasName == "Common TAS":
+                        error = "TAS is already a Common TAS. Please check your TAS address."
+                        session['error'] = error
+                        return redirect(url_for('index'))               # return error
+                    else:
+                        selected_tas.tasName = commonName
+                        # update database
+                        db.session.commit()
+                        
+                        # flash message success
+                        flash("Private TAS changed to Common TAS successfully")
+                        return redirect(url_for('index'))
+                else:
+                    # update Common TAS to user
+                    selected_tas = TASList(tasAddress=tasAddr, tasUsername=commonName, tasTeam=user_team)
+                   
+                    # update database
+                    db.session.add(selected_tas)
+                    db.session.commit()
+
+                    # flash message success
+                    flash("TAS successfully added as a Common TAS")
+                    return redirect(url_for('index'))
+            # when removing common TAS  
+            elif request.form.get('common-action-type') == 'remove':
+            # Check whether TAS exist
+                if TASList.query.filter_by(tasAddress = tasAddr).first() is None:
+                    error = "TAS doesn't exist. Please use 'Edit TAS' to add your TAS and use this function."
+                    session['error'] = error
+                    return redirect(url_for('index'))                   # return error
+                else:
+                    delete_tas = TASList.query.filter_by(tasAddress=tasAddr).first()
+                    print("EUM: ", delete_tas.tasName)
+                    if delete_tas.tasName != "Common TAS":
+                        error = "TAS is already a Private TAS. Please check your TAS address."
+                        session['error'] = error
+                        return redirect(url_for('index'))               # return error
+
+                    delete_tas.tasName = userName
+                    # update database
+                    db.session.commit()
+
+                    # flash message success
+                    flash("Common TAS changed to Private TAS successfully")
+                    return redirect(url_for('index'))
+            else:
+                error = "Edit TAS Failed. Please try again."
+                session['error'] = error
+                return redirect(url_for('index'))                       # return error
+
+        # when modifying common TS       
+        else:
+            tsAddr_1 = request.form.get('common-servername-ts1')                    # website
+            tsAddr_2 = request.form.get('common-servername-ts2')                    # website
+            selected_ts_1 = TSList.query.filter_by(tsAddress=tsAddr_1).first()      # database
+            selected_ts_2 = TSList.query.filter_by(tsAddress=tsAddr_2).first()      # database
+
+            # when adding common TS
+            if request.form.get('common-action-type') == 'add':
+                # check wheter TS exist
+                if selected_ts_1 is None and selected_ts_2 is None:
+                    error = "TS doesn't exist. Please mount the selected TS to TAS manually using LandSlide Application."
+                    session['error'] = error
+                    return redirect(url_for('index'))                   # return error
+                elif selected_ts_1 is None:
+                    error = "TS #1 doesn't exist. Please mount the selected TS to TAS manually using LandSlide Application."
+                    session['error'] = error
+                    return redirect(url_for('index'))                   # return error
+                elif selected_ts_2 is None:
+                    error = "TS #2 doesn't exist. Please mount the selected TS to TAS manually using LandSlide Application."
+                    session['error'] = error
+                    return redirect(url_for('index'))                   # return error
+
+                # check whether TS is already a common TS
+                if selected_ts_1.tsCommon == 1:
+                    error = "TS #1 is already a Common TS. Please check your TS address."
+                    session['error'] = error
+                    return redirect(url_for('index'))                   # return error
+                elif selected_ts_2.tsCommon == 1:
+                    error = "TS #2 is already a Common TS. Please check your TS address."
+                    session['error'] = error
+                    return redirect(url_for('index'))                   # return error
+                elif selected_ts_1.tsCommon == 1 or selected_ts_2.tsCommon == 1:
+                    error = "Both TS are already a Common TS. Please check your TS address."
+                    session['error'] = error
+                    return redirect(url_for('index'))                   # return error
+
+                # update origin TAS information
+                selected_ts_1.tsCommon = 1
+                selected_ts_2.tsCommon = 1
+
+                # update database
+                db.session.commit()
+
+                # flash message success
+                flash("Private TS successfully changed to Common TS")
+            # when removing common TS
+            else:
+                # check wheter TS exist
+                if selected_ts_1 is None and selected_ts_2 is None:
+                    error = "Both TS doesn't exist. Please mount the selected TS to TAS manually using LandSlide Application."
+                    session['error'] = error
+                    return redirect(url_for('index'))                   # return error
+                elif selected_ts_1 is None:
+                    error = "TS #1 doesn't exist. Please mount the selected TS to TAS manually using LandSlide Application."
+                    session['error'] = error
+                    return redirect(url_for('index'))                   # return error
+                elif selected_ts_2 is None:
+                    error = "TS #2 doesn't exist. Please mount the selected TS to TAS manually using LandSlide Application."
+                    session['error'] = error
+                    return redirect(url_for('index'))                   # return error
+
+                # check whether TS is already a common TS
+                if selected_ts_1.tsCommon == 0:
+                    error = "TS #1 is already a Private TS. Please check your TS address."
+                    session['error'] = error
+                    return redirect(url_for('index'))                   # return error
+                elif selected_ts_2.tsCommon == 0:
+                    error = "TS #2 is already a Private TS. Please check your TS address."
+                    session['error'] = error
+                    return redirect(url_for('index'))                   # return error
+                elif selected_ts_1.tsCommon == 0 or selected_ts_2.tsCommon == 0:
+                    error = "Both TS are already a Private TS. Please check your TS address."
+                    session['error'] = error
+                    return redirect(url_for('index'))                   # return error
+
+                # update origin TAS information
+                selected_ts_1.tsCommon = 0
+                selected_ts_2.tsCommon = 0
+
+                # update database
+                db.session.commit()
+
+                # flash message success
+                flash("Common TS successfully changed to private TS")
+    else:
+        error = "Modifying Common TAS/TS Failed. Please try again."
+        session['error'] = error
+        return redirect(url_for('index'))                               # return error
 
     return redirect(url_for('index'))
 
@@ -572,7 +781,7 @@ def home():
             return render_template('tslistview.html', data=getfollowedby(username))
         else:
             # need to send 404 page but skip for now
-            return render_template('tslistview.html')
+            return redirect(url_for('error_404'))
     else:
         return render_template('login.html')
 
