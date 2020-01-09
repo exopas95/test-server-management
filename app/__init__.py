@@ -154,6 +154,7 @@ def getTSListFromAPI():
                             db.session.add(new_ts)
                             db.session.commit()
         except Exception as e:
+            # need 404 for this error
             print ("error")
     return tsList
     
@@ -324,6 +325,13 @@ def index():
     if 'email' not in session:
         return render_template('login.html')
 
+    # get error message from session
+    if session.get('error') is None:
+        error = None
+    else:
+        error = session.get('error')
+        session.pop('error')
+    
     # get TAS/TS list from DB
     tasList, tasInfoList = TASList.getTASListFromDB()
     getTSListFromAPI()
@@ -353,17 +361,20 @@ def index():
         message.remove(message[0])
 
     return render_template('tslistview.html', 
+                            error=error,
                             tsList=tsList, 
                             tsList_sanJose=tsList_sanJose,
                             tsList_plano=tsList_plano,
                             tsList_bdc=tsList_bdc,
-                            tasList=tasInfoList, 
-                            message=tempMessage, 
+                            tasList=tasInfoList,
+                            message=tempMessage,
                             userName=userName,
                             userType=userType)
+
 # route for the lock feature
 @app.route('/lock/<ts>')
 def locking(ts):
+    error = None
     # add target TS to lockTsList
     if ts not in lockTsList:
         lockTsList.append(ts)
@@ -372,6 +383,7 @@ def locking(ts):
 # route for the unlock feature
 @app.route('/unlock/<ts>')
 def unlocking(ts):
+    error = None
     # remove target TS from lockTSList
     if ts in lockTsList:
         lockTsList.remove(ts)
@@ -380,7 +392,7 @@ def unlocking(ts):
 # route for the relocation feature
 @app.route('/modify/<ts>/<user>/<tas>')
 def tasmodification(ts, user, tas):
-    
+    error = None
     tasList, tasInfoList = TASList.getTASListFromDB()                   # get TAS information form the database
     # check TS availability first
     if checkTsAvailability(ts):
@@ -404,6 +416,7 @@ def tasmodification(ts, user, tas):
         print ("WARNING: same TS is already in use!")
         if "same_ts_use" not in message:
             message.append("same_ts_use")
+
     return redirect(url_for('index'))
 
 #route for edit TAS feature
@@ -418,7 +431,6 @@ def edit_tas_server():
         user_team = user.team                                           # user's team information (San Jose / Plano / BDC)
         user_type = user.userType                                       # user's type information (admin / guest)
         tasAddr = request.form.get('server-name')                       # TAS addressed typed from the website
-        tas_database = TASList.query.all()                              # TAS list from database
 
         # When you are adding new TAS to the system: you can add common TAS and other user's TAS
         if request.form.get('tas-action-type') == 'add':
@@ -437,42 +449,53 @@ def edit_tas_server():
                 userName = user.firstName + " " + user.lastName
             
             # Check whether TAS is already registered
-            if tasAddr in tas_database:
-                error = "TAS already registered"
-                return render_template('tslistview.html', error=error)  # Return error
+            if TASList.query.filter_by(tasAddress = tasAddr).first() is not None:
+                error = "TAS is already registered. Please check."
+                session['error'] = error
+                return redirect(url_for('index'))          # return error
             else:
                 # update database
                 new_tas = TASList(tasAddress=tasAddr, tasUsername=userName, tasTeam=user_team)
                 db.session.add(new_tas)
                 db.session.commit()
+
+                # flash message success
+                flash("TAS edited successfully")
                 return redirect(url_for('index'))
 
         # When you are removing TAS from the system
         elif request.form.get('tas-action-type') == 'remove':
             # Check whether TAS exist
-            if tasAddr not in tas_database:
-                error = "TAS doesn't exist"
-                return render_template('tslistview.html', error=error)  # Return error
+            if TASList.query.filter_by(tasAddress = tasAddr).first() is None:
+                error = "TAS doesn't exist. Please use 'Edit TAS' to add your TAS and use this function."
+                session['error'] = error
+                return redirect(url_for('index'))          # return error
+
             else:
                 # update database
                 delete_tas = TASList.query.filter_by(tasAddress=tasAddr).first()
                 db.session.delete(delete_tas)
                 db.session.commit()
+
+                # flash message success
+                flash("TAS removed successfully")
                 return redirect(url_for('index'))
         else:
-            error = "Edit TAS Failed"
-            return render_template('tslistview.html', error=error)      # reutrn error
+            error = "Edit TAS Failed. Please try again."
+            session['error'] = error
+            return redirect(url_for('index'))              # return error
     else:
-        error = "Edit TAS Failed"
-        return render_template('tslistview.html', error=error)          # reutrn error
+        error = "Edit TAS Failed. Please try again."
+        session['error'] = error
+        return redirect(url_for('index'))                  # return error
 
     return redirect(url_for('index'))
 
 #route for edit TS feature
 @app.route('/edit_ts_server', methods=['GET', 'POST'])
 def edit_ts_server():
+    error = None
     if request.method == 'POST':
-        error = None
         tasAddr = request.form.get('tas-server-name')
     
         # TS informations from website and database
@@ -481,14 +504,20 @@ def edit_ts_server():
         selected_ts_1 = TSList.query.filter_by(tsAddress=temp_ts_1).first()     # database
         selected_ts_2 = TSList.query.filter_by(tsAddress=temp_ts_2).first()     # database
 
+        print(selected_ts_1)
+        print(selected_ts_2)
+
         # check whether TAS exist
         if TASList.query.filter_by(tasAddress = tasAddr).first() is None:
-            error = "TAS not exist"
-            return render_template('tslistview.html', error=error)      # reutrn error
+            error = "TAS not exist. Please use 'Edit TAS' to add your TAS and use this function."
+            session['error'] = error
+            return redirect(url_for('index'))                      # return error
+
         # check wheter TS exist
-        if selected_ts_1 or selected_ts_2 is None:
-            error = "TS not exist"
-            return render_template('tslistview.html', error=error)      # reutrn error
+        if selected_ts_1 is None or selected_ts_2 is None:
+            error = "TS not exist. Please mount your TS to TAS manually using LandSlide Application."
+            session['error'] = error
+            return redirect(url_for('index'))                      # return error
 
         # update origin TAS information
         selected_ts_1.originTAS = tasAddr
@@ -498,9 +527,14 @@ def edit_ts_server():
         db.session.add(selected_ts_1)
         db.session.add(selected_ts_2)
         db.session.commit()
+
+        # flash message success
+        flash("Allocated TS successfully")
     else:
-        error = "Allocate TS Failed"
-        return render_template('tslistview.html', error=error)          # reutrn error
+        error = "Allocate TS Failed. Please try again."
+        session['error'] = error
+        return redirect(url_for('index'))                          # return error
+
     return redirect(url_for('index'))
 
 # route for the history list feature
@@ -518,6 +552,7 @@ def history():
             for lineIdx, item in enumerate(line):
                 log[field[lineIdx]] = item
             history.append(log)
+
     return render_template('history.html', error=error, history=history)
 
 # route for the about list feature
@@ -546,24 +581,28 @@ def home():
 def login():
     """Login Form"""
     error = None
-    # if you are logged in, skip this page
-    if 'email' in session:
-        return redirect(url_for('index'))
+    if request.method == 'POST':
+        # if you are logged in, skip this page
+        if 'email' in session:
+            return redirect(url_for('index'))
 
-    # if you are not logged in, render to login page
-    else:
-        email = request.form.get('email')
-        password = request.form.get('password')
-
-        # login
-        if User.authenticate(email, password):
-            session['email'] = email
-
-        # if login fails, go back to login page
+        # if you are not logged in, render to login page
         else:
-            error = "Login Fail"
-            return render_template("login.html", error=error)           # return error
-    return redirect(url_for('home'))
+            email = request.form.get('email')
+            password = request.form.get('password')
+
+            # login
+            if User.authenticate(email, password):
+                session['email'] = email
+                flash("Logged in successfully")
+                return redirect(url_for('home'))
+
+            # if login fails, go back to login page
+            else:
+                error = "Login Fail"
+                return render_template("login.html", error=error)           # return error
+
+    return render_template('login.html')
 
 # route for register
 @app.route('/register/', methods=['GET', 'POST'])
@@ -572,10 +611,9 @@ def register():
     error = None
     if request.method == 'POST':
         user_email = request.form.get('email')                          # email from the website
-        user_database = User.query.all()                                # email list from the database
 
         # Check whether email information is unique
-        if user_email in user_database:
+        if User.query.filter_by(email = user_email).first() is not None:
             error = "Email already used"
             return render_template('register.html', error=error)        # return error
 
@@ -589,7 +627,12 @@ def register():
         # update database                
         db.session.add(new_user)
         db.session.commit()
+
+        # flash message success
+        flash("Registered successfully")
+
         return render_template('login.html')
+
     return render_template('register.html')
 
 # route for logout
@@ -597,6 +640,10 @@ def register():
 def logout():
     """Logout Form"""
     session.pop('email', None)
+
+    # flash message success
+    flash("Logged out successfully")
+
     return redirect(url_for('login'))
 
 # route for reservation
@@ -606,6 +653,7 @@ def reservePage():
 
 @app.route('/reserve/<mon1>/<dat1>/<hou1>/<min1>/<ampm1>/<mon2>/<dat2>/<hou2>/<min2>/<ampm2>/<currentTS>/<relocateTAS>/<reservPerson>', methods=['GET', 'POST'])
 def reserve(mon1, dat1, hou1, min1, ampm1, mon2, dat2, hou2, min2, ampm2, currentTS, relocateTAS, reservPerson):
+    error = None
     print(mon1, dat1, hou1, min1, ampm1, mon2, dat2, hou2, min2, ampm2)
     returnTAS = ""
     if currentTS is not None:
@@ -622,6 +670,7 @@ def reserve(mon1, dat1, hou1, min1, ampm1, mon2, dat2, hou2, min2, ampm2, curren
 
 @app.route('/cancelReserve/<tsAddrToCancel>/<index>', methods=['GET', 'POST'])
 def cancelReserve(tsAddrToCancel, index):
+    error = None
     print(tsAddrToCancel , index)
     reservedTsList.cancelReserve(tsAddrToCancel,int(index))
     return redirect(url_for('index'))
