@@ -74,6 +74,7 @@
 			background-color: transparent;
 			border-color: transparent;
 			border: none;
+			margin-left: 5px;
 		}
 		.edit-button:hover {
 			color: White;
@@ -246,7 +247,11 @@
 		}
 		.flashes {
         	padding-inline-start: 0px;
-      	}
+		}
+		.notice-nav {
+			font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+			font-size: 13px;
+		}
 	</style>
 </head>
 <body onload="showMessage('{{ message }}');">
@@ -276,8 +281,8 @@
 								<form action="/edit_tas_server" method="POST">
 									<div class="modal-body">
 										<div>
-											<p class="notice">
-												This tab is to add your TAS into TS Management system.<br>
+											<p class="notice notice-nav">
+												This tab is to add <strong>your TAS</strong> into TS Management system by your name.
 												This is necessary if you want to use your TAS on the system.
 											</p>
 										</div>
@@ -302,27 +307,94 @@
 												<input class="form-control" type="text" name="server-name" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx" required>
 											</div>
 										</div>
+										<div class="custom-select">
+											<div class="form-check">
+												<p>TAS Owner:</p>
+											</div>
+											<div class="form-check form-check-inline">
+												<input class="form-control" type="text" name="server-name" placeholder={{userName}} required disabled=true>
+											</div>
+										</div>
+									</div>
+									<div class="modal-footer">
+										<input type="submit" class="btn btn-info" value="Edit">
+										<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+									</div>
+								</form>
+							</div>
+					  	</div>
+					</div>
+				</li>
+				<li [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
+					<button type="button" class="edit-button" data-toggle="modal" data-target="#commonModal">Edit Commmon TAS/TS</button>
+					<div class="modal fade" id="commonModal" role="dialog">
+					  	<div class="modal-dialog">
+							<div class="modal-content">
+						  		<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal">&times;</button>
+									<h4 class="modal-title">Edit Commmon TAS/TS</h4>
+						  		</div>
+								<form action="/edit_common_server" method="POST">
+									<div class="modal-body">
+										<div>
+											<p class="notice notice-nav">
+												This tab is to modify common TAS/TS into TS Management system.
+												Only admin can add/remove the common system.<br><br>
+												<strong>1) Add TAS:</strong> TAS will be added to the system database<br>
+												<strong>2) Remove TAS:</strong> TAS will be removed from the system database<br>
+												<strong>3) Add TS:</strong> TS owner will be updated to <strong>Common</strong><br>
+												<strong>4) Remove TS:</strong> TS owner will be updated to <strong>Private</strong> 				
+											</p>
+										</div>
 										{% if userType == "admin" %}
 										<div class="custom-select">
 											<div class="form-check">
-												<p>Common TAS?</p>
+												<p>Action:</p>
 											</div>
 											<div class="form-check form-check-inline">    
-												<input class="form-check-input" type="radio" name="common-action-type" value="yes" onclick="disableField()">
-												<label class="form-check-label" for="inlineRadio1">Yes</label>
+												<input class="form-check-input" type="radio" name="common-action-type" value="add" checked="checked">
+												<label class="form-check-label" for="inlineRadio1">Add</label>
 											</div>
 											<div class="form-check form-check-inline">
-												<input class="form-check-input" type="radio" name="common-action-type" value="no" onclick="ableField()" checked="checked">
-												<label class="form-check-label" for="inlineRadio2">No</label>
+												<input class="form-check-input" type="radio" name="common-action-type" value="remove">
+												<label class="form-check-label" for="inlineRadio2">Remove</label>
 											</div>
 										</div>
 										<div class="custom-select">
-											<div class="form-check" style="display: inline-block";>
-												<p >TAS Owner:</p>
+											<div class="form-check">
+												<p>Type:</p>
 											</div>
-											<div class="form-check form-check-inline" style="width: 75%";>
-												<input id="input-tas-owner-firstname" class="form-control" type="text" name="owner-firstname" placeholder="First Name" style="width: 40%;text-transform: capitalize;" required>
-												<input id="input-tas-owner-lastname" class="form-control" type="text" name="owner-lastname" placeholder="Last Name" style="width: 40%;text-transform: capitalize;" required>								
+											<div class="form-check form-check-inline">    
+												<input class="form-check-input" type="radio" name="common-select-type" value="tas" onclick="disableTSField(); ableTASField()" checked="checked">
+												<label class="form-check-label" for="inlineRadio1">TAS</label>
+											</div>
+											<div class="form-check form-check-inline">
+												<input class="form-check-input" type="radio" name="common-select-type" onclick="ableTSField(); disableTASField()" value="ts">
+												<label class="form-check-label" for="inlineRadio2">TS</label>
+											</div>
+										</div>
+										<div class="custom-select">
+											<div class="form-check">
+												<p>TAS Address:</p>
+											</div>
+											<div class="form-check form-check-inline">
+												<input id=tas class="form-control" type="text" name="common-servername-tas" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx" required>
+											</div>
+										</div>
+										<div class="custom-select">
+											<div class="form-check">
+												<p>TS Address #1:</p>
+											</div>
+											<div class="form-check form-check-inline">
+												<input id="ts_1" class="form-control" type="text" name="common-servername-ts1" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx" required disabled="true">							
+											</div>
+										</div>
+										<div class="custom-select">
+											<div class="form-check">
+												<p>TS Address #2:</p>
+											</div>
+											<div class="form-check form-check-inline">
+												<input id="ts_2" class="form-control" type="text" name="common-servername-ts2" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx" required disabled="true">						
 											</div>
 										</div>
 										{% endif %}
@@ -348,7 +420,7 @@
 								<form action="/edit_ts_server" method="POST">
 									<div class="modal-body">
 										<div>
-											<p class="notice">
+											<p class="notice notice-nav">
 												This tab is to determine which TAS your TS belongs to.<br>
 												This is necessary for using the reservation function and for the TS to return to its original TAS
 											</p>
@@ -436,6 +508,8 @@
 	<label class="tab-list" for = "tab2">Plano</label>
 	<input type = "radio" id = "tab3" name = "tabs">
 	<label class="tab-list" for = "tab3">BDC</label>
+	<input type = "radio" id = "tab4" name = "tabs">
+	<label class="tab-list" for = "tab4">Common TS</label>
 	<div id = "content1">
 		<div class="panel-body">
 			<table id="sortedTable" class="display">
@@ -443,7 +517,7 @@
 				<tr>
 					<th>TS</th>
 					<th>Owner</th>
-					<th>TAS</th>
+					<th>Located TAS</th>
 					<th>Name</th>
 					<th>Platform</th>
 					<th>Memory</th>
@@ -541,7 +615,7 @@
 				<tr>
 					<th>TS</th>
 					<th>Owner</th>
-					<th>TAS</th>
+					<th>Located TAS</th>
 					<th>Name</th>
 					<th>Platform</th>
 					<th>Memory</th>
@@ -639,7 +713,7 @@
 				<tr>
 					<th>TS</th>
 					<th>Owner</th>
-					<th>TAS</th>
+					<th>Located TAS</th>
 					<th>Name</th>
 					<th>Platform</th>
 					<th>Memory</th>
@@ -729,6 +803,103 @@
 			</table>
 		</div>
 	</div>
+	<div id = "content4">
+		<div class="panel-body">
+			<table id="sortedTable4" class="display">
+				<thead>
+				<tr>
+					<th>TS</th>
+					<th>Owner</th>
+					<th>Located TAS</th>
+					<th>Name</th>
+					<th>Platform</th>
+					<th>Memory</th>
+					<th>OS</th>
+					<th>Version</th>
+					<th>State</th>
+					<th></th>
+				</tr>
+				</thead>
+				<tbody class="table-list">
+				{% for TS in tsList_common.values() %}
+					<tr>
+						<th>{{ TS['info']['managementIp'] }}</th>
+						<td>{{ TS['owner'] }}</td>
+						<td><span id="TAS_common">{{ TS['tas'] }}</span></td>
+						<td>{{ TS['name'] }}</td>
+						<td>{{ TS['info']['platform'] }}</td>
+						<td>{{ TS['info']['memory'] }}</td>
+						<td>{{ TS['info']['os'] }}</td>
+						<td>{{ TS['version'] }}</td>
+						<td>
+							{% if 'NOT_READY' in TS['state'] %}
+								<span class="label label-danger">
+							{% elif 'READY' in TS['state'] %}
+								<span class="label label-success">
+							{% elif 'LOCK' in TS['state'] %}
+								<span class="label label-danger">
+							{% else %}
+								<span class="label label-warning">
+							{% endif %}
+							{{ TS['state'] }}
+							</span>
+						</td>
+						<td style="width:30px">
+							<div class="btn-group">
+								<button type="button" style="padding:3px 7px;" class="btn btn-primary" data-toggle="modal" data-target="#configuration_common{{ loop.index }}"><img class="gear" src="{{url_for('static', filename='gear.jpg')}}" height="22px" weight="22px"/></button>
+								<div id="configuration_common{{ loop.index }}" class="modal" role="dialog">
+								<div class="modal-content">
+									<div class="modal-header">
+										<h4 class="modal-title">TestServer Configuration</h4>
+									</div>
+		
+									<ul class="nav nav-tabs" id="tabContent_3">
+										<li class="active"><a href="#relocate_common{{ loop.index }}" data-toggle="tab">Relocate</a></li>
+										<li><a href="#lock_common{{ loop.index }}" data-toggle="tab">Lock System</a></li>
+									</ul>
+									<div class="tab-content">
+										<div class="tab-pane active" id="relocate_common{{ loop.index }}">
+											<div class="modal-body">
+												<div class="custom-select" id="common{{ loop.index }}">Current User : 
+													<select>
+														<option value="">Select User</option>
+														{% for TAS in tasList %}
+															{% set value = TAS.split(',') %}
+															<option value="{{ value[0] }}"> {{ value[1] }} </option>
+														{% endfor %}
+													</select>
+												</div>
+		
+												<div class="custom-select" id="common{{ loop.index }}">Target TAS     : 
+													<select>
+														<option value="">Select TAS</option>
+														{% for TAS in tasList %}
+															{% set value = TAS.split(',') %}
+															<option value="{{ value[0] }}"> {{ value[0] }}({{ value[1] }}) </option>
+														{% endfor %}
+													</select>
+												</div>
+												<button style="margin-top:30px;" type="submit" onclick="modify('{{ TS.info.managementIp }}', '{{ loop.index }}')" class="btn btn-primary">Relocate</button>
+											</div>
+										</div>
+										<div class="tab-pane" id="lock_common{{ loop.index }}">
+											<button type="submit" class="btn btn-info" onclick="lock('{{ TS.info.managementIp }}')">Lock</button>
+											<button type="submit" class="btn btn-warning" onclick="unlock('{{ TS.info.managementIp }}')">Unlock</button>
+										</div>
+									</div>
+									<div class="modal-footer">
+										<button id="closeButton_3" type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+									</div>
+								</div>
+								</div>
+							</div>
+						</td>
+					</tr>
+				{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
 </div>
 <script type="text/javascript">
     $(document).ready(function () {
@@ -745,6 +916,12 @@
             "dom": 'fltp'
 		});
 		$("#sortedTable3").DataTable({
+            "order": [[1, "asc"]],
+            "iDisplayLength": 10,
+            "columnDefs": [{ "searchable": false, "targets": 9 }],
+            "dom": 'fltp'
+		});
+		$("#sortedTable4").DataTable({
             "order": [[1, "asc"]],
             "iDisplayLength": 10,
             "columnDefs": [{ "searchable": false, "targets": 9 }],
@@ -822,15 +999,19 @@
 			alert("WARNING: This TS is already in progress of relocation!");
 		}
 	}
-
-	function disableField() {
-		document.getElementById("input-tas-owner-firstname").disabled = true;
-		document.getElementById("input-tas-owner-lastname").disabled = true;
+	function disableTSField() {
+		document.getElementById("ts_1").disabled = true;
+		document.getElementById("ts_2").disabled = true;
 	}
-
-	function ableField() {
-		document.getElementById("input-tas-owner-firstname").disabled = false;
-		document.getElementById("input-tas-owner-lastname").disabled = false;
+	function disableTASField() {
+		document.getElementById("tas").disabled = true;
+	}
+	function ableTSField() {
+		document.getElementById("ts_1").disabled = false;
+		document.getElementById("ts_2").disabled = false;
+	}
+	function ableTASField() {
+		document.getElementById("tas").disabled = false;
 	}
 </script>
 </body>

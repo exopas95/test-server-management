@@ -52,8 +52,9 @@ class TSList(db.Model):
 	tsMemory = db.Column(db.Integer, nullable=False)
 	tsOS = db.Column(db.String(80), nullable=False)
 	originTAS = db.Column(db.String(120), nullable=True)
+	tsCommon = db.Column(db.Integer, nullable=False)
 
-	def __init__(self, tsAddress, tasAddress, tsName, tsVersion, tsState, tsManagementIp, tsPlatform, tsMemory, tsOS, originTAS):
+	def __init__(self, tsAddress, tasAddress, tsName, tsVersion, tsState, tsManagementIp, tsPlatform, tsMemory, tsOS, originTAS, tsCommon):
 		self.tsAddress = tsAddress
 		self.tasAddress = tasAddress
 		self.tsName = tsName
@@ -64,6 +65,7 @@ class TSList(db.Model):
 		self.tsMemory = tsMemory
 		self.tsOS = tsOS
 		self.originTAS = originTAS
+		self.tsCommon = tsCommon
 
 class TASList(db.Model):
 	""" Create tasList table"""
