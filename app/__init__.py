@@ -199,8 +199,7 @@ def getTSListFromAPI():
                             db.session.add(new_ts)
                             db.session.commit()
         except Exception as e:
-            # need 404 for this error
-            print ("!!!!!!!!!!!!!!!!!!!!!!error!!!!!!!!!!!!!!!!!!!!!")
+            return redirect(url_for('error_404'))
     return tsList
     
 # check ts is available to relocate or not
@@ -416,6 +415,12 @@ def index():
                             message=tempMessage,
                             userName=userName,
                             userType=userType)
+
+# route for the about list feature
+@app.route('/error_404')
+def error_404():
+    error = None
+    return render_template('error_404.html', error=error)
 
 # route for the lock feature
 @app.route('/lock/<ts>')
@@ -776,7 +781,7 @@ def home():
             return render_template('tslistview.html', data=getfollowedby(username))
         else:
             # need to send 404 page but skip for now
-            return render_template('tslistview.html')
+            return redirect(url_for('error_404'))
     else:
         return render_template('login.html')
 
