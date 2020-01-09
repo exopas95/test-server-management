@@ -891,6 +891,7 @@ def reservePage():
     commonTS = []
     for ts in tsList:
         commonTS.append(ts)
+
     return render_template('reservePage.html', tsList_bdc=tsList_bdc, tsList_plano=tsList_plano, tsList_sanJose=tsList_sanJose, commonTS=commonTS, userName=userName, myTasAddress=myTasAddress,todayList=todayList,tslen=len(commonTS))
 
 @app.route('/reservePage/reserve/<mon1>/<dat1>/<hou1>/<min1>/<ampm1>/<mon2>/<dat2>/<hou2>/<min2>/<ampm2>/<currentTS>/<relocateTAS>/<reservPerson>', methods=['GET', 'POST'])
@@ -912,6 +913,11 @@ def reserve(mon1, dat1, hou1, min1, ampm1, mon2, dat2, hou2, min2, ampm2, curren
     starttime, result = reservedTsList.checkPeriod(int(mon1), int(dat1), int(hou1), int(min1), int(ampm1), int(mon2), int(dat2), int(hou2), int(min2), int(ampm2))
     if int(result) != -1:
         reservedTsList.reserve(starttime,currentTS,relocateTAS, returnTAS, result, reservPerson)
+        # flash message success
+        flash("Reserved Successfully")
+    else:
+        error = "Reserve Failed"
+        session['error'] = error # return error
 
     return redirect(url_for('reservePage'))
 

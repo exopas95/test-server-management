@@ -202,19 +202,23 @@ class LinkedList:
         while temp is not None:
             temp.data = temp.data - 1
             print("data = {0} {1} {2} {3} {4}".format(temp.data, temp.TSaddress, temp.TASToMove, temp.StartingFlg, temp.ReservePeriod))
-            if(temp.data <= 0):
-                relocatingTsList.append((temp.TSaddress, temp.TASToMove, temp.StartingFlg))
-               
+            checkNode = temp
             temp = temp.next
+            if(checkNode.data == 0):
+                relocatingTsList.append((checkNode.TSaddress, checkNode.TASToMove, checkNode.StartingFlg))
+                del checkNode
+
+               
+            
         
-        if self.head is not None:
-            temp = self.head
-            while temp is not None:
-                if temp.data <= 0:
-                    temp = temp.next            
-                    self.remove_head
-                else:
-                    temp = temp.next
+        # if self.head is not None:
+        #     temp = self.head
+        #     while temp is not None:
+        #         if temp.data <= 0:
+        #             temp = temp.next            
+        #             self.remove_head
+        #         else:
+        #             temp = temp.next
 
         #threading.Timer(30, self.display_list).start()
         return relocatingTsList
@@ -275,7 +279,7 @@ class LinkedList:
                     isMiddleOfReservedPeriod = True
                 else:
                     isMiddleOfReservedPeriod = False
-                countedReservedTsList.append((temp.reservingPerson, tas2move, startRealTime, endRealTime, isMiddleOfReservedPeriod))
+                countedReservedTsList.append((temp.reservingPerson, tas2move, startRealTime, endRealTime, isMiddleOfReservedPeriod, temp.TSaddress))
             temp = temp.next
         
         return countedReservedTsList

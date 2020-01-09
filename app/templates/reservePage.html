@@ -673,7 +673,7 @@
 				<thead>
 				<tr>
                     <th>Index</th>
-                    <th>TAS</th>
+                    <th>TS</th>
                     <th>Start time</th>
                     <th>End time</th>
                     <th>State</th>
@@ -684,7 +684,7 @@
                     {% for booked in getMybooklist(userName) %}
                     <tr>
                         <td>{{ loop.index }}</td>
-                        <td>{{ booked[1] }}</td>
+                        <td>{{ booked[5] }}</td>
                         <td>{{ booked[2] }}</td>
                         <td>{{ booked[3] }}</td>
                         <td>
