@@ -1,6 +1,6 @@
 import requests, base64, datetime
 import paramiko, time, csv, os
-#from flask_mail import Mail, Message
+from flask_mail import Mail, Message
 
 from multiprocessing import Process, Manager
 from tsDB import *
@@ -48,11 +48,14 @@ def connectSSH(ip, usn, pwd):
             return shell
         except paramiko.AuthenticationException:
             print ("Authentication failed when connectinig " + ip)
+            ssh.close()
+            return
         except:
             # if connection fails, try again after 15 seconds
             print ("Could not connect SSH to " + ip + ", waiting 15s for it to start")
             i += 1
             time.sleep(15)
+    return
 
 # get TS data from API
 def getTSListFromAPI():
@@ -67,6 +70,7 @@ def getTSListFromAPI():
     # we already have tasList. Check each tas
     #originTASaddr = ""
     tasList, tasInfoList = TASList.getTASListFromDB()
+    print("EUM: Her?")
     for tas in tasList:
         tasAddr = tas
         tasData = TASList.query.filter_by(tasAddress = tasAddr).first()
@@ -98,26 +102,40 @@ def getTSListFromAPI():
                 if 'NOT_READY' not in ts['state'] or ts['info']['managementIp'] not in tsList:
                     if 'NOT_READY (NO COMM)' != ts['state']:
                         
-                        # bring TS information from database
-                        ts_database = TSList.query.filter_by(tsAddress = ts['info']['managementIp']).first()
-                        
-                        # If TS is a common TS
-                        if ts_database.tsCommon == 1:
-                            ts_user_name = "Common TS"
-
-                        # If TS is a private TS
-                        else:
-                            # If TS doesn't have origin TAS, TS user name is set to located TAS user name
-                            if ts_database.originTAS is None:
-                                ts_user_name = tasOwner
-
-                            # If TS has origin TAS information
-                            else:
-                                ts_origin_tas = ts_database.originTAS
-                                tas_database = TASList.query.filter_by(tasAddress = ts_origin_tas).first()
+                        # If there is TS List in the database
+                        if TSList.query.filter_by(tsAddress = ts['info']['managementIp']).first():
+                            # bring TS information from database
+                            ts_database = TSList.query.filter_by(tsAddress = ts['info']['managementIp']).first()
                             
-                                # update TS user name as origin TAS's user name
-                                ts_user_name = tas_database.tasName
+                            # If TS is a common TS
+                            if ts_database.tsCommon == 1:
+                                ts_user_name = "Common TS"
+                                # update Common TS List                   
+                                if ts_database.tsCommon == 1:
+                                    tsList_common[ts['info']['managementIp']] = {}
+                                    tsList_common[ts['info']['managementIp']]['state'] = ts['state']
+                                    tsList_common[ts['info']['managementIp']]['name'] = ts['name']
+                                    tsList_common[ts['info']['managementIp']]['version'] = ts['version']
+                                    tsList_common[ts['info']['managementIp']]['info'] = ts['info']
+                                    tsList_common[ts['info']['managementIp']]['tas'] = tasAddr
+                                    tsList_common[ts['info']['managementIp']]['owner'] = ts_user_name
+
+                            # If TS is a private TS
+                            else:
+                                # If TS doesn't have origin TAS, TS user name is set to located TAS user name
+                                if ts_database.originTAS is None:
+                                    ts_user_name = tasOwner
+
+                                # If TS has origin TAS information
+                                else:
+                                    ts_origin_tas = ts_database.originTAS
+                                    tas_database = TASList.query.filter_by(tasAddress = ts_origin_tas).first()
+                                
+                                    # update TS user name as origin TAS's user name
+                                    ts_user_name = tas_database.tasName
+                        # If there is no TS List in the database
+                        else:
+                            ts_user_name = tasOwner
 
                         # update TS List
                         tsList[ts['info']['managementIp']] = {}
@@ -127,17 +145,7 @@ def getTSListFromAPI():
                         tsList[ts['info']['managementIp']]['info'] = ts['info']
                         tsList[ts['info']['managementIp']]['tas'] = tasAddr
                         tsList[ts['info']['managementIp']]['owner'] = ts_user_name
-
-                        # update Common TS List                        
-                        if ts_database.tsCommon == 1:
-                            tsList_common[ts['info']['managementIp']] = {}
-                            tsList_common[ts['info']['managementIp']]['state'] = ts['state']
-                            tsList_common[ts['info']['managementIp']]['name'] = ts['name']
-                            tsList_common[ts['info']['managementIp']]['version'] = ts['version']
-                            tsList_common[ts['info']['managementIp']]['info'] = ts['info']
-                            tsList_common[ts['info']['managementIp']]['tas'] = tasAddr
-                            tsList_common[ts['info']['managementIp']]['owner'] = ts_user_name
-
+                                
                         # update TS List for team San Jose
                         if tasTeam == 'San Jose':
                             tsList_sanJose[ts['info']['managementIp']] = {}
@@ -274,7 +282,7 @@ def modifyTs(ts, targetTas):
             print ("\nPassword prompt not seen")
     else:
         print ("\nshell is Empty. Please connect again")
-    time.sleep(45)
+    time.sleep(20)
 
     # connect SSH and restart TS
     shell = connectSSH(HOST, USERNAME, PASSWORD)
@@ -456,7 +464,7 @@ def tasmodification(ts, user, tas):
         # spawn another process for multi-processing
         p = Process(target=modifyTs, args=(ts, tas))
         p.start()
-
+        p.join()
         for tas in tasList:
             if user in tas:
                 user = tas.split(',')[1]
@@ -855,19 +863,49 @@ def logout():
 
     return redirect(url_for('login'))
 
-# route for reservation
-@app.route("/reservePage")
+@app.route("/reservePage", methods=['GET', 'POST'])
 def reservePage():
-    return render_template('reservePage.html')
+    """ Session control"""
+    if 'email' not in session:
+        return render_template('login.html')
 
-@app.route('/reserve/<mon1>/<dat1>/<hou1>/<min1>/<ampm1>/<mon2>/<dat2>/<hou2>/<min2>/<ampm2>/<currentTS>/<relocateTAS>/<reservPerson>', methods=['GET', 'POST'])
+    email = session['email']
+    user = User.query.filter_by(email = email).first()
+    firstName = user.firstName
+    lastName = user.lastName
+    userName = firstName + " " + lastName
+    temp = TASList.query.filter_by(tasName = userName).first()
+    print(temp)
+
+    if temp is not None:
+        myTasAddress = temp.tasAddress
+    else:
+        myTasAddress = "10.140.92.212"
+
+    todayList = reservedTsList.getTodayReservedList()
+    # todayList = []
+    # todayList.append((1,3))
+    # todayList.append((1,5))
+    # todayList.append((2,35))
+    
+    commonTS = []
+    for ts in tsList:
+        commonTS.append(ts)
+    return render_template('reservePage.html', tsList_bdc=tsList_bdc, tsList_plano=tsList_plano, tsList_sanJose=tsList_sanJose, commonTS=commonTS, userName=userName, myTasAddress=myTasAddress,todayList=todayList,tslen=len(commonTS))
+
+@app.route('/reservePage/reserve/<mon1>/<dat1>/<hou1>/<min1>/<ampm1>/<mon2>/<dat2>/<hou2>/<min2>/<ampm2>/<currentTS>/<relocateTAS>/<reservPerson>', methods=['GET', 'POST'])
 def reserve(mon1, dat1, hou1, min1, ampm1, mon2, dat2, hou2, min2, ampm2, currentTS, relocateTAS, reservPerson):
-    error = None
     print(mon1, dat1, hou1, min1, ampm1, mon2, dat2, hou2, min2, ampm2)
     returnTAS = ""
     if currentTS is not None:
         temp = TSList.query.filter_by(tsAddress = currentTS).first()
-        returnTAS = temp.originTAS
+        if temp:
+            if temp.originTAS:
+                returnTAS = temp.originTAS
+            else:
+                returnTAS = "10.140.92.100"
+        else:
+            returnTAS = "10.140.92.100"
     else:
         return "Null TS selection"
 
@@ -875,14 +913,51 @@ def reserve(mon1, dat1, hou1, min1, ampm1, mon2, dat2, hou2, min2, ampm2, curren
     if int(result) != -1:
         reservedTsList.reserve(starttime,currentTS,relocateTAS, returnTAS, result, reservPerson)
 
-    return redirect(url_for('index'))
+    return redirect(url_for('reservePage'))
 
-@app.route('/cancelReserve/<tsAddrToCancel>/<index>', methods=['GET', 'POST'])
-def cancelReserve(tsAddrToCancel, index):
-    error = None
-    print(tsAddrToCancel , index)
-    reservedTsList.cancelReserve(tsAddrToCancel,int(index))
-    return redirect(url_for('index'))
+@app.route('/reservePage/reserve2/<mon1>/<dat1>/<hou1>/<min1>/<ampm1>/<mon2>/<dat2>/<hou2>/<min2>/<ampm2>/<currentTS>/<currentTS2>/<relocateTAS>/<reservPerson>', methods=['GET', 'POST'])
+def reserve2(mon1, dat1, hou1, min1, ampm1, mon2, dat2, hou2, min2, ampm2, currentTS, currentTS2, relocateTAS, reservPerson):
+    print(mon1, dat1, hou1, min1, ampm1, mon2, dat2, hou2, min2, ampm2)
+    returnTAS = ""
+    if currentTS is not None:
+        temp = TSList.query.filter_by(tsAddress = currentTS).first()
+        if temp:
+            if temp.originTAS:
+                returnTAS = temp.originTAS
+            else:
+                returnTAS = "10.140.92.100"
+        else:
+            returnTAS = "10.140.92.100"
+    else:
+        return "Null TS selection"
+
+    starttime, result = reservedTsList.checkPeriod(int(mon1), int(dat1), int(hou1), int(min1), int(ampm1), int(mon2), int(dat2), int(hou2), int(min2), int(ampm2))
+    if int(result) != -1:
+        reservedTsList.reserve(starttime,currentTS,relocateTAS, returnTAS, result, reservPerson)
+
+    returnTAS = ""
+    if currentTS2 is not None:
+        temp = TSList.query.filter_by(tsAddress = currentTS2).first()
+        if temp:
+            if temp.originTAS:
+                returnTAS = temp.originTAS
+            else:
+                returnTAS = "10.140.92.100"
+        else:
+            returnTAS = "10.140.92.100"
+    else:
+        return "Null TS selection"
+
+    starttime, result = reservedTsList.checkPeriod(int(mon1), int(dat1), int(hou1), int(min1), int(ampm1), int(mon2), int(dat2), int(hou2), int(min2), int(ampm2))
+    if int(result) != -1:
+        reservedTsList.reserve(starttime,currentTS2,relocateTAS, returnTAS, result, reservPerson)
+
+    return redirect(url_for('reservePage'))
+
+@app.route('/reservePage/cancelReserve/<currentUser>/<index>', methods=['GET', 'POST'])
+def cancelReserve(currentUser, index):
+    reservedTsList.cancelReserve(currentUser,int(index))
+    return redirect(url_for('reservePage'))
 
 @app.context_processor
 def getBookedList():
@@ -891,31 +966,69 @@ def getBookedList():
         return bookedList
     return dict(getbooklist=getbooklist)
 
-def relocateReservedTS():    
+@app.context_processor
+def getMybooklist():
+    def getMybooklist(userName):
+        mybookedList = reservedTsList.countTsReservationListByName(userName)
+        return mybookedList
+    return dict(getMybooklist=getMybooklist)
+
+def relocateReservedTS():
+    global relocatedTsList
+    global session
+    global reservedTsList
     if (datetime.datetime.now().minute % 5) == 0:
-        #check if the relcating correctly
-        for relocatedTs in relocatedTsList:
-            temp = TSList.query.filter_by(tsAddress = relocatedTs[0]).first()
-            if temp.tasAddress != relocatedTs[1]:
-                #if ts is not belongs to reserved tas, relocate again
-                modifyThread = Process(target=tasmodification, args=(relocatedTs[0], temp.tasAddress, relocatedTs[1]))
-                modifyThread.start()
-                #tasmodification(relocatedTs[0], temp.tasAddress, relocatedTs[1])
+        # #check if the relcating correctly
+        # for relocatedTs in relocatedTsList:
+        #     temp = TSList.query.filter_by(tsAddress = relocatedTs[0]).first()
+        #     if temp.tasAddress != relocatedTs[1]:
+        #         #if ts is not belongs to reserved tas, send mail
+        #         wrongTAS = TASList.query.filter_by(tasAddress = temp.tasAddress).first()
+        #         if wrongTAS is not None:
+        #             temp_ = wrongTAS.tasName.split(' ')
+        #             temp_firstName = ""
+        #             if temp_firstName is not None:
+        #                 temp_firstName = temp_[0]
+        #             temp_lastName = ""
+        #             if temp_lastName is not None:
+        #                 temp_lastName = temp_[1]                    
+        #             ReceiverName = User.query.filter_by(firstName = temp_firstName).filter_by(lastName = temp_lastName).first()
+        #             if ReceiverName is not None:
+        #                 print("try to send mail")
+        #                 Sender = session['email']
+        #                 Receiver = ReceiverName.email
+        #                 Context = "The TS : " + relocatedTs[0] + " is reserved for now.\nPlease relocate TS to TAS : " + relocatedTs[1] +"\n\nThank you"
+        #                 send_email(Sender, Receiver, Context)
+        #                 print("send mail successfully")
+        #             else:
+        #                 print("Receiver is None")
+        #         else:
+        #             print("wrongTAS is None")
+
 
         relocateTSList = reservedTsList.display_list()
+        print(relocateTSList)
         fromTAS = ""
         for element in relocateTSList:
             print(element[2])
             if element[2] == True:
                 relocatedTsList.append((element[0], element[1])) #ts addr, tas addr
+                print ("add true case")
+                print (relocatedTsList)
                 #locking(element[0])
             else:
+                print ("add false case")
+                print (relocatedTsList)
                 #unlocking(element[0])
-                relocatedTsList.remove((element[0], element[1]))
+                for reservedItem in relocatedTsList:
+                    if reservedItem == (element[0], element[1]):
+                        relocatedTsList.remove((element[0], element[1]))
+                        break
 
             fromTAS = tsList[element[0]]['tas']
-            modifyThread = Process(target=tasmodification, args=(element[0], fromTAS, element[1]))
-            modifyThread.start()
+            p = Process(target=modifyTs, args=(element[0], element[1]))
+            p.start()
+            p.join(60)           
             #tasmodification(element[0], fromTAS, element[1])
     
     # if (datetime.datetime.now().minute % 10) == 0:
@@ -925,4 +1038,21 @@ def relocateReservedTS():
     #         if temp.tasAddress != relocatedTs[1]:
     #             #if ts is not belongs to reserved tas, relocate again
     #             tasmodification(relocatedTs[0], temp.tasAddress, relocatedTs[1])
-    threading.Timer(20, relocateReservedTS).start()
+    print("minute : " , datetime.datetime.now().minute)
+    print ("relocated are")
+    print (relocatedTsList)
+    reservedTsList.showList()
+    threading.Timer(60, relocateReservedTS).start()
+
+def send_email(senders, receiver, content):
+    try:
+        mail = Mail(app)
+        msg = Message('Title', sender = senders, recipients = receiver)
+        msg.body = content
+        mail.send(msg)
+    except Exception:
+        pass
+    finally:
+        pass
+
+relocateReservedTS()

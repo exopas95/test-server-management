@@ -3,7 +3,6 @@ import time
 import threading
 import datetime
 import math
-app = Flask(__name__) 
 
 class Node:
     def __init__(self, data, TSaddr, targetTAS, flg, period, reservPerson):
@@ -199,15 +198,23 @@ class LinkedList:
     def display_list(self):
         relocatingTsList = []
         temp = self.head
+        print("current list")
         while temp is not None:
-            temp.data -= 1
-            if(temp.data == 0):
+            temp.data = temp.data - 1
+            print("data = {0} {1} {2} {3} {4}".format(temp.data, temp.TSaddress, temp.TASToMove, temp.StartingFlg, temp.ReservePeriod))
+            if(temp.data <= 0):
                 relocatingTsList.append((temp.TSaddress, temp.TASToMove, temp.StartingFlg))
-                temp = temp.next
-                self.remove_head()
-            else:
-                print("data = {0} {1} {2} {3} {4}".format(temp.data, temp.TSaddress, temp.TASToMove, temp.StartingFlg, temp.ReservePeriod))
-                temp = temp.next
+               
+            temp = temp.next
+        
+        if self.head is not None:
+            temp = self.head
+            while temp is not None:
+                if temp.data <= 0:
+                    temp = temp.next            
+                    self.remove_head
+                else:
+                    temp = temp.next
 
         #threading.Timer(30, self.display_list).start()
         return relocatingTsList
@@ -230,9 +237,10 @@ class LinkedList:
 
     def checkTime(self, month, date, hour, minute, ampm):
         reservingYear = datetime.datetime.now().year
-
         if(ampm == 1):
             hour += 12
+        if hour == 24:
+            hour = 0
         reservingTime = datetime.datetime(int(reservingYear), month, date, hour, minute)
         now = datetime.datetime.now()
     
@@ -272,6 +280,26 @@ class LinkedList:
         
         return countedReservedTsList
 
+    def countTsReservationListByName(self, userName):
+        countedReservedTsList = []
+        if self.head is None:
+            return countedReservedTsList
+            
+        temp = self.head
+        while temp is not None:
+            if(temp.reservingPerson == str(userName)) and (temp.StartingFlg == False):
+                #Since the node delete from the start.
+                startRealTime = getRealTimeFromTimeval(temp.data - temp.ReservePeriod)
+                endRealTime = getRealTimeFromTimeval(temp.data)
+                if temp.data - temp.ReservePeriod <= 0:
+                    isMiddleOfReservedPeriod = True
+                else:
+                    isMiddleOfReservedPeriod = False
+                countedReservedTsList.append((temp.reservingPerson, temp.TASToMove, startRealTime, endRealTime, isMiddleOfReservedPeriod, temp.TSaddress))
+            temp = temp.next
+        
+        return countedReservedTsList
+
     def getReturnTASAddress(self, tsaddrToSearch):
         tempAddr = None
         if self.head is None:
@@ -285,7 +313,7 @@ class LinkedList:
         
         return tempAddr
 
-    def cancelReserve(self, tsaddrToCancel, index):
+    def cancelReserve(self, currentUser, index):
         print (self.head)
         if self.head is None:
             return
@@ -294,14 +322,14 @@ class LinkedList:
         tempStartNode = None
         tempEndNode = None
         temp = self.head
-        if(temp.TSaddress == str(tsaddrToCancel)) and (temp.StartingFlg == True):
+        if(temp.reservingPerson == str(currentUser)) and (temp.StartingFlg == True):
             tempStartNode = temp
 
         while (temp.next is not None) and (counter > 0):
-            print(temp.next.TSaddress, temp.next.StartingFlg)
-            if(temp.next.TSaddress == str(tsaddrToCancel)) and (temp.next.StartingFlg == True):
+            print(temp.next.reservingPerson, temp.next.StartingFlg)
+            if(temp.next.reservingPerson == str(currentUser)) and (temp.next.StartingFlg == True):
                 tempStartNode = temp
-            elif (temp.next.TSaddress == str(tsaddrToCancel)) and (temp.next.StartingFlg == False):
+            elif (temp.next.reservingPerson == str(currentUser)) and (temp.next.StartingFlg == False):
                 tempEndNode = temp
                 counter = counter - 1
             temp = temp.next
@@ -325,8 +353,37 @@ class LinkedList:
                 tempPtr = tempStartNode.next
                 tempStartNode.next =  tempStartNode.next.next
                 del tempPtr       
-
         return
+
+    def getTodayReservedList(self):
+        todayDate = datetime.datetime.now().date()
+        bookedList = []
+        temp = self.head
+        while temp is not None:
+            tempDate = datetime.datetime.strptime(getRealTimeFromTimeval(temp.data), "%Y-%m-%d %H:%M").date()
+            if tempDate != todayDate:
+                break
+            if temp.StartingFlg is False:
+                tempstarttime = datetime.datetime.strptime(getRealTimeFromTimeval(temp.data - temp.ReservePeriod), "%Y-%m-%d %H:%M")
+                tempendtime = datetime.datetime.strptime(getRealTimeFromTimeval(temp.data), "%Y-%m-%d %H:%M")
+                #bookedList.append((temp.reservingPerson, temp.TSaddress, tempstarttime.year,tempstarttime.month,tempstarttime.day,tempstarttime.hour,tempstarttime.minute, tempendtime.year,tempendtime.month,tempendtime.day,tempendtime.hour,tempendtime.minute))
+                bookedList.append(temp.reservingPerson)
+                bookedList.append(temp.TSaddress)
+                bookedList.append(str(tempstarttime.year))
+                bookedList.append(str(tempstarttime.month))
+                bookedList.append(str(tempstarttime.day))
+                bookedList.append(str(tempstarttime.hour))
+                bookedList.append(str(tempstarttime.minute))
+                bookedList.append(str(tempendtime.year))
+                bookedList.append(str(tempendtime.month))
+                bookedList.append(str(tempendtime.day))
+                bookedList.append(str(tempendtime.hour))
+                bookedList.append(str(tempendtime.minute))
+                
+                print(bookedList)
+            temp = temp.next
+        return bookedList
+
 
 def getRealTimeFromTimeval(timeval_):
     currentTime = datetime.datetime.now()
@@ -335,13 +392,17 @@ def getRealTimeFromTimeval(timeval_):
     howFarFromNowToMin = (timeval_ * 5) - ((currentTime.minute)%5)
     realTime = currentTime + datetime.timedelta(minutes=howFarFromNowToMin)
     realTime = realTime.strftime('%Y-%m-%d %H:%M')
+
     return realTime
 
 
-#print( getRealTimeFromTimeval(5))
-# llist = LinkedList()
-# llist.reserve(23,4,56,23,3,12)
+# print( datetime.datetime.strptime(getRealTimeFromTimeval(0), "%Y-%m-%d %H:%M").date())
+# print(datetime.datetime.now().date())
+# print(datetime.datetime.strptime(getRealTimeFromTimeval(0), "%Y-%m-%d %H:%M").date() == datetime.datetime.now().date())
+#llist = LinkedList()
+#llist.reserve(23,4,56,23,3,12)
 # print(llist.display_list())
-
+#llist.getTodayReservedList()
 # llist.cancelReserve(4,1)
 # print(llist.display_list())
+
