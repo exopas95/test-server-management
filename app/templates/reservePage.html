@@ -173,7 +173,23 @@
 		.tabinator label.tab-list {
 			box-sizing: border-box;
 			display: inline-block;
+			padding: 10px 11px;
+			color: #ccc;
+			margin-bottom: -1px;
+			margin-left: -1px;
+		}
+		.tabinator label.tab-list {
+			box-sizing: border-box;
+			display: inline-block;
 			padding: 15px 25px;
+			color: #ccc;
+			margin-bottom: -1px;
+			margin-left: -1px;
+		}
+        .tabinator label.left {
+			box-sizing: border-box;
+			display: inline-block;
+			padding: 10px 11px;
 			color: #ccc;
 			margin-bottom: -1px;
 			margin-left: -1px;
@@ -207,7 +223,7 @@
 			position: absolute;
 			top: 0; right: 0; bottom: 0; left: 0;
 		}
-		#content1, #content2, #content3, #content4 ,#book1,#book2,#book3{
+		#content1, #content2, #content3, #content4 ,#book1,#book2,#book3,#book4{
 			display: none;
 			border-top: 1px solid #bbb;
 			padding: 15px;
@@ -220,6 +236,7 @@
         #book1:checked ~ #book1,
         #book2:checked ~ #book2,
         #book3:checked ~ #book3,
+        #book4:checked ~ #book4,
         #team1:checked ~ #team1,
         #team2:checked ~ #team2,
         #team3:checked ~ #team3 {
@@ -263,6 +280,18 @@
 			font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
 			font-size: 13px;
 		}
+        .table-header{
+            border-bottom: 2px solid black; 
+            text-align: center;
+        }
+        .tab-table {
+            width: 100%
+        }
+        .tab-content {
+            padding: 5px 5px;
+            border-bottom: 1px solid #ddd;
+            width: 33%;
+        }
 	</style>
 </head>
 <body>
@@ -518,27 +547,63 @@
 <div style="float:left; width:20%;">
 <div class = "tabinator">
 	<input type = "radio" id = "book1" name = "team" checked>
-    <label class="tab-list" for = "book1">Plano</label>
+    <label class="tab-list left" for = "book1">San Jose</label>
 	<input type = "radio" id = "book2" name = "team">
-    <label class="tab-list" for = "book2">San Jose</label>
+    <label class="tab-list left" for = "book2">Plano</label>
     <input type = "radio" id = "book3" name = "team">
-	<label class="tab-list" for = "book3">BDC</label>
+    <label class="tab-list left" for = "book3">BDC</label>
+    <input type = "radio" id = "book4" name = "team">
+	<label class="tab-list left" for = "book4">Common TS</label>
 	<div id = "book1">
-		<div class="panel-body" style="overflow:auto; height: 700px;">
-			<table id="sortedTable_Plano" class="display">
+        <div class="panel-body" style="overflow:auto; height: 700px;">
+			<table id="sortedTable_SanJose" class="display tab-table">
 				<thead>
-				<tr>
-                    <th style="width: 45%;">TS</th>
-                    <th style="width: 45%;">TAS</th>
-                    <th style="width: 10%;">State</th>
+				<tr class="table-header">
+                    <th>TS</th>
+                    <th>TAS</th>
+                    <th>State</th>
+				</tr>
+                </thead>
+                <tbody>
+                    {% for TS in tsList_sanJose.values() %}
+                    <tr>
+                        <th class="tab-content">{{ TS['info']['managementIp'] }}</th>
+                        <td class="tab-content"><span id="TAS_sanjose{{ loop.index }}">{{ TS['tas'] }}</span></td>
+                        <td class="tab-content">
+                            {% if 'NOT_READY' in TS['state'] %}
+                                <span class="label label-danger">
+                            {% elif 'READY' in TS['state'] %}
+                                <span class="label label-success">
+                            {% elif 'LOCK' in TS['state'] %}
+                                <span class="label label-danger">
+                            {% else %}
+                                <span class="label label-warning">
+                            {% endif %}
+                            {{ TS['state'] }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+			</table>
+		</div>
+    </div>
+	<div id = "book2">
+		<div class="panel-body" style="overflow:auto; height: 700px;">
+			<table id="sortedTable_Plano" class="display tab-table">
+				<thead>
+				<tr class="table-header">
+                    <th>TS</th>
+                    <th>TAS</th>
+                    <th>State</th>
 				</tr>
                 </thead>
                 <tbody>
                     {% for TS in tsList_plano.values() %}
                     <tr>
-                        <th>{{ TS['info']['managementIp'] }}</th>
-                        <td><span id="tsList_plano{{ loop.index }}">{{ TS['tas'] }}</span></td>
-                        <td>
+                        <th class="tab-content">{{ TS['info']['managementIp'] }}</th>
+                        <td class="tab-content"><span id="tsList_plano{{ loop.index }}">{{ TS['tas'] }}</span></td>
+                        <td class="tab-content">
 							{% if 'NOT_READY' in TS['state'] %}
 								<span class="label label-danger">
 							{% elif 'READY' in TS['state'] %}
@@ -557,22 +622,22 @@
 			</table>
 		</div>
 	</div>
-	<div id = "book2">
-        <div class="panel-body" style="overflow:auto; height: 700px;">
-			<table id="sortedTable_SanJose" class="display">
+    <div id = "book3">
+		<div class="panel-body" style="overflow:auto; height: 700px;">
+			<table id="sortedTable_BDC" class="display tab-table">
 				<thead>
-				<tr>
-                    <th style="width: 45%;">TS</th>
-                    <th style="width: 45%;">TAS</th>
-                    <th style="width: 10%;">State</th>
+				<tr class="table-header">
+                    <th>TS</th>
+                    <th>TAS</th>
+                    <th>State</th>
 				</tr>
                 </thead>
                 <tbody>
-                    {% for TS in tsList_sanJose.values() %}
+                    {% for TS in tsList_bdc.values() %}
                     <tr>
-                        <th>{{ TS['info']['managementIp'] }}</th>
-                        <td><span id="TAS_sanjose{{ loop.index }}">{{ TS['tas'] }}</span></td>
-                        <td>
+                        <th class="tab-content">{{ TS['info']['managementIp'] }}</th>
+                        <td class="tab-content"><span id="tsList_bdc{{ loop.index }}">{{ TS['tas'] }}</span></td>
+                        <td class="tab-content">
 							{% if 'NOT_READY' in TS['state'] %}
 								<span class="label label-danger">
 							{% elif 'READY' in TS['state'] %}
@@ -591,22 +656,22 @@
 			</table>
 		</div>
     </div>
-    <div id = "book3">
+    <div id = "book4">
 		<div class="panel-body" style="overflow:auto; height: 700px;">
-			<table id="sortedTable_BDC" class="display">
+			<table id="sortedTable_Common" class="display tab-table">
 				<thead>
-				<tr>
-                    <th style="width: 45%;">TS</th>
-                    <th style="width: 45%;">TAS</th>
-                    <th style="width: 10%;">State</th>
+				<tr class="table-header">
+                    <th>TS</th>
+                    <th>TAS</th>
+                    <th>State</th>
 				</tr>
                 </thead>
                 <tbody>
-                    {% for TS in tsList_bdc.values() %}
+                    {% for TS in tsList_common.values() %}
                     <tr>
-                        <th>{{ TS['info']['managementIp'] }}</th>
-                        <td><span id="tsList_bdc{{ loop.index }}">{{ TS['tas'] }}</span></td>
-                        <td>
+                        <th class="tab-content">{{ TS['info']['managementIp'] }}</th>
+                        <td class="tab-content"><span id="tsList_common{{ loop.index }}">{{ TS['tas'] }}</span></td>
+                        <td class="tab-content">
 							{% if 'NOT_READY' in TS['state'] %}
 								<span class="label label-danger">
 							{% elif 'READY' in TS['state'] %}
@@ -799,30 +864,6 @@
             "columnDefs": [{ "searchable": false, "targets": 5 }],
             "dom": 'fltp'
 		});
-		$("#sortedTable2").DataTable({
-            "order": [[1, "asc"]],
-            "iDisplayLength": 10,
-            "columnDefs": [{ "searchable": false, "targets": 5 }],
-            "dom": 'fltp'
-        });
-        // $("#sortedTable_Plano").DataTable({
-        //     "order": [[1, "asc"]],
-        //     "iDisplayLength": 10,
-        //     "columnDefs": [{ "searchable": false, "targets": 3 }],
-        //     "dom": 'fltp'
-        // });
-        // $("#sortedTable_SanJose").DataTable({
-        //     "order": [[1, "asc"]],
-        //     "iDisplayLength": 10,
-        //     "columnDefs": [{ "searchable": false, "targets": 3 }],
-        //     "dom": 'fltp'
-        // });
-        // $("#sortedTable_BDC").DataTable({
-        //     "order": [[1, "asc"]],
-        //     "iDisplayLength": 10,
-        //     "columnDefs": [{ "searchable": false, "targets": 3 }],
-        //     "dom": 'fltp'
-        // });
 		$('div.dataTables_filter input').focus();
 	});
 

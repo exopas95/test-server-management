@@ -892,7 +892,16 @@ def reservePage():
     for ts in tsList:
         commonTS.append(ts)
 
-    return render_template('reservePage.html', tsList_bdc=tsList_bdc, tsList_plano=tsList_plano, tsList_sanJose=tsList_sanJose, commonTS=commonTS, userName=userName, myTasAddress=myTasAddress,todayList=todayList,tslen=len(commonTS))
+    return render_template('reservePage.html', 
+                            tsList_bdc=tsList_bdc, 
+                            tsList_plano=tsList_plano, 
+                            tsList_sanJose=tsList_sanJose, 
+                            tsList_common=tsList_common,
+                            commonTS=commonTS, 
+                            userName=userName, 
+                            myTasAddress=myTasAddress,
+                            todayList=todayList,
+                            tslen=len(commonTS))
 
 @app.route('/reservePage/reserve/<mon1>/<dat1>/<hou1>/<min1>/<ampm1>/<mon2>/<dat2>/<hou2>/<min2>/<ampm2>/<currentTS>/<relocateTAS>/<reservPerson>', methods=['GET', 'POST'])
 def reserve(mon1, dat1, hou1, min1, ampm1, mon2, dat2, hou2, min2, ampm2, currentTS, relocateTAS, reservPerson):
