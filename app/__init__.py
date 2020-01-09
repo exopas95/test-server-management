@@ -1,6 +1,6 @@
 import requests, base64, datetime
 import paramiko, time, csv, os
-from flask_mail import Mail, Message
+#from flask_mail import Mail, Message
 
 from multiprocessing import Process, Manager
 from tsDB import *
