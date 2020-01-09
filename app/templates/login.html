@@ -1,15 +1,37 @@
 {% extends "base.html" %}
 {% block content %}
+{% if error %}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+  <strong>{{ error }}:</strong> Please check your email and password
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+{% endif %}
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+  <ul class=flashes>
+  {% for message in messages %}
+  <div class="alert alert-primary alert-dismissible fade show" role="alert">
+	<strong>{{ message }}</strong>
+	<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+	  <span aria-hidden="true">&times;</span>
+	</button>
+  </div>
+  {% endfor %}
+  </ul>
+{% endif %}
+{% endwith %}  
 <div class="container login-container">
   <div class="row">
       <div class="form-login">
           <h3>Spirent Communication</h3>
           <form action="/login" method="POST">
               <div class="form-group">
-                  <input type="email" class="form-control" name="email" placeholder="Your Spirent Offical Email *" value="" />
+                  <input type="email" class="form-control" name="email" placeholder="Your Spirent Offical Email *" value="" required/>
               </div>
               <div class="form-group">
-                  <input type="password" class="form-control" name="password" placeholder="Your Password *" value="" />
+                  <input type="password" class="form-control" name="password" placeholder="Your Password *" value="" required/>
               </div>
               <div class="form-group">
                   <input type="submit" class="btnSubmit" value="Login" />
