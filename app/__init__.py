@@ -872,7 +872,6 @@ def reservePage():
     lastName = user.lastName
     userName = firstName + " " + lastName
     temp = TASList.query.filter_by(tasName = userName).first()
-    print(temp)
 
     if temp is not None:
         myTasAddress = temp.tasAddress
@@ -899,7 +898,7 @@ def reservePage():
                             myTasAddress=myTasAddress,
                             todayList=todayList,
                             tslen=len(commonTS))
-                            
+
 @app.route('/reservePage/reserve/<mon1>/<dat1>/<hou1>/<min1>/<ampm1>/<mon2>/<dat2>/<hou2>/<min2>/<ampm2>/<currentTS>/<relocateTAS>/<reservPerson>', methods=['GET', 'POST'])
 def reserve(mon1, dat1, hou1, min1, ampm1, mon2, dat2, hou2, min2, ampm2, currentTS, relocateTAS, reservPerson):
     print(mon1, dat1, hou1, min1, ampm1, mon2, dat2, hou2, min2, ampm2)
@@ -918,9 +917,13 @@ def reserve(mon1, dat1, hou1, min1, ampm1, mon2, dat2, hou2, min2, ampm2, curren
 
     starttime, result = reservedTsList.checkPeriod(int(mon1), int(dat1), int(hou1), int(min1), int(ampm1), int(mon2), int(dat2), int(hou2), int(min2), int(ampm2))
     if int(result) != -1:
-        reservedTsList.reserve(starttime,currentTS,relocateTAS, returnTAS, result, reservPerson)
-        # flash message success
-        flash("Reserved Successfully")
+        result = reservedTsList.reserve(starttime,currentTS,relocateTAS, returnTAS, result, reservPerson)
+        if result == True:
+            # flash message success
+            flash("Reserved Successfully")
+        else:
+            error = "Reserve Failed"
+            session['error'] = error # return error
     else:
         error = "Reserve Failed"
         session['error'] = error # return error
@@ -1000,7 +1003,6 @@ def getTeamResevinglist():
 
         tempState = "on going" #0 = on going , 1 = waiting (reservetime) 2 = available
         for TS in teamTslist.values():
-            print(TS['info']['managementIp'])
             tempState = reservedTsList.getIsOnGoing(TS['info']['managementIp'])
             teamReservedList.append(tempState)
         return teamReservedList
@@ -1070,7 +1072,6 @@ def relocateReservedTS():
     #         if temp.tasAddress != relocatedTs[1]:
     #             #if ts is not belongs to reserved tas, relocate again
     #             tasmodification(relocatedTs[0], temp.tasAddress, relocatedTs[1])
-    print("minute : " , datetime.datetime.now().minute)
     print ("relocated are")
     print (relocatedTsList)
     reservedTsList.showList()
@@ -1087,6 +1088,4 @@ def send_email(senders, receiver, content):
     finally:
         pass
 
-
-if __name__ == '__main__':
-    relocateReservedTS()
+relocateReservedTS()
