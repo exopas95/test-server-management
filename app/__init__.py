@@ -494,18 +494,7 @@ def edit_tas_server():
         # When you are adding new TAS to the system: you can add common TAS and other user's TAS
         if request.form.get('tas-action-type') == 'add':
             # When user logged in as admin
-            if user_type == "admin":
-                # When new TAS is a commonly used TAS
-                if request.form.get('common-action-type') == 'yes':
-                    userName = "Common TAS"                             # set new TAS's user name as "Common TAS"
-                # When new TAS is a private TAS
-                else:
-                    firstName = request.form.get("owner-firstname")
-                    lastName =request.form.get("owner-lastname")
-                    userName = firstName + " " + lastName
-            # When user logged in as guest: you can only add your TAS
-            else:
-                userName = user.firstName + " " + user.lastName
+            userName = user.firstName + " " + user.lastName
             
             # Check whether TAS is already registered
             if TASList.query.filter_by(tasAddress = tasAddr).first() is not None:
