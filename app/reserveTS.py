@@ -84,18 +84,18 @@ class LinkedList:
             #if empty, reserve
             self.asc_ordered_list(data,TSaddr, relocateAddr, True, period, reservPerson)
             self.asc_ordered_list(data + period,TSaddr, returningAddr, False, period, reservPerson)
-            return
+            return True
 
         if data < self.head.data:
             if data + period <= self.head.data:
                 print("reserve to head")
                 self.asc_ordered_list(data,TSaddr, relocateAddr, True, period, reservPerson)
                 self.asc_ordered_list(data + period,TSaddr, returningAddr, False, period, reservPerson)
-                return
+                return True
             else:
                 if str(TSaddr) == self.head.TSaddress:
                     print("interfere from the front")
-                    return
+                    return False
 
         Start_temp = self.head
         #print("head val = ", Start_temp.data)
@@ -120,7 +120,7 @@ class LinkedList:
                     print("reserve to tail")
                     self.asc_ordered_list(data,TSaddr, relocateAddr, True, period, reservPerson)
                     self.asc_ordered_list(data + period,TSaddr, returningAddr, False, period, reservPerson)
-                    return
+                    return True
 
         #print("=====================")
         #print("prev val = ", prevNode.data)
@@ -132,18 +132,19 @@ class LinkedList:
             #if the prev node's flag is Starting, which means current reservation
             #interfere other reservation
             print("Cannot reserve : interfere from start1, startval = ", prevNode.data, " ", prevNode.StartingFlg)
-            return
+            return False
         else:
             if (Start_temp.StartingFlg == False) and (Start_temp.TSaddress == str(TSaddr)):
                 #if the next node's flag is finishing, which means current reservation
                 #interfere other reservation
                 print("Cannot reserve : interfere from end1, startval = ", nextNode.data, " ", Start_temp.StartingFlg)
-                return
+
             else:
                 #prev node's flag is finishing and next node's flag is starting
                 #means current reservation is between two reserved slots.
                 # == reservable
                 print("Reservable Starting Node1")
+            return False
 
         Finish_temp = self.head
         prevNode = Finish_temp
@@ -171,34 +172,36 @@ class LinkedList:
             #if the prev node's flag is Starting, which means current reservation
             #interfere other reservation
             print("Cannot reserve : interfere from start2")
-            return
+            return False
         else:
             if (Finish_temp.StartingFlg == False) and (Finish_temp.TSaddress == str(TSaddr)):
                 #if the next node's flag is finishing, which means current reservation
                 #interfere other reservation
                 print("Cannot reserve : interfere from end2")
-                return
+
             else:
                 #prev node's flag is finishing and next node's flag is starting
                 #means current reservation is between two reserved slots.
                 # == reservable
                 print("Reservable Finishing Node2")
+            return False
 
 
         #print("s = ", Start_temp.data, "c = ", Start_temp.next.data, "f =", Finish_temp.data)
         if (Start_temp != Finish_temp) and (Start_temp.TSaddress == str(TSaddr)) and (Finish_temp.TSaddress == str(TSaddr)):
             print("Current reservation covers other reservation")
-            return
+            return False
         else:
             #reserve function
             print("Do reserve")
             self.asc_ordered_list(data,TSaddr, relocateAddr, True, period, reservPerson)
             self.asc_ordered_list(data + period,TSaddr, returningAddr, False, period, reservPerson)
+            return True
+        return False
 
     def display_list(self):
         relocatingTsList = []
         temp = self.head
-        print("current list")
         while temp is not None:
             temp.data = temp.data - 1
             print("data = {0} {1} {2} {3} {4}".format(temp.data, temp.TSaddress, temp.TASToMove, temp.StartingFlg, temp.ReservePeriod))
@@ -213,6 +216,7 @@ class LinkedList:
 
     def showList(self):
         temp = self.head
+        print("current list")
         while temp is not None:
             print("data = {0} {1} {2} {3} {4}".format(temp.data, temp.TSaddress, temp.TASToMove, temp.StartingFlg, temp.ReservePeriod))
             temp = temp.next
@@ -349,15 +353,23 @@ class LinkedList:
 
     def getTodayReservedList(self):
         todayDate = datetime.datetime.now().date()
+        currentHour = datetime.datetime.now().hour
         bookedList = []
+        tempstarttime = None
+        tempendtime = None
         temp = self.head
         while temp is not None:
-            tempDate = datetime.datetime.strptime(getRealTimeFromTimeval(temp.data), "%Y-%m-%d %H:%M").date()
-            if tempDate != todayDate:
+            tempDate = datetime.datetime.strptime(getRealTimeFromTimeval(temp.data), "%Y-%m-%d %H:%M")
+            if todayDate != tempDate.date() and tempDate.hour >= currentHour + 12:
+                if temp.StartingFlg == False:
+                    tempstarttime = datetime.datetime.strptime(getRealTimeFromTimeval(temp.data - temp.ReservePeriod), "%Y-%m-%d %H:%M")
+                    tempendtime = datetime.datetime.strptime(getRealTimeFromTimeval(temp.data - temp.ReservePeriod + 720), "%Y-%m-%d %H:%M")
                 break
             if temp.StartingFlg is False:
                 tempstarttime = datetime.datetime.strptime(getRealTimeFromTimeval(temp.data - temp.ReservePeriod), "%Y-%m-%d %H:%M")
                 tempendtime = datetime.datetime.strptime(getRealTimeFromTimeval(temp.data), "%Y-%m-%d %H:%M")
+
+            if(tempstarttime is not None) and (tempendtime is not None):
                 #bookedList.append((temp.reservingPerson, temp.TSaddress, tempstarttime.year,tempstarttime.month,tempstarttime.day,tempstarttime.hour,tempstarttime.minute, tempendtime.year,tempendtime.month,tempendtime.day,tempendtime.hour,tempendtime.minute))
                 bookedList.append(temp.reservingPerson)
                 bookedList.append(temp.TSaddress)
@@ -371,9 +383,11 @@ class LinkedList:
                 bookedList.append(str(tempendtime.day))
                 bookedList.append(str(tempendtime.hour))
                 bookedList.append(str(tempendtime.minute))
+                tempstarttime = None
+                tempendtime = None                
                 
-                print(bookedList)
             temp = temp.next
+        print(bookedList)
         return bookedList
     
     def getIsOnGoing(self, tsaddrToSearch):
@@ -399,7 +413,6 @@ class LinkedList:
 
 def getRealTimeFromTimeval(timeval_):
     currentTime = datetime.datetime.now()
-    print(currentTime.minute)
     #howFarFromNowToMin should care uncounted minutes (less than 5 min)
     howFarFromNowToMin = (timeval_ * 5) - ((currentTime.minute)%5)
     realTime = currentTime + datetime.timedelta(minutes=howFarFromNowToMin)
