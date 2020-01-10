@@ -202,25 +202,13 @@ class LinkedList:
         while temp is not None:
             temp.data = temp.data - 1
             print("data = {0} {1} {2} {3} {4}".format(temp.data, temp.TSaddress, temp.TASToMove, temp.StartingFlg, temp.ReservePeriod))
-            checkNode = temp
-            temp = temp.next
-            if(checkNode.data == 0):
-                relocatingTsList.append((checkNode.TSaddress, checkNode.TASToMove, checkNode.StartingFlg))
-                del checkNode
+            if(temp.data == 0):
+                relocatingTsList.append((temp.TSaddress, temp.TASToMove, temp.StartingFlg))
+                temp = temp.next
+                self.remove_head()
+            else:
+                temp = temp.next
 
-               
-            
-        
-        # if self.head is not None:
-        #     temp = self.head
-        #     while temp is not None:
-        #         if temp.data <= 0:
-        #             temp = temp.next            
-        #             self.remove_head
-        #         else:
-        #             temp = temp.next
-
-        #threading.Timer(30, self.display_list).start()
         return relocatingTsList
 
     def showList(self):
@@ -387,6 +375,26 @@ class LinkedList:
                 print(bookedList)
             temp = temp.next
         return bookedList
+    
+    def getIsOnGoing(self, tsaddrToSearch):
+        #0 = on going , 1 = waiting (reservetime) 2 = available
+        if self.head is None:
+            return "Available"
+            
+        temp = self.head
+        isMiddleOfReservedPeriod = "Available"
+        while temp is not None:
+            if(temp.TSaddress == str(tsaddrToSearch)) and (temp.StartingFlg == True):
+                isMiddleOfReservedPeriod = getRealTimeFromTimeval(temp.data)
+                break #it is not started yet
+            elif(temp.TSaddress == str(tsaddrToSearch)) and (temp.StartingFlg == False):
+                #Since the node delete from the start
+                if temp.data - temp.ReservePeriod <= "On going":
+                    isMiddleOfReservedPeriod = "On going"
+                break             
+            temp = temp.next
+        
+        return isMiddleOfReservedPeriod
 
 
 def getRealTimeFromTimeval(timeval_):
