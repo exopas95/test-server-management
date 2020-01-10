@@ -977,25 +977,6 @@ def getMybooklist():
         return mybookedList
     return dict(getMybooklist=getMybooklist)
 
-@app.context_processor
-def getTeamResevinglist():
-    def getTeamResevinglist(team):
-        teamReservedList = []
-        if team == "SanJose":
-            teamTslist = tsList_sanJose
-        elif team == "Plano":
-            teamTslist = tsList_plano
-        elif team == "BDC":
-            teamTslist = tsList_bdc
-
-        tempState = "on going" #0 = on going , 1 = waiting (reservetime) 2 = available
-        for TS in teamTslist.values():
-            print(TS['info']['managementIp'])
-            tempState = reservedTsList.getIsOnGoing(TS['info']['managementIp'])
-            teamReservedList.append(tempState)
-        return teamReservedList
-    return dict(getTeamResevinglist=getTeamResevinglist)
-
 def relocateReservedTS():
     global relocatedTsList
     global session
@@ -1027,6 +1008,7 @@ def relocateReservedTS():
         #                 print("Receiver is None")
         #         else:
         #             print("wrongTAS is None")
+
 
         relocateTSList = reservedTsList.display_list()
         print(relocateTSList)
@@ -1077,6 +1059,4 @@ def send_email(senders, receiver, content):
     finally:
         pass
 
-
-if __name__ == '__main__':
-    relocateReservedTS()
+relocateReservedTS()
