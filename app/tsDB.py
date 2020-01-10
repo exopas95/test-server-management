@@ -6,6 +6,9 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+db.create_all()
+db.session.commit()
+
 bcrypt = Bcrypt(app)
 
 class User(db.Model):
@@ -105,5 +108,3 @@ class TASList(db.Model):
 
 		return tempList, tempInfoList
 
-db.create_all()
-db.session.commit()

@@ -201,7 +201,7 @@ class LinkedList:
         print("current list")
         while temp is not None:
             temp.data = temp.data - 1
-               
+            print("data = {0} {1} {2} {3} {4}".format(temp.data, temp.TSaddress, temp.TASToMove, temp.StartingFlg, temp.ReservePeriod))
             if(temp.data == 0):
                 relocatingTsList.append((temp.TSaddress, temp.TASToMove, temp.StartingFlg))
                 temp = temp.next

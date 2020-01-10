@@ -1,6 +1,6 @@
 import requests, base64, datetime
 import paramiko, time, csv, os
-from flask_mail import Mail, Message
+#from flask_mail import Mail, Message
 
 from multiprocessing import Process, Manager
 from tsDB import *
@@ -494,16 +494,7 @@ def edit_tas_server():
         # When you are adding new TAS to the system: you can add common TAS and other user's TAS
         if request.form.get('tas-action-type') == 'add':
             # When user logged in as admin
-            if user_type == "admin":
-                # When new TAS is a commonly used TAS
-                if request.form.get('common-action-type') == 'yes':
-                    userName = "Common TAS"                             # set new TAS's user name as "Common TAS"
-                # When new TAS is a private TAS
-                else:
-                    userName = user.firstName + " " + user.lastName
-            # When user logged in as guest: you can only add your TAS
-            else:
-                userName = user.firstName + " " + user.lastName
+            userName = user.firstName + " " + user.lastName
             
             # Check whether TAS is already registered
             if TASList.query.filter_by(tasAddress = tasAddr).first() is not None:
@@ -890,7 +881,16 @@ def reservePage():
     for ts in tsList:
         commonTS.append(ts)
 
-    return render_template('reservePage.html', tsList_bdc=tsList_bdc, tsList_plano=tsList_plano, tsList_sanJose=tsList_sanJose, commonTS=commonTS, userName=userName, myTasAddress=myTasAddress,todayList=todayList,tslen=len(commonTS))
+    return render_template('reservePage.html', 
+                            tsList_bdc=tsList_bdc, 
+                            tsList_plano=tsList_plano, 
+                            tsList_sanJose=tsList_sanJose, 
+                            tsList_common=tsList_common,
+                            commonTS=commonTS, 
+                            userName=userName, 
+                            myTasAddress=myTasAddress,
+                            todayList=todayList,
+                            tslen=len(commonTS))
 
 @app.route('/reservePage/reserve/<mon1>/<dat1>/<hou1>/<min1>/<ampm1>/<mon2>/<dat2>/<hou2>/<min2>/<ampm2>/<currentTS>/<relocateTAS>/<reservPerson>', methods=['GET', 'POST'])
 def reserve(mon1, dat1, hou1, min1, ampm1, mon2, dat2, hou2, min2, ampm2, currentTS, relocateTAS, reservPerson):

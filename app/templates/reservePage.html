@@ -173,7 +173,23 @@
 		.tabinator label.tab-list {
 			box-sizing: border-box;
 			display: inline-block;
+			padding: 10px 11px;
+			color: #ccc;
+			margin-bottom: -1px;
+			margin-left: -1px;
+		}
+		.tabinator label.tab-list {
+			box-sizing: border-box;
+			display: inline-block;
 			padding: 15px 25px;
+			color: #ccc;
+			margin-bottom: -1px;
+			margin-left: -1px;
+		}
+        .tabinator label.left {
+			box-sizing: border-box;
+			display: inline-block;
+			padding: 10px 11px;
 			color: #ccc;
 			margin-bottom: -1px;
 			margin-left: -1px;
@@ -206,7 +222,7 @@
 			position: absolute;
 			top: 0; right: 0; bottom: 0; left: 0;
 		}
-		#content1, #content2, #content3, #content4 ,#book1,#book2,#book3{
+		#content1, #content2, #content3, #content4 ,#book1,#book2,#book3,#book4{
 			display: none;
 			border-top: 1px solid #bbb;
 			padding: 15px;
@@ -219,6 +235,7 @@
         #book1:checked ~ #book1,
         #book2:checked ~ #book2,
         #book3:checked ~ #book3,
+        #book4:checked ~ #book4,
         #team1:checked ~ #team1,
         #team2:checked ~ #team2,
         #team3:checked ~ #team3 {
@@ -262,6 +279,85 @@
 			font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
 			font-size: 13px;
 		}
+        .table-header{
+            border-bottom: 2px solid black; 
+            text-align: center;
+        }
+        .tab-table {
+            width: 100%
+        }
+        .tab-content {
+            padding: 5px 5px;
+            border-bottom: 1px solid #ddd;
+            width: 33%;
+        }
+        .flex-container {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+        }
+        .flex-box {
+            display: flex;
+            flex-direction: column;
+            width: 50%;
+        }
+        .flex-box-header {
+            width: 13%;
+            padding: 10px;
+            padding-right: 0px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+        .flex-box-reserve{
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            padding-left: 0;
+        }
+        #tsAddrToReserve,
+        #tsAddrToReserve2 {
+            width: 80%;
+        }
+        .container-reserve > div {
+            margin-top: 5px;
+            margin-bottom: 10px;
+        }
+        .reserve-header {
+            display: inline-block;
+            font-weight: 700;
+        }
+        .reserve-time {
+            width: 100%;
+            margin: 5px;
+            margin-left: 0;
+        }
+        .reserve-time select {
+            background-color: #368ed6;
+            color: white;
+            padding: 5px;
+            width: 50px;
+            border: none;
+            font-size: 12px;
+            -webkit-appearance: button;
+            appearance: button;
+            outline: none;
+            border-radius: 1rem;
+        }
+        .reserve-time select:hover {
+            background-color: #7cadd6;
+        }
+        .reserve-container {
+            padding: 0;
+            margin-top: 5px;
+        }
+        .container-reserve-inner {
+            margin: 5px;
+            margin-top: 10px;
+        }
+        #container-inner2 {
+            padding-top: 8px;
+        }
+
 	</style>
 </head>
 <body>
@@ -350,10 +446,10 @@
                                                 <p class="notice notice-nav">
                                                     This tab is to modify common TAS/TS into TS Management system.
                                                     Only admin can add/remove the common system.<br><br>
-                                                    <strong>1) Add TAS:</strong> Change Public TAS to Private TAS<br>
-                                                    <strong>2) Remove TAS:</strong> Change Private TAS to Public TAS<br>
-                                                    <strong>3) Add TS:</strong> Change Public TS to Private TS<br>
-                                                    <strong>4) Remove TS:</strong> Change Private TS to Public TS</strong> 						
+                                                    <strong>1) Add TAS:</strong> Change Private TAS to Common TAS<br>
+                                                    <strong>2) Remove TAS:</strong> Change Common TAS to Private TAS<br>
+                                                    <strong>3) Add TS:</strong> Change Private TS to Common TS <br>
+                                                    <strong>4) Remove TS:</strong> Change Private TS to Common tS			
                                                 </p>
                                             </div>
                                             {% if userType == "admin" %}
@@ -453,7 +549,7 @@
                                             </div>
                                             <div class="custom-select">
                                                 <div class="form-check">
-                                                    <p>TS Address #2:</p>
+                                                    <p>TS Address #2 :</p>
                                                 </div>
                                                 <div class="form-check form-check-inline">
                                                     <input class="form-control" type="text" name="ts-server-name-2" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx" required>						
@@ -517,101 +613,137 @@
 <div style="float:left; width:20%;">
 <div class = "tabinator">
 	<input type = "radio" id = "book1" name = "team" checked>
-    <label class="tab-list" for = "book1">Plano</label>
+    <label class="tab-list left" for = "book1">San Jose</label>
 	<input type = "radio" id = "book2" name = "team">
-    <label class="tab-list" for = "book2">San Jose</label>
+    <label class="tab-list left" for = "book2">Plano</label>
     <input type = "radio" id = "book3" name = "team">
-	<label class="tab-list" for = "book3">BDC</label>
+    <label class="tab-list left" for = "book3">BDC</label>
+    <input type = "radio" id = "book4" name = "team">
+	<label class="tab-list left" for = "book4">Common TS</label>
 	<div id = "book1">
-		<div class="panel-body" style="overflow:auto; height: 700px;">
-			<table id="sortedTable_Plano" class="display">
-				<thead>
-				<tr>
-                    <th style="width: 45%;">TS</th>
-                    <th style="width: 45%;">TAS</th>
-                    <th style="width: 10%;">State</th>
-				</tr>
-                </thead>
-                <tbody>
-                    {% for TS in tsList_plano.values() %}
-                    <tr>
-                        <th>{{ TS['info']['managementIp'] }}</th>
-                        <td><span id="tsList_plano{{ loop.index0 }}">{{ TS['tas'] }}</span></td>
-                        <td>
-							{% if getTeamResevinglist("Plano")[loop.index] == "Available" %}
-								<span class="label label-success">
-							{% elif getTeamResevinglist("Plano")[loop.index] == "On going" %}
-								<span class="label label-danger">
-							{% else %}
-								<span class="label label-warning">
-							{% endif %}
-							{{ getTeamResevinglist("Plano")[loop.index0] }}
-							</span>
-						</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-			</table>
-		</div>
-	</div>
-	<div id = "book2">
         <div class="panel-body" style="overflow:auto; height: 700px;">
-			<table id="sortedTable_SanJose" class="display">
+			<table id="sortedTable_SanJose" class="display tab-table">
 				<thead>
-				<tr>
-                    <th style="width: 45%;">TS</th>
-                    <th style="width: 45%;">TAS</th>
-                    <th style="width: 10%;">State</th>
+				<tr class="table-header">
+                    <th>TS</th>
+                    <th>TAS</th>
+                    <th>State</th>
 				</tr>
                 </thead>
                 <tbody>
                     {% for TS in tsList_sanJose.values() %}
                     <tr>
-                        <th>{{ TS['info']['managementIp'] }}</th>
-                        <td><span id="tsList_sanJose{{ loop.index0 }}">{{ TS['tas'] }}</span></td>
-                        <td>
-							{% if getTeamResevinglist("SanJose")[loop.index] == "Available" %}
-								<span class="label label-success">
-							{% elif getTeamResevinglist("SanJose")[loop.index] == "On going" %}
-								<span class="label label-danger">
-							{% else %}
-								<span class="label label-warning">
-							{% endif %}
-							{{ getTeamResevinglist("SanJose")[loop.index0] }}
-							</span>
-						</td>
+                        <th class="tab-content">{{ TS['info']['managementIp'] }}</th>
+                        <td class="tab-content"><span id="TAS_sanjose{{ loop.index }}">{{ TS['tas'] }}</span></td>
+                        <td class="tab-content">
+                            {% if 'NOT_READY' in TS['state'] %}
+                                <span class="label label-danger">
+                            {% elif 'READY' in TS['state'] %}
+                                <span class="label label-success">
+                            {% elif 'LOCK' in TS['state'] %}
+                                <span class="label label-danger">
+                            {% else %}
+                                <span class="label label-warning">
+                            {% endif %}
+                            {{ TS['state'] }}
+                            </span>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
 			</table>
 		</div>
     </div>
+	<div id = "book2">
+		<div class="panel-body" style="overflow:auto; height: 700px;">
+			<table id="sortedTable_Plano" class="display tab-table">
+				<thead>
+				<tr class="table-header">
+          <th>TS</th>
+          <th>TAS</th>
+          <th>State</th>
+				</tr>
+        </thead>
+        <tbody>
+          {% for TS in tsList_plano.values() %}
+          <tr>
+              <th>{{ TS['info']['managementIp'] }}</th>
+              <td><span id="tsList_plano{{ loop.index0 }}">{{ TS['tas'] }}</span></td>
+              <td>
+                   {% if getTeamResevinglist("Plano")[loop.index] == "Available" %}
+                      <span class="label label-success">
+                    {% elif getTeamResevinglist("Plano")[loop.index] == "On going" %}
+                      <span class="label label-danger">
+                    {% else %}
+                      <span class="label label-warning">
+                    {% endif %}
+                    {{ getTeamResevinglist("Plano")[loop.index0] }}
+                    </span>
+              </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+			</table>
+		</div>
+	</div>
     <div id = "book3">
 		<div class="panel-body" style="overflow:auto; height: 700px;">
-			<table id="sortedTable_BDC" class="display">
+			<table id="sortedTable_BDC" class="display tab-table">
 				<thead>
-				<tr>
-                    <th style="width: 45%;">TS</th>
-                    <th style="width: 45%;">TAS</th>
-                    <th style="width: 10%;">State</th>
+				<tr class="table-header">
+                    <th>TS</th>
+                    <th>TAS</th>
+                    <th>State</th>
 				</tr>
                 </thead>
                 <tbody>
                     {% for TS in tsList_bdc.values() %}
                     <tr>
                         <th>{{ TS['info']['managementIp'] }}</th>
+                        <td><span id="tsList_sanJose{{ loop.index0 }}">{{ TS['tas'] }}</span></td>
+                        <td>
+                        {% if getTeamResevinglist("SanJose")[loop.index] == "Available" %}
+                          <span class="label label-success">
+                        {% elif getTeamResevinglist("SanJose")[loop.index] == "On going" %}
+                          <span class="label label-danger">
+                        {% else %}
+                          <span class="label label-warning">
+                        {% endif %}
+                        {{ getTeamResevinglist("SanJose")[loop.index0] }}
+                        </span>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+			</table>
+		</div>
+    </div>
+    <div id = "book4">
+		<div class="panel-body" style="overflow:auto; height: 700px;">
+			<table id="sortedTable_Common" class="display tab-table">
+				<thead>
+				<tr class="table-header">
+                    <th>TS</th>
+                    <th>TAS</th>
+                    <th>State</th>
+				</tr>
+                </thead>
+                <tbody>
+                    {% for TS in tsList_common.values() %}
+                    <tr>
+                        <th>{{ TS['info']['managementIp'] }}</th>
                         <td><span id="tsList_bdc{{ loop.index0 }}">{{ TS['tas'] }}</span></td>
                         <td>
-							{% if getTeamResevinglist("BDC")[loop.index] == "Available" %}
-								<span class="label label-success">
-							{% elif getTeamResevinglist("BDC")[loop.index] == "On going" %}
-								<span class="label label-danger">
-							{% else %}
-								<span class="label label-warning">
-							{% endif %}
-							{{ getTeamResevinglist("BDC")[loop.index0] }}
-							</span>
-						</td>
+                        {% if getTeamResevinglist("BDC")[loop.index] == "Available" %}
+                          <span class="label label-success">
+                        {% elif getTeamResevinglist("BDC")[loop.index] == "On going" %}
+                          <span class="label label-danger">
+                        {% else %}
+                          <span class="label label-warning">
+                        {% endif %}
+                        {{ getTeamResevinglist("BDC")[loop.index0] }}
+                        </span>
+                      </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -704,85 +836,105 @@
 	</div>
 	<div id = "content2">
         <form>
-            <div>
-                <label for="tsAddrToReserve">TS Address#1</label>
-                <input type="text" id="tsAddrToReserve" name="tsAddrToReserve">
-            </div>
-            <div>
-                <label for="tsAddrToReserve2">TS Address#2</label>
-                <input type="text" id="tsAddrToReserve2" name="tsAddrToReserve2">
+            <div class="flex-container">
+                <div class="flex-box flex-box-header">
+                    <div class="container-reserve-inner">
+                        <label for="tsAddrToReserve">TS Address #1: </label>
+                    </div>
+                    <div class="container-reserve-inner" id="container-inner2">
+                        <label for="tsAddrToReserve2">TS Address #2: </label>
+                    </div>
+                </div>
+                <div class="flex-box">
+                    <div class="container-reserve-inner">
+                        <input class="form-control" id="tsAddrToReserve" name="tsAddrToReserve" type="text" name="ts-server-name-1" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx" required>           
+                    </div>
+                    <div class="container-reserve-inner">
+                        <input class="form-control" id="tsAddrToReserve2" name="tsAddrToReserve2" type="text" name="ts-server-name-2" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx">
+                    </div>
+                </div>
             </div>
         </form>
-            <div>Start Time</div>
-        <div>
-            Month
-            <select class="form-check" id="StartMonth">
-                {% for i in range(1, 13) %}
-                <option value="{{ i }}">{{ i }}</option>
-                {% endfor %}
-            </select>
-            Day
-            <select class="form-check" id="StartDay">
-                {% for i in range(1, 32) %}
-                <option value="{{ i }}">{{ i }}</option>
-                {% endfor %}
-            </select>
-            Hour
-            <select class="form-check" id="StartHour">
-                {% for i in range(0,12) %}
-                <option value="{{ i }}">{{ i }}</option>
-                {% endfor %}
-            </select>
-            Minute
-            <select class="form-check" id="StartMinute">
-                {% for i in range(0, 12) %}
-                <option value="{{ i*5 }}">{{ i*5 }}</option>
-                {% endfor %}
-            </select>
-
-            <select class="form-check" id="StartAmPm">
-                <option value="0" selected="selected">am</option>
-                <option value="1">pm</option>
-            </select>
-        </div>
-
-        <div> End Time</div>
-        <div>Month
-            <select class="form-check" id="EndMonth">
-                {% for i in range(1, 13) %}
-                <option value="{{ i }}">{{ i }}</option>
-                {% endfor %}
-            </select>
-            Day
-            <select class="form-check" id="EndDay">
-                {% for i in range(1, 32) %}
-                <option value="{{ i }}">{{ i }}</option>
-                {% endfor %}
-            </select>
-            Hour
-            <select class="form-check" id="EndHour">
-                {% for i in range(0,12) %}
-                <option value="{{ i }}">{{ i }}</option>
-                {% endfor %}
-            </select>
-            Minute
-            <select class="form-check" id="EndMinute">
-                {% for i in range(0, 12) %}
-                <option value="{{ i*5 }}">{{ i*5 }}</option>
-                {% endfor %}
-            </select>
-
-            <select class="form-check" id="EndAmPm">
-                <option value="0" selected="selected">am</option>
-                <option value="1">pm</option>
-            </select>
-        </div>									
-
+        <div class="flex-container">
+            <div class="flex-box flex-box-header">
+                <div class="container-reserve-inner">
+                    <div>Start Time:</div>
+                </div>
+                <div class="container-reserve-inner">
+                    <div> End Time: </div>
+                </div>
+            </div>
+            <div class="flex-box flex-box-reserve">
+                <div class="reserve-time">
+                    Month
+                    <select class="form-check" id="StartMonth">
+                        {% for i in range(1, 13) %}
+                        <option value="{{ i }}">{{ i }}</option>
+                        {% endfor %}
+                    </select>
+                    Day
+                    <select class="form-check" id="StartDay">
+                        {% for i in range(1, 32) %}
+                        <option value="{{ i }}">{{ i }}</option>
+                        {% endfor %}
+                    </select>
+                    Hour
+                    <select class="form-check" id="StartHour">
+                        {% for i in range(0,12) %}
+                        <option value="{{ i }}">{{ i }}</option>
+                        {% endfor %}
+                    </select>
+                    Minute
+                    <select class="form-check" id="StartMinute">
+                        {% for i in range(0, 12) %}
+                        <option value="{{ i*5 }}">{{ i*5 }}</option>
+                        {% endfor %}
+                    </select>
+        
+                    <select class="form-check" id="StartAmPm">
+                        <option value="0" selected="selected">am</option>
+                        <option value="1">pm</option>
+                    </select>
+                </div>
+                <div class="reserve-time">
+                    Month
+                    <select class="form-check" id="EndMonth">
+                        {% for i in range(1, 13) %}
+                        <option value="{{ i }}">{{ i }}</option>
+                        {% endfor %}
+                    </select>
+                    Day
+                    <select class="form-check" id="EndDay">
+                        {% for i in range(1, 32) %}
+                        <option value="{{ i }}">{{ i }}</option>
+                        {% endfor %}
+                    </select>
+                    Hour
+                    <select class="form-check" id="EndHour">
+                        {% for i in range(0,12) %}
+                        <option value="{{ i }}">{{ i }}</option>
+                        {% endfor %}
+                    </select>
+                    Minute
+                    <select class="form-check" id="EndMinute">
+                        {% for i in range(0, 12) %}
+                        <option value="{{ i*5 }}">{{ i*5 }}</option>
+                        {% endfor %}
+                    </select>
+        
+                    <select class="form-check" id="EndAmPm">
+                        <option value="0" selected="selected">am</option>
+                        <option value="1">pm</option>
+                    </select>
+                </div>
+            </div>
+        </div>								
         <footer>
-            <button type="submit" class="btn btn-info" onclick="reserveing('{{ myTasAddress }}','{{ userName }}')">Reserve</button>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-info" onclick="reserveing('{{ myTasAddress }}','{{ userName }}')">Reserve</button>
+            </div>
         </footer>
 	</div>
-</div>
 </div>
 <script type="text/javascript">
     $(document).ready(function () {
@@ -792,30 +944,6 @@
             "columnDefs": [{ "searchable": false, "targets": 5 }],
             "dom": 'fltp'
 		});
-		$("#sortedTable2").DataTable({
-            "order": [[1, "asc"]],
-            "iDisplayLength": 10,
-            "columnDefs": [{ "searchable": false, "targets": 5 }],
-            "dom": 'fltp'
-        });
-        // $("#sortedTable_Plano").DataTable({
-        //     "order": [[1, "asc"]],
-        //     "iDisplayLength": 10,
-        //     "columnDefs": [{ "searchable": false, "targets": 3 }],
-        //     "dom": 'fltp'
-        // });
-        // $("#sortedTable_SanJose").DataTable({
-        //     "order": [[1, "asc"]],
-        //     "iDisplayLength": 10,
-        //     "columnDefs": [{ "searchable": false, "targets": 3 }],
-        //     "dom": 'fltp'
-        // });
-        // $("#sortedTable_BDC").DataTable({
-        //     "order": [[1, "asc"]],
-        //     "iDisplayLength": 10,
-        //     "columnDefs": [{ "searchable": false, "targets": 3 }],
-        //     "dom": 'fltp'
-        // });
 		$('div.dataTables_filter input').focus();
 	});
 
