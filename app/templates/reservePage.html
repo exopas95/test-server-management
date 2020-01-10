@@ -633,21 +633,19 @@
                 <tbody>
                     {% for TS in tsList_sanJose.values() %}
                     <tr>
-                        <th class="tab-content">{{ TS['info']['managementIp'] }}</th>
-                        <td class="tab-content"><span id="TAS_sanjose{{ loop.index }}">{{ TS['tas'] }}</span></td>
-                        <td class="tab-content">
-                            {% if 'NOT_READY' in TS['state'] %}
-                                <span class="label label-danger">
-                            {% elif 'READY' in TS['state'] %}
-                                <span class="label label-success">
-                            {% elif 'LOCK' in TS['state'] %}
-                                <span class="label label-danger">
-                            {% else %}
-                                <span class="label label-warning">
-                            {% endif %}
-                            {{ TS['state'] }}
-                            </span>
-                        </td>
+                        <th>{{ TS['info']['managementIp'] }}</th>
+                        <td><span id="tsList_sanJose{{ loop.index0 }}">{{ TS['tas'] }}</span></td>
+                        <td>
+							{% if getTeamResevinglist("SanJose")[loop.index] == "Available" %}
+								<span class="label label-success">
+							{% elif getTeamResevinglist("SanJose")[loop.index] == "On going" %}
+								<span class="label label-danger">
+							{% else %}
+								<span class="label label-warning">
+							{% endif %}
+							{{ getTeamResevinglist("SanJose")[loop.index0] }}
+							</span>
+						</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -665,23 +663,23 @@
 				</tr>
         </thead>
         <tbody>
-          {% for TS in tsList_plano.values() %}
-          <tr>
-              <th>{{ TS['info']['managementIp'] }}</th>
-              <td><span id="tsList_plano{{ loop.index0 }}">{{ TS['tas'] }}</span></td>
-              <td>
-                   {% if getTeamResevinglist("Plano")[loop.index] == "Available" %}
-                      <span class="label label-success">
+            {% for TS in tsList_plano.values() %}
+            <tr>
+                <th>{{ TS['info']['managementIp'] }}</th>
+                <td><span id="tsList_plano{{ loop.index0 }}">{{ TS['tas'] }}</span></td>
+                <td>
+                    {% if getTeamResevinglist("Plano")[loop.index] == "Available" %}
+                        <span class="label label-success">
                     {% elif getTeamResevinglist("Plano")[loop.index] == "On going" %}
-                      <span class="label label-danger">
+                        <span class="label label-danger">
                     {% else %}
-                      <span class="label label-warning">
+                        <span class="label label-warning">
                     {% endif %}
                     {{ getTeamResevinglist("Plano")[loop.index0] }}
                     </span>
-              </td>
-          </tr>
-          {% endfor %}
+                </td>
+            </tr>
+            {% endfor %}
         </tbody>
 			</table>
 		</div>
@@ -700,18 +698,18 @@
                     {% for TS in tsList_bdc.values() %}
                     <tr>
                         <th>{{ TS['info']['managementIp'] }}</th>
-                        <td><span id="tsList_sanJose{{ loop.index0 }}">{{ TS['tas'] }}</span></td>
+                        <td><span id="tsList_bdc{{ loop.index0 }}">{{ TS['tas'] }}</span></td>
                         <td>
-                        {% if getTeamResevinglist("SanJose")[loop.index] == "Available" %}
-                          <span class="label label-success">
-                        {% elif getTeamResevinglist("SanJose")[loop.index] == "On going" %}
-                          <span class="label label-danger">
-                        {% else %}
-                          <span class="label label-warning">
-                        {% endif %}
-                        {{ getTeamResevinglist("SanJose")[loop.index0] }}
-                        </span>
-                      </td>
+							{% if getTeamResevinglist("BDC")[loop.index] == "Available" %}
+								<span class="label label-success">
+							{% elif getTeamResevinglist("BDC")[loop.index] == "On going" %}
+								<span class="label label-danger">
+							{% else %}
+								<span class="label label-warning">
+							{% endif %}
+							{{ getTeamResevinglist("BDC")[loop.index0] }}
+							</span>
+						</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -732,16 +730,16 @@
                     {% for TS in tsList_common.values() %}
                     <tr>
                         <th>{{ TS['info']['managementIp'] }}</th>
-                        <td><span id="tsList_bdc{{ loop.index0 }}">{{ TS['tas'] }}</span></td>
+                        <td><span id="tsList_common{{ loop.index0 }}">{{ TS['tas'] }}</span></td>
                         <td>
-                        {% if getTeamResevinglist("BDC")[loop.index] == "Available" %}
+                        {% if getTeamResevinglist("Common")[loop.index] == "Available" %}
                           <span class="label label-success">
-                        {% elif getTeamResevinglist("BDC")[loop.index] == "On going" %}
+                        {% elif getTeamResevinglist("Common")[loop.index] == "On going" %}
                           <span class="label label-danger">
                         {% else %}
                           <span class="label label-warning">
                         {% endif %}
-                        {{ getTeamResevinglist("BDC")[loop.index0] }}
+                        {{ getTeamResevinglist("Common")[loop.index0] }}
                         </span>
                       </td>
                     </tr>

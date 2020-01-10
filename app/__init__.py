@@ -880,7 +880,7 @@ def reservePage():
     commonTS = []
     for ts in tsList:
         commonTS.append(ts)
-
+    
     return render_template('reservePage.html', 
                             tsList_bdc=tsList_bdc, 
                             tsList_plano=tsList_plano, 
@@ -891,7 +891,7 @@ def reservePage():
                             myTasAddress=myTasAddress,
                             todayList=todayList,
                             tslen=len(commonTS))
-
+                            
 @app.route('/reservePage/reserve/<mon1>/<dat1>/<hou1>/<min1>/<ampm1>/<mon2>/<dat2>/<hou2>/<min2>/<ampm2>/<currentTS>/<relocateTAS>/<reservPerson>', methods=['GET', 'POST'])
 def reserve(mon1, dat1, hou1, min1, ampm1, mon2, dat2, hou2, min2, ampm2, currentTS, relocateTAS, reservPerson):
     print(mon1, dat1, hou1, min1, ampm1, mon2, dat2, hou2, min2, ampm2)
@@ -977,6 +977,27 @@ def getMybooklist():
         return mybookedList
     return dict(getMybooklist=getMybooklist)
 
+@app.context_processor
+def getTeamResevinglist():
+    def getTeamResevinglist(team):
+        teamReservedList = []
+        if team == "SanJose":
+            teamTslist = tsList_sanJose
+        elif team == "Plano":
+            teamTslist = tsList_plano
+        elif team == "BDC":
+            teamTslist = tsList_bdc
+        elif team == "Common":
+            teamTslist = tsList_common
+
+        tempState = "on going" #0 = on going , 1 = waiting (reservetime) 2 = available
+        for TS in teamTslist.values():
+            print(TS['info']['managementIp'])
+            tempState = reservedTsList.getIsOnGoing(TS['info']['managementIp'])
+            teamReservedList.append(tempState)
+        return teamReservedList
+    return dict(getTeamResevinglist=getTeamResevinglist)
+
 def relocateReservedTS():
     global relocatedTsList
     global session
@@ -1008,7 +1029,6 @@ def relocateReservedTS():
         #                 print("Receiver is None")
         #         else:
         #             print("wrongTAS is None")
-
 
         relocateTSList = reservedTsList.display_list()
         print(relocateTSList)
@@ -1059,4 +1079,6 @@ def send_email(senders, receiver, content):
     finally:
         pass
 
-relocateReservedTS()
+
+if __name__ == '__main__':
+    relocateReservedTS()
