@@ -68,15 +68,17 @@ def getTSListFromAPI():
         tsList_sanJose.clear()
 
     # we already have tasList. Check each tas
-    #originTASaddr = ""
     tasList, tasInfoList = TASList.getTASListFromDB()
-    print("EUM: Her?")
     for tas in tasList:
         tasAddr = tas
         tasData = TASList.query.filter_by(tasAddress = tasAddr).first()
         tasOwner = tasData.tasName
         tasTeam = tasData.tasTeam
 
+        # Change owner name from Common TAS to Common TS
+        if tasOwner == "Common TAS":
+            tasOwner == "Common TS"
+        
         try:
             # encode necessary data. Use defaulty id/pw(sms:a1b2c3d4)
             encodedAuthData = base64.encodestring('sms:a1b2c3d4').rstrip('\t\r\n\0')
@@ -114,7 +116,7 @@ def getTSListFromAPI():
                                 if ts_database.tsCommon == 1:
                                     tsList_common[ts['info']['managementIp']] = {}
                                     tsList_common[ts['info']['managementIp']]['state'] = ts['state']
-                                    tsList_common[ts['info']['managementIp']]['name'] = ts['name']
+                                    tsList_common[ts['info']['managementIp']]['name'] = ts_user_name
                                     tsList_common[ts['info']['managementIp']]['version'] = ts['version']
                                     tsList_common[ts['info']['managementIp']]['info'] = ts['info']
                                     tsList_common[ts['info']['managementIp']]['tas'] = tasAddr
@@ -125,22 +127,30 @@ def getTSListFromAPI():
                                 # If TS doesn't have origin TAS, TS user name is set to located TAS user name
                                 if ts_database.originTAS is None:
                                     ts_user_name = tasOwner
-
                                 # If TS has origin TAS information
                                 else:
                                     ts_origin_tas = ts_database.originTAS
                                     tas_database = TASList.query.filter_by(tasAddress = ts_origin_tas).first()
-                                
-                                    # update TS user name as origin TAS's user name
-                                    ts_user_name = tas_database.tasName
+
+                                    if tas_database is None:
+                                        # Change owner name from Common TAS to Common TS
+                                        if tasOwner == "Common TAS":
+                                            tasOwner = "Common TS"
+
+                                        # if origin TAS is unavailable, update name with located TAS
+                                        ts_user_name = tasOwner                          
+                                    else:
+                                        # update TS user name as origin TAS's user name
+                                        tasOwner = tas_database.tsName
+                                        ts_user_name = tasOwner
+
                         # If there is no TS List in the database
                         else:
                             ts_user_name = tasOwner
-
                         # update TS List
                         tsList[ts['info']['managementIp']] = {}
                         tsList[ts['info']['managementIp']]['state'] = ts['state']
-                        tsList[ts['info']['managementIp']]['name'] = ts['name']
+                        tsList[ts['info']['managementIp']]['name'] = ts_user_name
                         tsList[ts['info']['managementIp']]['version'] = ts['version']
                         tsList[ts['info']['managementIp']]['info'] = ts['info']
                         tsList[ts['info']['managementIp']]['tas'] = tasAddr
@@ -150,7 +160,7 @@ def getTSListFromAPI():
                         if tasTeam == 'San Jose':
                             tsList_sanJose[ts['info']['managementIp']] = {}
                             tsList_sanJose[ts['info']['managementIp']]['state'] = ts['state']
-                            tsList_sanJose[ts['info']['managementIp']]['name'] = ts['name']
+                            tsList_sanJose[ts['info']['managementIp']]['name'] = ts_user_name
                             tsList_sanJose[ts['info']['managementIp']]['version'] = ts['version']
                             tsList_sanJose[ts['info']['managementIp']]['info'] = ts['info']
                             tsList_sanJose[ts['info']['managementIp']]['tas'] = tasAddr
@@ -159,7 +169,7 @@ def getTSListFromAPI():
                         elif tasTeam == "Plano":
                             tsList_plano[ts['info']['managementIp']] = {}
                             tsList_plano[ts['info']['managementIp']]['state'] = ts['state']
-                            tsList_plano[ts['info']['managementIp']]['name'] = ts['name']
+                            tsList_plano[ts['info']['managementIp']]['name'] = ts_user_name
                             tsList_plano[ts['info']['managementIp']]['version'] = ts['version']
                             tsList_plano[ts['info']['managementIp']]['info'] = ts['info']
                             tsList_plano[ts['info']['managementIp']]['tas'] = tasAddr
@@ -168,7 +178,7 @@ def getTSListFromAPI():
                         elif tasTeam == "BDC":
                             tsList_bdc[ts['info']['managementIp']] = {}
                             tsList_bdc[ts['info']['managementIp']]['state'] = ts['state']
-                            tsList_bdc[ts['info']['managementIp']]['name'] = ts['name']
+                            tsList_bdc[ts['info']['managementIp']]['name'] = ts_user_name
                             tsList_bdc[ts['info']['managementIp']]['version'] = ts['version']
                             tsList_bdc[ts['info']['managementIp']]['info'] = ts['info']
                             tsList_bdc[ts['info']['managementIp']]['tas'] = tasAddr
@@ -178,7 +188,7 @@ def getTSListFromAPI():
                         if TSList.query.filter_by(tsAddress = ts['info']['managementIp']).first():
                             edit_ts = TSList.query.filter_by(tsAddress = ts['info']['managementIp']).first()
                             edit_ts.tasAddress = tsList[ts['info']['managementIp']]['tas']
-                            edit_ts.tsName = ts['name'] 
+                            edit_ts.tsName = ts_user_name
                             edit_ts.tsVersion = ts['version'] 
                             edit_ts.tsState = ts['state']
                             edit_ts.tsManagementIp = ts['info']['managementIp']
@@ -193,14 +203,13 @@ def getTSListFromAPI():
                         else:
                             new_ts = TSList(tsAddress = ts['info']['managementIp'],
                                             tasAddress = tasAddr, 
-                                            tsName = ts['name'], 
+                                            tsName = ts_user_name, 
                                             tsVersion = ts['version'], 
                                             tsState = ts['state'], 
                                             tsManagementIp = ts['info']['managementIp'],
                                             tsPlatform = ts['info']['platform'], 
                                             tsMemory = ts['info']['memory'], 
                                             tsOS = ts['info']['os'],
-                                            originTAS = tasAddr,
                                             tsCommon = 0
                                             )
                             # update database
@@ -633,7 +642,6 @@ def edit_common_server():
                     return redirect(url_for('index'))                   # return error
                 else:
                     delete_tas = TASList.query.filter_by(tasAddress=tasAddr).first()
-                    print("EUM: ", delete_tas.tasName)
                     if delete_tas.tasName != "Common TAS":
                         error = "TAS is already a Private TAS. Please check your TAS address."
                         session['error'] = error
