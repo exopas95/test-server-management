@@ -500,9 +500,7 @@ def edit_tas_server():
                     userName = "Common TAS"                             # set new TAS's user name as "Common TAS"
                 # When new TAS is a private TAS
                 else:
-                    firstName = request.form.get("owner-firstname")
-                    lastName =request.form.get("owner-lastname")
-                    userName = firstName + " " + lastName
+                    userName = user.firstName + " " + user.lastName
             # When user logged in as guest: you can only add your TAS
             else:
                 userName = user.firstName + " " + user.lastName
@@ -891,6 +889,7 @@ def reservePage():
     commonTS = []
     for ts in tsList:
         commonTS.append(ts)
+
     return render_template('reservePage.html', tsList_bdc=tsList_bdc, tsList_plano=tsList_plano, tsList_sanJose=tsList_sanJose, commonTS=commonTS, userName=userName, myTasAddress=myTasAddress,todayList=todayList,tslen=len(commonTS))
 
 @app.route('/reservePage/reserve/<mon1>/<dat1>/<hou1>/<min1>/<ampm1>/<mon2>/<dat2>/<hou2>/<min2>/<ampm2>/<currentTS>/<relocateTAS>/<reservPerson>', methods=['GET', 'POST'])
@@ -912,6 +911,11 @@ def reserve(mon1, dat1, hou1, min1, ampm1, mon2, dat2, hou2, min2, ampm2, curren
     starttime, result = reservedTsList.checkPeriod(int(mon1), int(dat1), int(hou1), int(min1), int(ampm1), int(mon2), int(dat2), int(hou2), int(min2), int(ampm2))
     if int(result) != -1:
         reservedTsList.reserve(starttime,currentTS,relocateTAS, returnTAS, result, reservPerson)
+        # flash message success
+        flash("Reserved Successfully")
+    else:
+        error = "Reserve Failed"
+        session['error'] = error # return error
 
     return redirect(url_for('reservePage'))
 
@@ -973,6 +977,25 @@ def getMybooklist():
         return mybookedList
     return dict(getMybooklist=getMybooklist)
 
+@app.context_processor
+def getTeamResevinglist():
+    def getTeamResevinglist(team):
+        teamReservedList = []
+        if team == "SanJose":
+            teamTslist = tsList_sanJose
+        elif team == "Plano":
+            teamTslist = tsList_plano
+        elif team == "BDC":
+            teamTslist = tsList_bdc
+
+        tempState = "on going" #0 = on going , 1 = waiting (reservetime) 2 = available
+        for TS in teamTslist.values():
+            print(TS['info']['managementIp'])
+            tempState = reservedTsList.getIsOnGoing(TS['info']['managementIp'])
+            teamReservedList.append(tempState)
+        return teamReservedList
+    return dict(getTeamResevinglist=getTeamResevinglist)
+
 def relocateReservedTS():
     global relocatedTsList
     global session
@@ -1004,7 +1027,6 @@ def relocateReservedTS():
         #                 print("Receiver is None")
         #         else:
         #             print("wrongTAS is None")
-
 
         relocateTSList = reservedTsList.display_list()
         print(relocateTSList)
@@ -1055,4 +1077,6 @@ def send_email(senders, receiver, content):
     finally:
         pass
 
-relocateReservedTS()
+
+if __name__ == '__main__':
+    relocateReservedTS()

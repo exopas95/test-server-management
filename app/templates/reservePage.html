@@ -182,7 +182,6 @@
 			content:'';
 			display:block;
 			width:100%;
-			height:15px;
 			background-color:#fff;
 			position:absolute;
 			bottom:-11px;
@@ -351,10 +350,10 @@
                                                 <p class="notice notice-nav">
                                                     This tab is to modify common TAS/TS into TS Management system.
                                                     Only admin can add/remove the common system.<br><br>
-                                                    <strong>1) Add TAS:</strong> TAS will be added to the system database<br>
-                                                    <strong>2) Remove TAS:</strong> TAS will be removed from the system database<br>
-                                                    <strong>3) Add TS:</strong> TS owner will be updated to <strong>Common</strong><br>
-                                                    <strong>4) Remove TS:</strong> TS owner will be updated to <strong>Private</strong> 				
+                                                    <strong>1) Add TAS:</strong> Change Public TAS to Private TAS<br>
+                                                    <strong>2) Remove TAS:</strong> Change Private TAS to Public TAS<br>
+                                                    <strong>3) Add TS:</strong> Change Public TS to Private TS<br>
+                                                    <strong>4) Remove TS:</strong> Change Private TS to Public TS</strong> 						
                                                 </p>
                                             </div>
                                             {% if userType == "admin" %}
@@ -537,18 +536,16 @@
                     {% for TS in tsList_plano.values() %}
                     <tr>
                         <th>{{ TS['info']['managementIp'] }}</th>
-                        <td><span id="tsList_plano{{ loop.index }}">{{ TS['tas'] }}</span></td>
+                        <td><span id="tsList_plano{{ loop.index0 }}">{{ TS['tas'] }}</span></td>
                         <td>
-							{% if 'NOT_READY' in TS['state'] %}
-								<span class="label label-danger">
-							{% elif 'READY' in TS['state'] %}
+							{% if getTeamResevinglist("Plano")[loop.index] == "Available" %}
 								<span class="label label-success">
-							{% elif 'LOCK' in TS['state'] %}
+							{% elif getTeamResevinglist("Plano")[loop.index] == "On going" %}
 								<span class="label label-danger">
 							{% else %}
 								<span class="label label-warning">
 							{% endif %}
-							{{ TS['state'] }}
+							{{ getTeamResevinglist("Plano")[loop.index0] }}
 							</span>
 						</td>
                     </tr>
@@ -571,18 +568,16 @@
                     {% for TS in tsList_sanJose.values() %}
                     <tr>
                         <th>{{ TS['info']['managementIp'] }}</th>
-                        <td><span id="TAS_sanjose{{ loop.index }}">{{ TS['tas'] }}</span></td>
+                        <td><span id="tsList_sanJose{{ loop.index0 }}">{{ TS['tas'] }}</span></td>
                         <td>
-							{% if 'NOT_READY' in TS['state'] %}
-								<span class="label label-danger">
-							{% elif 'READY' in TS['state'] %}
+							{% if getTeamResevinglist("SanJose")[loop.index] == "Available" %}
 								<span class="label label-success">
-							{% elif 'LOCK' in TS['state'] %}
+							{% elif getTeamResevinglist("SanJose")[loop.index] == "On going" %}
 								<span class="label label-danger">
 							{% else %}
 								<span class="label label-warning">
 							{% endif %}
-							{{ TS['state'] }}
+							{{ getTeamResevinglist("SanJose")[loop.index0] }}
 							</span>
 						</td>
                     </tr>
@@ -605,18 +600,16 @@
                     {% for TS in tsList_bdc.values() %}
                     <tr>
                         <th>{{ TS['info']['managementIp'] }}</th>
-                        <td><span id="tsList_bdc{{ loop.index }}">{{ TS['tas'] }}</span></td>
+                        <td><span id="tsList_bdc{{ loop.index0 }}">{{ TS['tas'] }}</span></td>
                         <td>
-							{% if 'NOT_READY' in TS['state'] %}
-								<span class="label label-danger">
-							{% elif 'READY' in TS['state'] %}
+							{% if getTeamResevinglist("BDC")[loop.index] == "Available" %}
 								<span class="label label-success">
-							{% elif 'LOCK' in TS['state'] %}
+							{% elif getTeamResevinglist("BDC")[loop.index] == "On going" %}
 								<span class="label label-danger">
 							{% else %}
 								<span class="label label-warning">
 							{% endif %}
-							{{ TS['state'] }}
+							{{ getTeamResevinglist("BDC")[loop.index0] }}
 							</span>
 						</td>
                     </tr>
@@ -653,7 +646,7 @@
 
     for(var i =0; i< items.length/12; i++){
         console.log(items[12*i +5])
-        timetable.addEvent(items[12*i +0], items[12*i +1], 
+        timetable.addEvent(items[12*i +0] + " ( " + String(items[12*i +5]) + ":" + String(items[12*i +6]) + " ~ "  + String(items[12*i +10]) + ":" + String(items[12*i +11]) + " )", items[12*i +1], 
                 new Date(items[12*i +2],items[12*i +3],items[12*i +4],items[12*i +5],items[12*i +6]), 
                 new Date(items[12*i +7],items[12*i +8],items[12*i +9],items[12*i +10],items[12*i +11]));
     }
@@ -673,7 +666,7 @@
 				<thead>
 				<tr>
                     <th>Index</th>
-                    <th>TAS</th>
+                    <th>TS</th>
                     <th>Start time</th>
                     <th>End time</th>
                     <th>State</th>
@@ -684,7 +677,7 @@
                     {% for booked in getMybooklist(userName) %}
                     <tr>
                         <td>{{ loop.index }}</td>
-                        <td>{{ booked[1] }}</td>
+                        <td>{{ booked[5] }}</td>
                         <td>{{ booked[2] }}</td>
                         <td>{{ booked[3] }}</td>
                         <td>
