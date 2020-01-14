@@ -93,18 +93,18 @@ class TASList(db.Model):
 		
 		for index in TASlist:
 			TASaddr = index.tasAddress
-				
 			# if len(tempList) is not 0:
 			# 	tempList.clear()
 
-			if len(tempInfoList) is not 0:
-				del tempInfoList[:]
+			# if len(tempInfoList) is not 0:
+			# 	del tempInfoList[:]
 
 			tempList.add(TASaddr.rstrip())
-			for tas in tempList:
-				tempInfoList.append(tas)
+			# for tas in tempList:
+			# 	tempInfoList.append(tas)
+			tempInfoList.append(index.tasAddress + "," + index.tasName)
 
-			tempInfoList.sort()
+		tempInfoList.sort()
 
 		return tempList, tempInfoList
 

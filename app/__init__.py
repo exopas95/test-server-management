@@ -210,6 +210,7 @@ def getTSListFromAPI():
                                             tsPlatform = ts['info']['platform'], 
                                             tsMemory = ts['info']['memory'], 
                                             tsOS = ts['info']['os'],
+                                            originTAS = None,
                                             tsCommon = 0
                                             )
                             # update database
@@ -395,6 +396,7 @@ def index():
     
     # get TAS/TS list from DB
     tasList, tasInfoList = TASList.getTASListFromDB()
+    print(tasInfoList)
     getTSListFromAPI()
 
     # define variables for TAS
