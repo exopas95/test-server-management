@@ -665,9 +665,9 @@
         <tbody>
             {% for TS in tsList_plano.values() %}
             <tr>
-                <th>{{ TS['info']['managementIp'] }}</th>
-                <td><span id="tsList_plano{{ loop.index0 }}">{{ TS['tas'] }}</span></td>
-                <td>
+                <th class="tab-content">{{ TS['info']['managementIp'] }}</th>
+                <td class="tab-content"><span id="tsList_plano{{ loop.index0 }}">{{ TS['tas'] }}</span></td>
+                <td class="tab-content">
                     {% if getTeamResevinglist("Plano")[loop.index0] == "Available" %}
                         <span class="label label-success">
                     {% elif getTeamResevinglist("Plano")[loop.index0] == "On going" %}
@@ -697,9 +697,9 @@
                 <tbody>
                     {% for TS in tsList_bdc.values() %}
                     <tr>
-                        <th>{{ TS['info']['managementIp'] }}</th>
-                        <td><span id="tsList_bdc{{ loop.index0 }}">{{ TS['tas'] }}</span></td>
-                        <td>
+                        <th class="tab-content">{{ TS['info']['managementIp'] }}</th>
+                        <td class="tab-content"><span id="tsList_bdc{{ loop.index0 }}">{{ TS['tas'] }}</span></td>
+                        <td class="tab-content">
 							{% if getTeamResevinglist("BDC")[loop.index0] == "Available" %}
 								<span class="label label-success">
 							{% elif getTeamResevinglist("BDC")[loop.index0] == "On going" %}
@@ -729,9 +729,9 @@
                 <tbody>
                     {% for TS in tsList_common.values() %}
                     <tr>
-                        <th>{{ TS['info']['managementIp'] }}</th>
-                        <td><span id="tsList_common{{ loop.index0 }}">{{ TS['tas'] }}</span></td>
-                        <td>
+                        <th class="tab-content">{{ TS['info']['managementIp'] }}</th>
+                        <td class="tab-content"><span id="tsList_common{{ loop.index0 }}">{{ TS['tas'] }}</span></td>
+                        <td class="tab-content">
                         {% if getTeamResevinglist("Common")[loop.index0] == "Available" %}
                           <span class="label label-success">
                         {% elif getTeamResevinglist("Common")[loop.index0] == "On going" %}

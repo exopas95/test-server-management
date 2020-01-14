@@ -519,9 +519,9 @@
 				<thead>
 				<tr>
 					<th>TS</th>
-					<th>Owner</th>
+					<th>TS Owner</th>
 					<th>Located TAS</th>
-					<th>Name</th>
+					<th>TAS Owner</th>
 					<th>Platform</th>
 					<th>Memory</th>
 					<th>OS</th>
@@ -534,9 +534,9 @@
 				{% for TS in tsList_sanJose.values() %}
 					<tr>
 						<th>{{ TS['info']['managementIp'] }}</th>
-						<td>{{ TS['owner'] }}</td>
-						<td><span id="TAS_sanjose">{{ TS['tas'] }}</span></td>
 						<td>{{ TS['name'] }}</td>
+						<td><span id="TAS_sanjose">{{ TS['tas'] }}</span></td>
+						<td>{{ TS['owner'] }}</td>
 						<td>{{ TS['info']['platform'] }}</td>
 						<td>{{ TS['info']['memory'] }}</td>
 						<td>{{ TS['info']['os'] }}</td>
@@ -580,7 +580,7 @@
 													</select>
 												</div>
 		
-												<div class="custom-select" id=sanjose"{{ loop.index }}">Target TAS     : 
+												<div class="custom-select" id="sanjose{{ loop.index }}">Target TAS     : 
 													<select>
 														<option value="">Select TAS</option>
 														{% for TAS in tasList %}
@@ -617,9 +617,9 @@
 				<thead>
 				<tr>
 					<th>TS</th>
-					<th>Owner</th>
+					<th>TS Owner</th>
 					<th>Located TAS</th>
-					<th>Name</th>
+					<th>TAS Owner</th>
 					<th>Platform</th>
 					<th>Memory</th>
 					<th>OS</th>
@@ -632,9 +632,9 @@
 				{% for TS in tsList_plano.values() %}
 					<tr>
 						<th>{{ TS['info']['managementIp'] }}</th>
-						<td>{{ TS['owner'] }}</td>
-						<td><span id="TAS_plano">{{ TS['tas'] }}</span></td>
 						<td>{{ TS['name'] }}</td>
+						<td><span id="TAS_plano">{{ TS['tas'] }}</span></td>
+						<td>{{ TS['owner'] }}</td>
 						<td>{{ TS['info']['platform'] }}</td>
 						<td>{{ TS['info']['memory'] }}</td>
 						<td>{{ TS['info']['os'] }}</td>
@@ -715,9 +715,9 @@
 				<thead>
 				<tr>
 					<th>TS</th>
-					<th>Owner</th>
+					<th>TS Owner</th>
 					<th>Located TAS</th>
-					<th>Name</th>
+					<th>TAS Owner</th>
 					<th>Platform</th>
 					<th>Memory</th>
 					<th>OS</th>
@@ -730,9 +730,9 @@
 				{% for TS in tsList_bdc.values() %}
 					<tr>
 						<th>{{ TS['info']['managementIp'] }}</th>
-						<td>{{ TS['owner'] }}</td>
-						<td><span id="TAS_bdc">{{ TS['tas'] }}</span></td>
 						<td>{{ TS['name'] }}</td>
+						<td><span id="TAS_bdc">{{ TS['tas'] }}</span></td>
+						<td>{{ TS['owner'] }}</td>
 						<td>{{ TS['info']['platform'] }}</td>
 						<td>{{ TS['info']['memory'] }}</td>
 						<td>{{ TS['info']['os'] }}</td>
@@ -812,9 +812,9 @@
 				<thead>
 				<tr>
 					<th>TS</th>
-					<th>Owner</th>
+					<th>TS Owner</th>
 					<th>Located TAS</th>
-					<th>Name</th>
+					<th>TAS Owner</th>
 					<th>Platform</th>
 					<th>Memory</th>
 					<th>OS</th>
@@ -827,9 +827,9 @@
 				{% for TS in tsList_common.values() %}
 					<tr>
 						<th>{{ TS['info']['managementIp'] }}</th>
-						<td>{{ TS['owner'] }}</td>
-						<td><span id="TAS_common">{{ TS['tas'] }}</span></td>
 						<td>{{ TS['name'] }}</td>
+						<td><span id="TAS_common">{{ TS['tas'] }}</span></td>
+						<td>{{ TS['owner'] }}</td>
 						<td>{{ TS['info']['platform'] }}</td>
 						<td>{{ TS['info']['memory'] }}</td>
 						<td>{{ TS['info']['os'] }}</td>
