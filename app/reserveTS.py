@@ -138,13 +138,12 @@ class LinkedList:
                 #if the next node's flag is finishing, which means current reservation
                 #interfere other reservation
                 print("Cannot reserve : interfere from end1, startval = ", nextNode.data, " ", Start_temp.StartingFlg)
-
+                return False
             else:
                 #prev node's flag is finishing and next node's flag is starting
                 #means current reservation is between two reserved slots.
                 # == reservable
                 print("Reservable Starting Node1")
-            return False
 
         Finish_temp = self.head
         prevNode = Finish_temp
@@ -178,13 +177,12 @@ class LinkedList:
                 #if the next node's flag is finishing, which means current reservation
                 #interfere other reservation
                 print("Cannot reserve : interfere from end2")
-
+                return False
             else:
                 #prev node's flag is finishing and next node's flag is starting
                 #means current reservation is between two reserved slots.
                 # == reservable
                 print("Reservable Finishing Node2")
-            return False
 
 
         #print("s = ", Start_temp.data, "c = ", Start_temp.next.data, "f =", Finish_temp.data)
@@ -362,11 +360,17 @@ class LinkedList:
             tempDate = datetime.datetime.strptime(getRealTimeFromTimeval(temp.data), "%Y-%m-%d %H:%M")
             if todayDate != tempDate.date() and tempDate.hour >= currentHour + 12:
                 if temp.StartingFlg == False:
-                    tempstarttime = datetime.datetime.strptime(getRealTimeFromTimeval(temp.data - temp.ReservePeriod), "%Y-%m-%d %H:%M")
+                    if(temp.data - temp.ReservePeriod > 0):
+                        tempstarttime = datetime.datetime.strptime(getRealTimeFromTimeval(temp.data - temp.ReservePeriod), "%Y-%m-%d %H:%M")
+                    else:
+                        tempstarttime = datetime.datetime.strptime(getRealTimeFromTimeval(0), "%Y-%m-%d %H:%M")
                     tempendtime = datetime.datetime.strptime(getRealTimeFromTimeval(temp.data - temp.ReservePeriod + 720), "%Y-%m-%d %H:%M")
                 break
             if temp.StartingFlg is False:
-                tempstarttime = datetime.datetime.strptime(getRealTimeFromTimeval(temp.data - temp.ReservePeriod), "%Y-%m-%d %H:%M")
+                if(temp.data - temp.ReservePeriod > 0):
+                    tempstarttime = datetime.datetime.strptime(getRealTimeFromTimeval(temp.data - temp.ReservePeriod), "%Y-%m-%d %H:%M")
+                else:
+                    tempstarttime = datetime.datetime.strptime(getRealTimeFromTimeval(0), "%Y-%m-%d %H:%M")
                 tempendtime = datetime.datetime.strptime(getRealTimeFromTimeval(temp.data), "%Y-%m-%d %H:%M")
 
             if(tempstarttime is not None) and (tempendtime is not None):
@@ -403,7 +407,7 @@ class LinkedList:
                 break #it is not started yet
             elif(temp.TSaddress == str(tsaddrToSearch)) and (temp.StartingFlg == False):
                 #Since the node delete from the start
-                if temp.data - temp.ReservePeriod <= "On going":
+                if temp.data - temp.ReservePeriod <= 0:
                     isMiddleOfReservedPeriod = "On going"
                 break             
             temp = temp.next

@@ -917,14 +917,14 @@ def reserve(mon1, dat1, hou1, min1, ampm1, mon2, dat2, hou2, min2, ampm2, curren
 
     starttime, result = reservedTsList.checkPeriod(int(mon1), int(dat1), int(hou1), int(min1), int(ampm1), int(mon2), int(dat2), int(hou2), int(min2), int(ampm2))
     if int(result) != -1:
-        result = reservedTsList.reserve(starttime,currentTS,relocateTAS, returnTAS, result, reservPerson)
-        if result == True:
+        isReserved = reservedTsList.reserve(starttime,currentTS,relocateTAS, returnTAS, result, reservPerson)
+        if isReserved is True:
             # flash message success
             flash("Reserved Successfully")
         else:
-            error = "Reserve Failed"
-            session['error'] = error # return error
+            flash("Reserve Failed. Intergere other reservation.")
     else:
+        flash("Reserve Failed. Time is not valid")
         error = "Reserve Failed"
         session['error'] = error # return error
 
