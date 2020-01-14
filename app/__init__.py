@@ -60,12 +60,13 @@ def connectSSH(ip, usn, pwd):
 # get TS data from API
 def getTSListFromAPI():
     # if tsList is already exist, remove it
-    list_sum = len(tsList) + len(tsList_sanJose) + len(tsList_plano) + len(tsList_bdc)
+    list_sum = len(tsList) + len(tsList_sanJose) + len(tsList_plano) + len(tsList_bdc) + len(tsList_common)
     if list_sum is not 0:
         tsList.clear()
         tsList_bdc.clear()
         tsList_plano.clear()
         tsList_sanJose.clear()
+        tsList_common.clear()
 
     # we already have tasList. Check each tas
     tasList, tasInfoList = TASList.getTASListFromDB()
@@ -74,7 +75,7 @@ def getTSListFromAPI():
         tasData = TASList.query.filter_by(tasAddress = tasAddr).first()
         tasOwner = tasData.tasName
         tasTeam = tasData.tasTeam
-        
+
         try:
             # encode necessary data. Use defaulty id/pw(sms:a1b2c3d4)
             encodedAuthData = base64.encodestring('sms:a1b2c3d4').rstrip('\t\r\n\0')
@@ -144,6 +145,7 @@ def getTSListFromAPI():
                         # If there is no TS List in the database
                         else:
                             ts_user_name = "Unknown"
+
                         # update TS List
                         tsList[ts['info']['managementIp']] = {}
                         tsList[ts['info']['managementIp']]['state'] = ts['state']
@@ -180,7 +182,10 @@ def getTSListFromAPI():
                             tsList_bdc[ts['info']['managementIp']]['info'] = ts['info']
                             tsList_bdc[ts['info']['managementIp']]['tas'] = tasAddr
                             tsList_bdc[ts['info']['managementIp']]['owner'] = tasOwner
+                        else:
+                            return redirect(url_for('error_404'))
 
+                        print(ts_user_name)
                         # update database if TS already exist
                         if TSList.query.filter_by(tsAddress = ts['info']['managementIp']).first():
                             edit_ts = TSList.query.filter_by(tsAddress = ts['info']['managementIp']).first()
@@ -192,6 +197,9 @@ def getTSListFromAPI():
                             edit_ts.tsPlatform = ts['info']['platform']
                             edit_ts.tsMemory = ts['info']['memory']
                             edit_ts.tsOS = ts['info']['os']
+
+                            if ts_user_name == "Common TS":
+                                edit_ts.tsCommon = 1
                             
                             # update database
                             db.session.commit()
@@ -207,11 +215,13 @@ def getTSListFromAPI():
                                             tsPlatform = ts['info']['platform'], 
                                             tsMemory = ts['info']['memory'], 
                                             tsOS = ts['info']['os'],
+                                            originTAS = None,
                                             tsCommon = 0
                                             )
                             # update database
                             db.session.add(new_ts)
                             db.session.commit()
+
         except Exception as e:
             return redirect(url_for('error_404'))
     return tsList
@@ -393,6 +403,7 @@ def index():
     # get TAS/TS list from DB
     tasList, tasInfoList = TASList.getTASListFromDB()
     getTSListFromAPI()
+    print("EUM")
 
     # define variables for TAS
     email = session['email']
@@ -735,6 +746,8 @@ def edit_common_server():
                 # update origin TAS information
                 selected_ts_1.tsCommon = 0
                 selected_ts_2.tsCommon = 0
+                selected_ts_1.tsName = "Unknown"
+                selected_ts_2.tsName = "Unknown"
 
                 # update database
                 db.session.commit()
@@ -780,7 +793,7 @@ def home():
         if request.method == 'POST':
             # send login user information to tslistview.html
             username = getname(request.form['username'])
-            return render_template('tslistview.html', data=getfollowedby(username))
+            return redirect(url_for('index'))
         else:
             # need to send 404 page but skip for now
             return redirect(url_for('error_404'))
