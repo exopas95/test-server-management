@@ -402,6 +402,7 @@ def index():
     
     # get TAS/TS list from DB
     tasList, tasInfoList = TASList.getTASListFromDB()
+    print(tasInfoList)
     getTSListFromAPI()
     print("EUM")
 
@@ -908,7 +909,7 @@ def reservePage():
                             myTasAddress=myTasAddress,
                             todayList=todayList,
                             tslen=len(commonTS))
-
+                            
 @app.route('/reservePage/reserve/<mon1>/<dat1>/<hou1>/<min1>/<ampm1>/<mon2>/<dat2>/<hou2>/<min2>/<ampm2>/<currentTS>/<relocateTAS>/<reservPerson>', methods=['GET', 'POST'])
 def reserve(mon1, dat1, hou1, min1, ampm1, mon2, dat2, hou2, min2, ampm2, currentTS, relocateTAS, reservPerson):
     print(mon1, dat1, hou1, min1, ampm1, mon2, dat2, hou2, min2, ampm2)
@@ -1082,6 +1083,7 @@ def relocateReservedTS():
     #         if temp.tasAddress != relocatedTs[1]:
     #             #if ts is not belongs to reserved tas, relocate again
     #             tasmodification(relocatedTs[0], temp.tasAddress, relocatedTs[1])
+    print("minute : " , datetime.datetime.now().minute)
     print ("relocated are")
     print (relocatedTsList)
     reservedTsList.showList()
@@ -1097,5 +1099,6 @@ def send_email(senders, receiver, content):
         pass
     finally:
         pass
+
 
 relocateReservedTS()
