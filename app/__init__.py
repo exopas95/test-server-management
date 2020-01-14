@@ -872,7 +872,6 @@ def reservePage():
     lastName = user.lastName
     userName = firstName + " " + lastName
     temp = TASList.query.filter_by(tasName = userName).first()
-    print(temp)
 
     if temp is not None:
         myTasAddress = temp.tasAddress
@@ -918,10 +917,14 @@ def reserve(mon1, dat1, hou1, min1, ampm1, mon2, dat2, hou2, min2, ampm2, curren
 
     starttime, result = reservedTsList.checkPeriod(int(mon1), int(dat1), int(hou1), int(min1), int(ampm1), int(mon2), int(dat2), int(hou2), int(min2), int(ampm2))
     if int(result) != -1:
-        reservedTsList.reserve(starttime,currentTS,relocateTAS, returnTAS, result, reservPerson)
-        # flash message success
-        flash("Reserved Successfully")
+        isReserved = reservedTsList.reserve(starttime,currentTS,relocateTAS, returnTAS, result, reservPerson)
+        if isReserved is True:
+            # flash message success
+            flash("Reserved Successfully")
+        else:
+            flash("Reserve Failed. Intergere other reservation.")
     else:
+        flash("Reserve Failed. Time is not valid")
         error = "Reserve Failed"
         session['error'] = error # return error
 
@@ -1000,7 +1003,6 @@ def getTeamResevinglist():
 
         tempState = "on going" #0 = on going , 1 = waiting (reservetime) 2 = available
         for TS in teamTslist.values():
-            print(TS['info']['managementIp'])
             tempState = reservedTsList.getIsOnGoing(TS['info']['managementIp'])
             teamReservedList.append(tempState)
         return teamReservedList
@@ -1088,5 +1090,4 @@ def send_email(senders, receiver, content):
         pass
 
 
-if __name__ == '__main__':
-    relocateReservedTS()
+relocateReservedTS()
