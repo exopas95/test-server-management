@@ -77,7 +77,7 @@ def getTSListFromAPI():
 
         # Change owner name from Common TAS to Common TS
         if tasOwner == "Common TAS":
-            tasOwner == "Common TS"
+            tasOwner = "Common TS"
         
         try:
             # encode necessary data. Use defaulty id/pw(sms:a1b2c3d4)
@@ -141,7 +141,7 @@ def getTSListFromAPI():
                                         ts_user_name = tasOwner                          
                                     else:
                                         # update TS user name as origin TAS's user name
-                                        tasOwner = tas_database.tsName
+                                        tasOwner = tas_database.tasName
                                         ts_user_name = tasOwner
 
                         # If there is no TS List in the database
