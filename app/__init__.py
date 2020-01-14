@@ -74,10 +74,6 @@ def getTSListFromAPI():
         tasData = TASList.query.filter_by(tasAddress = tasAddr).first()
         tasOwner = tasData.tasName
         tasTeam = tasData.tasTeam
-
-        # Change owner name from Common TAS to Common TS
-        if tasOwner == "Common TAS":
-            tasOwner = "Common TS"
         
         try:
             # encode necessary data. Use defaulty id/pw(sms:a1b2c3d4)
@@ -120,33 +116,34 @@ def getTSListFromAPI():
                                     tsList_common[ts['info']['managementIp']]['version'] = ts['version']
                                     tsList_common[ts['info']['managementIp']]['info'] = ts['info']
                                     tsList_common[ts['info']['managementIp']]['tas'] = tasAddr
-                                    tsList_common[ts['info']['managementIp']]['owner'] = ts_user_name
+                                    tsList_common[ts['info']['managementIp']]['owner'] = tasOwner
 
                             # If TS is a private TS
                             else:
                                 # If TS doesn't have origin TAS, TS user name is set to located TAS user name
                                 if ts_database.originTAS is None:
-                                    ts_user_name = tasOwner
+                                    ts_user_name = "Unknown"
+
                                 # If TS has origin TAS information
                                 else:
                                     ts_origin_tas = ts_database.originTAS
                                     tas_database = TASList.query.filter_by(tasAddress = ts_origin_tas).first()
 
+                                    # if origin TAS is not registered to TS Management
                                     if tas_database is None:
-                                        # Change owner name from Common TAS to Common TS
-                                        if tasOwner == "Common TAS":
-                                            tasOwner = "Common TS"
+                                        ts_user_name = "Unknown"      
 
-                                        # if origin TAS is unavailable, update name with located TAS
-                                        ts_user_name = tasOwner                          
+                                    # if origin TAS is already registered to TS Management               
                                     else:
                                         # update TS user name as origin TAS's user name
-                                        tasOwner = tas_database.tasName
-                                        ts_user_name = tasOwner
-
+                                        if tas_database.tasName == "Common TAS":
+                                            ts_user_name = "Common TS"
+                                        else:
+                                            ts_user_name = tas_database.tasName
+                                        
                         # If there is no TS List in the database
                         else:
-                            ts_user_name = tasOwner
+                            ts_user_name = "Unknown"
                         # update TS List
                         tsList[ts['info']['managementIp']] = {}
                         tsList[ts['info']['managementIp']]['state'] = ts['state']
@@ -154,7 +151,7 @@ def getTSListFromAPI():
                         tsList[ts['info']['managementIp']]['version'] = ts['version']
                         tsList[ts['info']['managementIp']]['info'] = ts['info']
                         tsList[ts['info']['managementIp']]['tas'] = tasAddr
-                        tsList[ts['info']['managementIp']]['owner'] = ts_user_name
+                        tsList[ts['info']['managementIp']]['owner'] = tasOwner
                                 
                         # update TS List for team San Jose
                         if tasTeam == 'San Jose':
@@ -164,7 +161,7 @@ def getTSListFromAPI():
                             tsList_sanJose[ts['info']['managementIp']]['version'] = ts['version']
                             tsList_sanJose[ts['info']['managementIp']]['info'] = ts['info']
                             tsList_sanJose[ts['info']['managementIp']]['tas'] = tasAddr
-                            tsList_sanJose[ts['info']['managementIp']]['owner'] = ts_user_name
+                            tsList_sanJose[ts['info']['managementIp']]['owner'] = tasOwner
                         # update TS List for team Plano
                         elif tasTeam == "Plano":
                             tsList_plano[ts['info']['managementIp']] = {}
@@ -173,7 +170,7 @@ def getTSListFromAPI():
                             tsList_plano[ts['info']['managementIp']]['version'] = ts['version']
                             tsList_plano[ts['info']['managementIp']]['info'] = ts['info']
                             tsList_plano[ts['info']['managementIp']]['tas'] = tasAddr
-                            tsList_plano[ts['info']['managementIp']]['owner'] = ts_user_name
+                            tsList_plano[ts['info']['managementIp']]['owner'] = tasOwner
                         # update TS List for team BDC
                         elif tasTeam == "BDC":
                             tsList_bdc[ts['info']['managementIp']] = {}
@@ -182,7 +179,7 @@ def getTSListFromAPI():
                             tsList_bdc[ts['info']['managementIp']]['version'] = ts['version']
                             tsList_bdc[ts['info']['managementIp']]['info'] = ts['info']
                             tsList_bdc[ts['info']['managementIp']]['tas'] = tasAddr
-                            tsList_bdc[ts['info']['managementIp']]['owner'] = ts_user_name
+                            tsList_bdc[ts['info']['managementIp']]['owner'] = tasOwner
 
                         # update database if TS already exist
                         if TSList.query.filter_by(tsAddress = ts['info']['managementIp']).first():
