@@ -1,6 +1,6 @@
 import requests, base64, datetime
 import paramiko, time, csv, os
-#from flask_mail import Mail, Message
+from flask_mail import Mail, Message
 
 from multiprocessing import Process, Manager
 from tsDB import *
@@ -9,6 +9,9 @@ from tsDB import *
 import reserveTS as reserveTS
 import threading
 import multiprocessing
+
+#for send mail
+import sendMail as sendMail
 
 # default USERNAME & PASSWORD to connect SSH
 USERNAME = 'cfguser'
@@ -185,7 +188,6 @@ def getTSListFromAPI():
                         else:
                             return redirect(url_for('error_404'))
 
-                        print(ts_user_name)
                         # update database if TS already exist
                         if TSList.query.filter_by(tsAddress = ts['info']['managementIp']).first():
                             edit_ts = TSList.query.filter_by(tsAddress = ts['info']['managementIp']).first()
@@ -1024,32 +1026,30 @@ def relocateReservedTS():
     global session
     global reservedTsList
     if (datetime.datetime.now().minute % 5) == 0:
-        # #check if the relcating correctly
-        # for relocatedTs in relocatedTsList:
-        #     temp = TSList.query.filter_by(tsAddress = relocatedTs[0]).first()
-        #     if temp.tasAddress != relocatedTs[1]:
-        #         #if ts is not belongs to reserved tas, send mail
-        #         wrongTAS = TASList.query.filter_by(tasAddress = temp.tasAddress).first()
-        #         if wrongTAS is not None:
-        #             temp_ = wrongTAS.tasName.split(' ')
-        #             temp_firstName = ""
-        #             if temp_firstName is not None:
-        #                 temp_firstName = temp_[0]
-        #             temp_lastName = ""
-        #             if temp_lastName is not None:
-        #                 temp_lastName = temp_[1]                    
-        #             ReceiverName = User.query.filter_by(firstName = temp_firstName).filter_by(lastName = temp_lastName).first()
-        #             if ReceiverName is not None:
-        #                 print("try to send mail")
-        #                 Sender = session['email']
-        #                 Receiver = ReceiverName.email
-        #                 Context = "The TS : " + relocatedTs[0] + " is reserved for now.\nPlease relocate TS to TAS : " + relocatedTs[1] +"\n\nThank you"
-        #                 send_email(Sender, Receiver, Context)
-        #                 print("send mail successfully")
-        #             else:
-        #                 print("Receiver is None")
-        #         else:
-        #             print("wrongTAS is None")
+        #check if the relcating correctly
+        for relocatedTs in relocatedTsList:
+            temp = TSList.query.filter_by(tsAddress = relocatedTs[0]).first()
+            if temp.tasAddress != relocatedTs[1]:
+                #if ts is not belongs to reserved tas, send mail
+                wrongTAS = TASList.query.filter_by(tasAddress = temp.tasAddress).first()
+                if wrongTAS is not None:
+                    temp_ = wrongTAS.tasName.split(' ')
+                    temp_firstName = ""
+                    if temp_firstName is not None:
+                        temp_firstName = temp_[0]
+                    temp_lastName = ""
+                    if temp_lastName is not None:
+                        temp_lastName = temp_[1]                    
+                    ReceiverName = User.query.filter_by(firstName = temp_firstName).filter_by(lastName = temp_lastName).first()
+                    if ReceiverName is not None:
+                        print("try to send mail to ", ReceiverName, " and ", ReceiverName.email)
+                        Context = "The TS : " + relocatedTs[0] + " is reserved for now.\nPlease relocate TS to TAS : " + relocatedTs[1] +"\n\nThank you"
+                        sendMail.send_mail(temp_lastName +"."+ temp_firstName +"@spirent.com", Context)
+                        print("send mail successfully")
+                    else:
+                        print("Receiver is None")
+                else:
+                    print("wrongTAS is None")
 
         relocateTSList = reservedTsList.display_list()
         print(relocateTSList)
@@ -1062,13 +1062,15 @@ def relocateReservedTS():
                 print (relocatedTsList)
                 #locking(element[0])
             else:
-                print ("add false case")
+                print ("before delete false case")
                 print (relocatedTsList)
                 #unlocking(element[0])
                 for reservedItem in relocatedTsList:
-                    if reservedItem == (element[0], element[1]):
-                        relocatedTsList.remove((element[0], element[1]))
+                    if reservedItem[0] == element[0]:
+                        relocatedTsList.remove(reservedItem)
                         break
+                print ("after delete false case")
+                print (relocatedTsList)
 
             fromTAS = tsList[element[0]]['tas']
             p = Process(target=modifyTs, args=(element[0], element[1]))
@@ -1099,6 +1101,5 @@ def send_email(senders, receiver, content):
         pass
     finally:
         pass
-
 
 relocateReservedTS()
