@@ -5,3 +5,4 @@ from app import app
 
 app.secret_key = secret_key
 app.run(debug = True, host = '0.0.0.0', port = int(FLASK_PORT), threaded=True, use_reloader=True)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
