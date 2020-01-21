@@ -7,6 +7,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="static/styles/timetablejs.css">
     <link rel="stylesheet" href="static/styles/demo.css">
+    <link rel="stylesheet" href="static/styles/jquery.datetimepicker.min.css">
 	<link rel="icon" type="image/x-icon" href="favicon.ico">
 
     <!-- Latest compiled and minified CSS -->
@@ -20,7 +21,9 @@
 	<script src="https://code.jquery.com/jquery-2.2.4.min.js"
             integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
 			crossorigin="anonymous"></script>
-			
+    <script src="static/scripts/jquery.js"></script>
+    <script src="static/scripts/jquery.datetimepicker.full.js"></script>
+
 	<!-- Latest compiled and minified JavaScript -->
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
 	        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
@@ -29,7 +32,7 @@
 	<!-- DataTable script libarary -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/js/jquery.dataTables.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/js/dataTables.bootstrap.min.js"></script>
-	<script src="https://cdn.datatables.net/plug-ins/1.10.15/sorting/stringMonthYear.js"></script>
+    <script src="https://cdn.datatables.net/plug-ins/1.10.15/sorting/stringMonthYear.js"></script>
 
 	<style>
 		/* You can add global styles to this file, and also import other style files */
@@ -243,9 +246,16 @@
 			box-shadow: 0 0 15px #939393;
 		}
         #tsAddrToReserve,
-        #tsAddrToReserve2 {
+        #tsAddrToReserve2,
+        #datetime,
+        #period {
             display: inline-block;
             width: 20%;
+        }
+        #TSstartDate,
+        #TSstartTime {
+            display: inline-block;
+            width: 40%;
         }
         .alert {
 			width: 100%;
@@ -315,7 +325,9 @@
             padding-left: 0;
         }
         #tsAddrToReserve,
-        #tsAddrToReserve2 {
+        #tsAddrToReserve2,
+        #datetime,
+        #period  {
             width: 80%;
         }
         .container-reserve > div {
@@ -357,6 +369,37 @@
         #container-inner2 {
             padding-top: 8px;
         }
+        a.tooltip {outline:none; }
+        a.tooltip strong {line-height:30px;}
+        a.tooltip:hover {text-decoration:none;} 
+        a.tooltip span {
+            z-index:10;display:none; padding:14px 20px;
+            margin-top:-30px; margin-left:28px;
+            width:300px; line-height:16px;
+        }
+        a.tooltip:hover span{
+            display:inline; position:absolute; color:#111;
+            border:1px solid rgb(180, 180, 180); background:rgb(180, 180, 180);}
+        .callout {z-index:20;position:absolute;top:30px;border:0;left:-12px;}
+            
+        /*CSS3 extras*/
+        a.tooltip span
+        {
+            border-radius:4px;
+            box-shadow: 5px 5px 8px rgb(180, 180, 180);
+        }
+
+
+        tr .spnTooltip {
+            z-index:10;display:none; padding:14px 20px;
+            margin-top:-30px; margin-left:28px;
+            width:240px; line-height:16px;
+            font-size: 13px;
+        }
+        tr:hover .spnTooltip{
+            display:inline; position:absolute; color:#111;
+            border:1px solid #DCA; background:#fffAF0;}
+        .callout {z-index:20;position:absolute;top:30px;border:0;left:-12px;}
 
 	</style>
 </head>
@@ -627,7 +670,7 @@
 				<tr class="table-header">
                     <th>TS</th>
                     <th>TAS</th>
-                    <th>State</th>
+                    <th>Availability</th>
 				</tr>
                 </thead>
                 <tbody>
@@ -644,13 +687,22 @@
 								<span class="label label-warning">
 							{% endif %}
 							{{ getTeamResevinglist("SanJose")[loop.index0] }}
-							</span>
-						</td>
+                            </span>
+                            <span class="spnTooltip">
+        
+                                <strong>TS&nbsp;-&nbsp;{{ TS['info']['managementIp'] }}</strong><br /><br />
+                                Platform&nbsp;-&nbsp;{{ TS['info']['platform'] }}<br />
+                                Memory&nbsp;-&nbsp;{{ TS['info']['memory'] }}<br />
+                                OS&nbsp;-&nbsp;{{ TS['info']['os'] }}<br />
+                                Version&nbsp;-&nbsp;{{ TS['version'] }}<br />
+                                State&nbsp;-&nbsp;{{ TS['state'] }}
+                            </span>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
-			</table>
-		</div>
+            </table>
+        </div>
     </div>
 	<div id = "book2">
 		<div class="panel-body" style="overflow:auto; height: 700px;">
@@ -676,6 +728,15 @@
                         <span class="label label-warning">
                     {% endif %}
                     {{ getTeamResevinglist("Plano")[loop.index0] }}
+                    </span>
+                    <span class="spnTooltip">
+        
+                        <strong>TS&nbsp;-&nbsp;{{ TS['info']['managementIp'] }}</strong><br /><br />
+                        Platform&nbsp;-&nbsp;{{ TS['info']['platform'] }}<br />
+                        Memory&nbsp;-&nbsp;{{ TS['info']['memory'] }}<br />
+                        OS&nbsp;-&nbsp;{{ TS['info']['os'] }}<br />
+                        Version&nbsp;-&nbsp;{{ TS['version'] }}<br />
+                        State&nbsp;-&nbsp;{{ TS['state'] }}
                     </span>
                 </td>
             </tr>
@@ -708,7 +769,16 @@
 								<span class="label label-warning">
 							{% endif %}
 							{{ getTeamResevinglist("BDC")[loop.index0] }}
-							</span>
+                            </span>
+                            <span class="spnTooltip">
+        
+                                <strong>TS&nbsp;-&nbsp;{{ TS['info']['managementIp'] }}</strong><br /><br />
+                                Platform&nbsp;-&nbsp;{{ TS['info']['platform'] }}<br />
+                                Memory&nbsp;-&nbsp;{{ TS['info']['memory'] }}<br />
+                                OS&nbsp;-&nbsp;{{ TS['info']['os'] }}<br />
+                                Version&nbsp;-&nbsp;{{ TS['version'] }}<br />
+                                State&nbsp;-&nbsp;{{ TS['state'] }}
+                            </span>
 						</td>
                     </tr>
                     {% endfor %}
@@ -741,6 +811,15 @@
                         {% endif %}
                         {{ getTeamResevinglist("Common")[loop.index0] }}
                         </span>
+                        <span class="spnTooltip">
+        
+                            <strong>TS&nbsp;-&nbsp;{{ TS['info']['managementIp'] }}</strong><br /><br />
+                            Platform&nbsp;-&nbsp;{{ TS['info']['platform'] }}<br />
+                            Memory&nbsp;-&nbsp;{{ TS['info']['memory'] }}<br />
+                            OS&nbsp;-&nbsp;{{ TS['info']['os'] }}<br />
+                            Version&nbsp;-&nbsp;{{ TS['version'] }}<br />
+                            State&nbsp;-&nbsp;{{ TS['state'] }}
+                        </span>
                       </td>
                     </tr>
                     {% endfor %}
@@ -751,190 +830,141 @@
 </div>
 </div>
 <div style="float:left; width:75%;">
-<div style="overflow-x:auto; overflow-y: auto; width:100%; height:450px;">
-    <div class="timetable"></div>
-
-    <script src="{{ url_for('static',filename='scripts/timetable.js') }}"></script>
-
-    <script>
-    var timetable = new Timetable();
-    var d = new Date();
-    var dPlus12 = d.getHours() + 12;
-    if(dPlus12 >= 24){dPlus12 = dPlus12 - 24};
-    timetable.setScope(d.getHours(),dPlus12);
-    var todaysList = '{{todayList|tojson}}';
-    var items = todaysList.replace(/\[/g, "").replace(/\]/g, "").replace(/ /g, "").replace(/\"/g, "").split(",");
-    var TSaddrs = [];
-    var tsListlen = '{{tslen}}';
-    var tsList = '{{commonTS|tojson}}';
-    var tsListItems = tsList.replace(/\[/g, "").replace(/\]/g, "").replace(/ /g, "").replace(/\"/g, "").split(",");
-    console.log(tsListItems);
-    for(var i=0; i < tsListItems.length; i++){
-        console.log(tsListItems[i]);
-        TSaddrs.push(tsListItems[i]);
-    }
-
-    timetable.addLocations(TSaddrs);
-
-
-    for(var i =0; i< items.length/12; i++){
-        console.log(items[12*i +5])
-        timetable.addEvent(items[12*i +0] + "\n( " + String(items[12*i +3]) + " / " + String(items[12*i +4]) + " " + String(items[12*i +5]) + ":" + String(items[12*i +6]) + " ~ "  + String(items[12*i +8]) + " / " + String(items[12*i +9]) + " " + String(items[12*i +10]) + ":" + String(items[12*i +11]) + " )", items[12*i +1], 
-                new Date(items[12*i +2],items[12*i +3],items[12*i +4],items[12*i +5],items[12*i +6]), 
-                new Date(items[12*i +7],items[12*i +8],items[12*i +9],items[12*i +10],items[12*i +11]));
-    }
-    var renderer = new Timetable.Renderer(timetable);
-    renderer.draw('.timetable');
-    </script>
-</div>
-<div class = "tabinator">
-	<input type = "radio" id = "tab1" name = "tabs" checked>
-    <label class="tab-list" for = "tab1">Your Reservation</label>
-	<input type = "radio" id = "tab2" name = "tabs">
-	<label class="tab-list" for = "tab2">Reserve TS</label>
-	<div id = "content1">
-		<div class="panel-body">
-			<table id="sortedTable" class="display">
-				<thead>
-				<tr>
-                    <th>Index</th>
-                    <th>TS</th>
-                    <th>Start time</th>
-                    <th>End time</th>
-                    <th>State</th>
-                    <th></th>
-				</tr>
-                </thead>
-                <tbody>
-                    {% for booked in getMybooklist(userName) %}
+    <div style="overflow-x:auto; overflow-y: auto; width:100%; height:450px;">
+        <div class="timetable"></div>
+    
+        <script src="{{ url_for('static',filename='scripts/timetable.js') }}"></script>
+    
+        <script>
+        var timetable = new Timetable();
+        var d = new Date();
+        var dPlus12 = d.getHours() + 12;
+        if(dPlus12 >= 24){dPlus12 = dPlus12 - 24};
+        timetable.setScope(d.getHours(),dPlus12);
+        var todaysList = '{{todayList|tojson}}';
+        var items = todaysList.replace(/\[/g, "").replace(/\]/g, "").replace(/ /g, "").replace(/\"/g, "").split(",");
+        var TSaddrs = [];
+        var tsListlen = '{{tslen}}';
+        var tsList = '{{reservedTSAddrs|tojson}}';
+        var tsListItems = tsList.replace(/\[/g, "").replace(/\]/g, "").replace(/ /g, "").replace(/\"/g, "").split(",");
+        console.log(tsListItems);
+        for(var i=0; i < tsListItems.length; i++){
+            console.log(tsListItems[i]);
+            TSaddrs.push(tsListItems[i]);
+        }
+    
+        timetable.addLocations(TSaddrs);
+    
+    
+        for(var i =0; i< items.length/12; i++){
+            console.log(items[12*i +5])
+            timetable.addEvent(items[12*i +0] + "\n( " + String(items[12*i +3]) + " / " + String(items[12*i +4]) + " " + String(items[12*i +5]) + ":" + String(items[12*i +6]) + " ~ "  + String(items[12*i +8]) + " / " + String(items[12*i +9]) + " " + String(items[12*i +10]) + ":" + String(items[12*i +11]) + " )", items[12*i +1], 
+                    new Date(items[12*i +2],items[12*i +3],items[12*i +4],items[12*i +5],items[12*i +6]), 
+                    new Date(items[12*i +7],items[12*i +8],items[12*i +9],items[12*i +10],items[12*i +11]));
+        }
+        var renderer = new Timetable.Renderer(timetable);
+        renderer.draw('.timetable');
+        </script>
+    </div>
+    <div class = "tabinator">
+        <input type = "radio" id = "tab1" name = "tabs" checked>
+        <label class="tab-list" for = "tab1">Your Reservation</label>
+        <input type = "radio" id = "tab2" name = "tabs">
+        <label class="tab-list" for = "tab2">Reserve TS</label>
+        <div id = "content1">
+            <div class="panel-body">
+                <table id="sortedTable" class="display">
+                    <thead>
                     <tr>
-                        <td>{{ loop.index }}</td>
-                        <td>{{ booked[5] }}</td>
-                        <td>{{ booked[2] }}</td>
-                        <td>{{ booked[3] }}</td>
-                        <td>
-                            {% if booked[4] == true %}
-                                <span class="label label-warning">
-                                On Going
-                            {% else %}
-                                <span class="label label-success">
-                                Waiting
-                            {% endif %}
-                            </span>
-                        </td>
-                        <td>
-                            {% if booked[4] == false %}
-                                <a href="/reservePage/cancelReserve/{{ userName }}/{{ loop.index }}">Cancel</a>
-                            {% endif %}
-                            </span>
-                        </td>
+                        <th>Index</th>
+                        <th>TS</th>
+                        <th>Start time</th>
+                        <th>End time</th>
+                        <th>State</th>
+                        <th></th>
                     </tr>
-                    {% endfor %}
-                </tbody>
-			</table>
-		</div>
-	</div>
-	<div id = "content2">
-        <form>
-            <div class="flex-container">
-                <div class="flex-box flex-box-header">
-                    <div class="container-reserve-inner">
-                        <label for="tsAddrToReserve">TS Address #1: </label>
-                    </div>
-                    <div class="container-reserve-inner" id="container-inner2">
-                        <label for="tsAddrToReserve2">TS Address #2: </label>
-                    </div>
-                </div>
-                <div class="flex-box">
-                    <div class="container-reserve-inner">
-                        <input class="form-control" id="tsAddrToReserve" name="tsAddrToReserve" type="text" name="ts-server-name-1" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx" required>           
-                    </div>
-                    <div class="container-reserve-inner">
-                        <input class="form-control" id="tsAddrToReserve2" name="tsAddrToReserve2" type="text" name="ts-server-name-2" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx">
-                    </div>
-                </div>
+                    </thead>
+                    <tbody>
+                        {% for booked in getMybooklist(userName) %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ booked[5] }}</td>
+                            <td>{{ booked[2] }}</td>
+                            <td>{{ booked[3] }}</td>
+                            <td>
+                                {% if booked[4] == true %}
+                                    <span class="label label-warning">
+                                    On Going
+                                {% else %}
+                                    <span class="label label-success">
+                                    Waiting
+                                {% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="/reservePage/cancelReserve/{{ userName }}/{{ loop.index }}/{{ booked[5] }}">Cancel</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
-        </form>
-        <div class="flex-container">
-            <div class="flex-box flex-box-header">
-                <div class="container-reserve-inner">
-                    <div>Start Time:</div>
+        </div>
+        <div id = "content2">
+            <form>
+                <div class="flex-container">
+                    <div class="flex-box">
+                        <div class="container-reserve-inner">
+                            <label for="tsAddrToReserve">TS Address #1&nbsp; </label>
+                            <input class="form-control" id="tsAddrToReserve" name="tsAddrToReserve" type="text" name="ts-server-name-1" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx" required>           
+                        </div>
+                        <div class="container-reserve-inner">
+                            <label for="tsAddrToReserve2">TS Address #2&nbsp; </label>
+                            <input class="form-control" id="tsAddrToReserve2" name="tsAddrToReserve2" type="text" name="ts-server-name-2" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx">
+                        </div>
+                    </div>
+                    <div class="flex-box">
+                        <div class="container-reserve-inner">
+                            <label for="tsAddrToReserve2">StartTime&nbsp; </label>
+                            <input class="form-control" id="datetime" name="tsAddrToReserve2" type="datetime" name="ts-server-name-2" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="YYYY-MM-DD HH:MM">
+                            <script>
+                                $("#datetime").datetimepicker({
+                                    format: "20y-m-d H:i",
+                                    step: 10
+                                });
+                            </script>
+                        </div>
+                        <div class="reserve-time" style="margin-top: auto;">
+                            <label for="tsAddrToReserve2">Reserve for&nbsp; </label>
+                            <select class="form-check" id="PeriodDay">
+                                {% for i in range(0,11) %}
+                                <option value="{{ i }}">{{ i }}</option>
+                                {% endfor %}
+                            </select>
+                            Day&nbsp;
+                            <select class="form-check" id="PeriodHour">
+                                {% for i in range(0, 24) %}
+                                <option value="{{ i }}">{{ i }}</option>
+                                {% endfor %}
+                            </select>
+                            Hour&nbsp;
+                            <select class="form-check" id="PeriodMinute">
+                                {% for i in range(0,12) %}
+                                <option value="{{ i*5 }}">{{ i*5 }}</option>
+                                {% endfor %}
+                            </select>
+                            Minute
+                        </div>
+                    </div>
                 </div>
-                <div class="container-reserve-inner">
-                    <div> End Time: </div>
+            </form>							
+            <footer>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-info" onclick="reserveing('{{ myTasAddress }}','{{ userName }}')">Reserve</button>
                 </div>
-            </div>
-            <div class="flex-box flex-box-reserve">
-                <div class="reserve-time">
-                    Month
-                    <select class="form-check" id="StartMonth">
-                        {% for i in range(1, 13) %}
-                        <option value="{{ i }}">{{ i }}</option>
-                        {% endfor %}
-                    </select>
-                    Day
-                    <select class="form-check" id="StartDay">
-                        {% for i in range(1, 32) %}
-                        <option value="{{ i }}">{{ i }}</option>
-                        {% endfor %}
-                    </select>
-                    Hour
-                    <select class="form-check" id="StartHour">
-                        {% for i in range(0,12) %}
-                        <option value="{{ i }}">{{ i }}</option>
-                        {% endfor %}
-                    </select>
-                    Minute
-                    <select class="form-check" id="StartMinute">
-                        {% for i in range(0, 12) %}
-                        <option value="{{ i*5 }}">{{ i*5 }}</option>
-                        {% endfor %}
-                    </select>
-        
-                    <select class="form-check" id="StartAmPm">
-                        <option value="0" selected="selected">am</option>
-                        <option value="1">pm</option>
-                    </select>
-                </div>
-                <div class="reserve-time">
-                    Month
-                    <select class="form-check" id="EndMonth">
-                        {% for i in range(1, 13) %}
-                        <option value="{{ i }}">{{ i }}</option>
-                        {% endfor %}
-                    </select>
-                    Day
-                    <select class="form-check" id="EndDay">
-                        {% for i in range(1, 32) %}
-                        <option value="{{ i }}">{{ i }}</option>
-                        {% endfor %}
-                    </select>
-                    Hour
-                    <select class="form-check" id="EndHour">
-                        {% for i in range(0,12) %}
-                        <option value="{{ i }}">{{ i }}</option>
-                        {% endfor %}
-                    </select>
-                    Minute
-                    <select class="form-check" id="EndMinute">
-                        {% for i in range(0, 12) %}
-                        <option value="{{ i*5 }}">{{ i*5 }}</option>
-                        {% endfor %}
-                    </select>
-        
-                    <select class="form-check" id="EndAmPm">
-                        <option value="0" selected="selected">am</option>
-                        <option value="1">pm</option>
-                    </select>
-                </div>
-            </div>
-        </div>								
-        <footer>
-            <div class="modal-footer">
-                <button type="submit" class="btn btn-info" onclick="reserveing('{{ myTasAddress }}','{{ userName }}')">Reserve</button>
-            </div>
-        </footer>
-	</div>
+            </footer>
+        </div>
+    </div>
 </div>
 <script type="text/javascript">
     $(document).ready(function () {
@@ -948,61 +978,55 @@
 	});
 
 function reserveing(relocateTAS, reservPerson){
-    var month_1, date_1, hour_1, minute_1, ampm_1, month_2, date_2, hour_2, minute_2, ampm_2,TSaddr;
-    month_1 = parseInt(document.getElementById("StartMonth").value);
-    date_1 = parseInt(document.getElementById("StartDay").value);
-    hour_1 = parseInt(document.getElementById("StartHour").value);
-    minute_1 = parseInt(document.getElementById("StartMinute").value);
-    ampm_1 = parseInt(document.getElementById("StartAmPm").value);
-    month_2 = parseInt(document.getElementById("EndMonth").value);
-    date_2 = parseInt(document.getElementById("EndDay").value);
-    hour_2 = parseInt(document.getElementById("EndHour").value);
-    minute_2 = parseInt(document.getElementById("EndMinute").value);
-    ampm_2 = parseInt(document.getElementById("EndAmPm").value);
+    var startTime, day, hour, minute, TSaddr, TSaddr2;
+    startTime = document.getElementById("datetime").value;
+    day = parseInt(document.getElementById("PeriodDay").value);
+    hour = parseInt(document.getElementById("PeriodHour").value);
+    minute = parseInt(document.getElementById("PeriodMinute").value);
     TSaddr = document.getElementById("tsAddrToReserve").value;
     TSaddr2 = document.getElementById("tsAddrToReserve2").value;
     
     var TSaddrs = [];
     var tsListlen = '{{tslen}}';
-    var tsList = '{{commonTS|tojson}}';
+    var tsList = '{{allTsList|tojson}}';
     var isFound = false;
     var isFound2 = false;
     var tsListItems = tsList.replace(/\[/g, "").replace(/\]/g, "").replace(/ /g, "").replace(/\"/g, "").split(",");
-    console.log(TSaddr);
+    console.log(tsListItems);
     for(var i=0; i < tsListItems.length; i++){
         if(tsListItems[i] == TSaddr){
             isFound = true
-            console.log("found!")
         }
-        console.log(tsListItems[i]);
     }
     for(var i=0; i < tsListItems.length; i++){
         if(tsListItems[i] == TSaddr2){
             isFound2 = true
-            console.log("found!")
         }
-        console.log(tsListItems[i]);
     }
-    if(isFound == true && isFound2 == true){
-        window.location.href = window.location.href + "/reserve2/" + month_1 + "/" + date_1 + "/" + hour_1 + "/" + minute_1 + "/" + ampm_1 + "/"
-                                                        + month_2 + "/" + date_2 + "/" + hour_2 + "/" + minute_2 + "/" + ampm_2 + "/" 
+
+    if(startTime != "")
+    {
+        if(isFound == true && isFound2 == true){
+        window.location.href = window.location.href + "/reserve2/" + startTime + "/" + day + "/" + hour + "/" + minute + "/"
                                                         + TSaddr + "/" + TSaddr2 + "/" + relocateTAS + "/" + reservPerson;
-    }else if(isFound == true){
-        window.location.href = window.location.href + "/reserve/" + month_1 + "/" + date_1 + "/" + hour_1 + "/" + minute_1 + "/" + ampm_1 + "/"
-                                                        + month_2 + "/" + date_2 + "/" + hour_2 + "/" + minute_2 + "/" + ampm_2 + "/" 
-                                                        + TSaddr + "/" + relocateTAS + "/" + reservPerson;
-    }else if(isFound2 == true){
-        window.location.href = window.location.href + "/reserve/" + month_1 + "/" + date_1 + "/" + hour_1 + "/" + minute_1 + "/" + ampm_1 + "/"
-                                                        + month_2 + "/" + date_2 + "/" + hour_2 + "/" + minute_2 + "/" + ampm_2 + "/" 
-                                                        + TSaddr2 + "/" + relocateTAS + "/" + reservPerson;
+        }else if(isFound == true){
+            window.location.href = window.location.href + "/reserve/" + startTime + "/" + day + "/" + hour + "/" + minute + "/"
+                                                            + TSaddr + "/" + relocateTAS + "/" + reservPerson;
+        }else if(isFound2 == true){
+            window.location.href = window.location.href + "/reserve/" + startTime + "/" + day + "/" + hour + "/" + minute + "/"
+                                                            + TSaddr2 + "/" + relocateTAS + "/" + reservPerson;
+        }
+        else{
+            alert("The TS address is not valid");
+        }
+    }else{
+        alert("Start time is not valid")
     }
-    else{
-        alert("The TS address is not valid.");
-    }
+
 }
 
-function cancelReserve(TSaddr, index){
-    window.location.href = window.location.href + "cancelReserve/" + TSaddr + "/" + parseint(index);
+function cancelReserve(TSaddr, index, tsAddr){
+    window.location.href = window.location.href + "cancelReserve/" + TSaddr + "/" + parseint(index) + "/" + tsAddr;
 }
 </script>
 </body>

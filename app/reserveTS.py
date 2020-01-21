@@ -219,22 +219,27 @@ class LinkedList:
             print("data = {0} {1} {2} {3} {4}".format(temp.data, temp.TSaddress, temp.TASToMove, temp.StartingFlg, temp.ReservePeriod))
             temp = temp.next
 
-    def checkPeriod(self, mon1, dat1, hou1, min1, ampm1, mon2, dat2, hou2, min2, ampm2):
-        startTimeval = self.checkTime(mon1, dat1, hou1, min1, ampm1)
-        endTimeval = self.checkTime(mon2, dat2, hou2, min2, ampm2)
+    def checkPeriod(self, startDate, day, hour, minute):
+        print("day=",day, "hour=",hour,"minute=",minute)
+        parsedStartDate = datetime.datetime.strptime(startDate, "%Y-%m-%d %H:%M")
+        parsedEndDate = parsedStartDate + datetime.timedelta(days=int(day), hours=int(hour), minutes=int(minute))
+        print("parse is ", parsedStartDate)
+        print("after is ", parsedEndDate)
+        startTimeval = self.checkTime(parsedStartDate.month, parsedStartDate.day, parsedStartDate.hour, parsedStartDate.minute)
+        print("timeval is ",startTimeval)
+        endTimeval = self.checkTime(parsedEndDate.month, parsedEndDate.day, parsedEndDate.hour, parsedEndDate.minute)
+        print("end is", endTimeval)
+        #endTimeval = startTimeval + (int(day)*288) + (int(hour)*12) + int(minute)
 
         result = endTimeval - startTimeval
         if result > 0:
-            return int(startTimeval), int(endTimeval - startTimeval)
+            return int(startTimeval), int(result)
         else:
             return int(-1), int(-1) #denied
 
-    def checkTime(self, month, date, hour, minute, ampm):
+    def checkTime(self, month, date, hour, minute):
         reservingYear = datetime.datetime.now().year
-        if(ampm == 1):
-            hour += 12
-        if hour == 24:
-            hour = 0
+
         reservingTime = datetime.datetime(int(reservingYear), month, date, hour, minute)
         now = datetime.datetime.now()
     
@@ -292,6 +297,11 @@ class LinkedList:
                 countedReservedTsList.append((temp.reservingPerson, temp.TASToMove, startRealTime, endRealTime, isMiddleOfReservedPeriod, temp.TSaddress))
             temp = temp.next
         
+        print("for test ================")
+        print(countedReservedTsList)
+        countedReservedTsList = sorted(countedReservedTsList, key=lambda reserved: reserved[3])
+        print(countedReservedTsList)
+        print("for test  end=============")
         return countedReservedTsList
 
     def getReturnTASAddress(self, tsaddrToSearch):
@@ -307,21 +317,26 @@ class LinkedList:
         
         return tempAddr
 
-    def cancelReserve(self, currentUser, index):
-        print (self.head)
+    def cancelReserve(self, currentUser, index,tsAddr):
+        print(tsAddr)
         if self.head is None:
-            return
+            return None
 
         counter = index
         tempStartNode = None
         tempEndNode = None
         temp = self.head
-        if(temp.reservingPerson == str(currentUser)) and (temp.StartingFlg == True):
+        result = None
+        isOngoing = False
+        if(temp.reservingPerson == str(currentUser)) and (temp.StartingFlg == True) and (temp.TSaddress == tsAddr):
             tempStartNode = temp
+        elif(temp.reservingPerson == str(currentUser)) and (temp.StartingFlg == False) and (temp.TSaddress == tsAddr):
+            tempEndNode = temp
+            counter = counter -1
 
         while (temp.next is not None) and (counter > 0):
             print(temp.next.reservingPerson, temp.next.StartingFlg)
-            if(temp.next.reservingPerson == str(currentUser)) and (temp.next.StartingFlg == True):
+            if(temp.next.reservingPerson == str(currentUser)) and (temp.next.StartingFlg == True) and (temp.next.TSaddress == tsAddr):
                 tempStartNode = temp
             elif (temp.next.reservingPerson == str(currentUser)) and (temp.next.StartingFlg == False):
                 tempEndNode = temp
@@ -330,27 +345,48 @@ class LinkedList:
             print("index", counter)
 
         if counter > 0:
-            return
+            return None
 
         #print("tempStartNode", tempStartNode.next.TSaddress)
         #print("tempEndNode", tempEndNode.next.TSaddress)
 
         if tempEndNode is not None:
-            tempPtr = tempEndNode.next
-            tempEndNode.next =  tempEndNode.next.next
-            del tempPtr
-
-        if tempStartNode is not None:
-            if tempStartNode == self.head:
+            if (tempEndNode == self.head) and (tempEndNode.TSaddress == tsAddr):
+                result = (tempEndNode.TSaddress, tempEndNode.TASToMove)
+                if tempEndNode.data - tempEndNode.ReservePeriod <= 0:
+                    isOngoing = True
+                else:
+                    isOngoing = False
                 self.remove_head()
             else:
-                tempPtr = tempStartNode.next
-                tempStartNode.next =  tempStartNode.next.next
-                del tempPtr       
-        return
+                if (tempEndNode.next is not None) and (tempEndNode.next.TSaddress == tsAddr):
+                    tempPtr = tempEndNode.next
+                    tempEndNode.next =  tempEndNode.next.next
+                    result = (tempPtr.TSaddress, tempPtr.TASToMove)
+                    if tempPtr.data - tempPtr.ReservePeriod <= 0:
+                        isOngoing = True
+                    else:
+                        isOngoing = False
+                    del tempPtr
+
+        if tempStartNode is not None:
+            if (tempStartNode == self.head) and (tempStartNode.TSaddress == tsAddr):
+                self.remove_head()
+            else:
+                if (tempStartNode.next is not None) and (tempStartNode.next.TSaddress == tsAddr):
+                    tempPtr = tempStartNode.next
+                    tempStartNode.next =  tempStartNode.next.next
+                    del tempPtr
+        elif (tempEndNode is not None):
+            print("no start yes end")
+            if isOngoing == True:
+                print("on going", isOngoing)
+                return result
+        return None
 
     def getTodayReservedList(self):
-        todayDate = datetime.datetime.now().date()
+        #todayDate = datetime.datetime.now().date()
+        todayDate = datetime.datetime.now()
         currentHour = datetime.datetime.now().hour
         bookedList = []
         tempstarttime = None
@@ -358,15 +394,20 @@ class LinkedList:
         temp = self.head
         while temp is not None:
             tempDate = datetime.datetime.strptime(getRealTimeFromTimeval(temp.data), "%Y-%m-%d %H:%M")
-            if todayDate != tempDate.date() and tempDate.hour >= currentHour + 12:
+            #if todayDate != tempDate.date() or tempDate.hour >= currentHour + 12:
+            if (tempDate - todayDate).seconds > 43200:
                 if temp.StartingFlg == False:
-                    if(temp.data - temp.ReservePeriod > 0):
-                        tempstarttime = datetime.datetime.strptime(getRealTimeFromTimeval(temp.data - temp.ReservePeriod), "%Y-%m-%d %H:%M")
-                    else:
-                        tempstarttime = datetime.datetime.strptime(getRealTimeFromTimeval(0), "%Y-%m-%d %H:%M")
-                    tempendtime = datetime.datetime.strptime(getRealTimeFromTimeval(temp.data - temp.ReservePeriod + 720), "%Y-%m-%d %H:%M")
-                break
-            if temp.StartingFlg is False:
+                    tempStarttime = datetime.datetime.strptime(getRealTimeFromTimeval(temp.data - temp.ReservePeriod), "%Y-%m-%d %H:%M")
+                    if (tempStarttime - todayDate).seconds <= 43200:
+                        #check if the reservation is valid in 12 hours from now
+                        #if valid, display on timetable
+                        if(temp.data - temp.ReservePeriod > 0):
+                            tempstarttime = datetime.datetime.strptime(getRealTimeFromTimeval(temp.data - temp.ReservePeriod), "%Y-%m-%d %H:%M")
+                        else:
+                            tempstarttime = datetime.datetime.strptime(getRealTimeFromTimeval(0), "%Y-%m-%d %H:%M")
+                        tempendtime = datetime.datetime.strptime(getRealTimeFromTimeval(144 - (todayDate.minute/5)), "%Y-%m-%d %H:%M")
+
+            elif temp.StartingFlg is False:
                 if(temp.data - temp.ReservePeriod > 0):
                     tempstarttime = datetime.datetime.strptime(getRealTimeFromTimeval(temp.data - temp.ReservePeriod), "%Y-%m-%d %H:%M")
                 else:
@@ -434,3 +475,15 @@ def getRealTimeFromTimeval(timeval_):
 #llist.getTodayReservedList()
 # llist.cancelReserve(4,1)
 # print(llist.display_list())
+
+# todayDate = datetime.datetime.now()
+# todayDate = todayDate.strftime('%Y-%m-%d %H:%M')
+# todayDate = datetime.datetime.strptime(todayDate, "%Y-%m-%d %H:%M")
+# somedate = datetime.datetime.now() + datetime.timedelta(hours=12)
+# somedate = somedate.strftime('%Y-%m-%d %H:%M')
+# somedate = datetime.datetime.strptime(somedate, "%Y-%m-%d %H:%M")
+# print((somedate - todayDate))
+# offset = (somedate - todayDate)
+# print(offset.seconds)
+
+print(42/5)
