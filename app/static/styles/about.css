@@ -1,0 +1,13 @@
+/* You can add global styles to this file, and also import other style files */
+body {
+    background-image: url(../teamlunch1.jpg);
+    background-size: cover;
+    padding-top: 80px;
+    font-family: 'Comfortaa', cursive;
+}
+h1 {
+    font-size: 80px;
+    font-weight: 700;
+    color: white;
+    text-shadow: 0 0 5px black;
+}

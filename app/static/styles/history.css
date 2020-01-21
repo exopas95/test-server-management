@@ -1,0 +1,10 @@
+/* You can add global styles to this file, and also import other style files */
+body {
+    padding-top: 80px;
+    font-family: 'Comfortaa', cursive;
+}
+.dataTables_wrapper .dataTables_paginate {
+    width: 100%;
+    float: none;
+    text-align: center;
+}
