@@ -897,25 +897,31 @@ def reservePage():
     # todayList.append((1,5))
     # todayList.append((2,35))
     
-    commonTS = []
-    for ts in tsList:
-        commonTS.append(ts)
+    reservedTSAddrs = []
+    for index in range(len(todayList)/12):
+        if todayList[12*index + 1] not in reservedTSAddrs:
+            reservedTSAddrs.append(todayList[12*index + 1])
+
+    allTsList = []
+    for TS in tsList:
+        allTsList.append(TS)
     
     return render_template('reservePage.html', 
                             tsList_bdc=tsList_bdc, 
                             tsList_plano=tsList_plano, 
                             tsList_sanJose=tsList_sanJose, 
                             tsList_common=tsList_common,
-                            commonTS=commonTS, 
+                            reservedTSAddrs=reservedTSAddrs, 
                             userName=userName, 
                             myTasAddress=myTasAddress,
                             todayList=todayList,
-                            tslen=len(commonTS))
+                            allTsList=allTsList
+                            )
                             
-@app.route('/reservePage/reserve/<mon1>/<dat1>/<hou1>/<min1>/<ampm1>/<mon2>/<dat2>/<hou2>/<min2>/<ampm2>/<currentTS>/<relocateTAS>/<reservPerson>', methods=['GET', 'POST'])
-def reserve(mon1, dat1, hou1, min1, ampm1, mon2, dat2, hou2, min2, ampm2, currentTS, relocateTAS, reservPerson):
-    print(mon1, dat1, hou1, min1, ampm1, mon2, dat2, hou2, min2, ampm2)
+@app.route('/reservePage/reserve/<startDate>/<day>/<hour>/<minute>/<currentTS>/<relocateTAS>/<reservPerson>', methods=['GET', 'POST'])
+def reserve(startDate, day, hour, minute, currentTS, relocateTAS, reservPerson):
     returnTAS = ""
+    print(currentTS)
     if currentTS is not None:
         temp = TSList.query.filter_by(tsAddress = currentTS).first()
         if temp:
@@ -928,14 +934,14 @@ def reserve(mon1, dat1, hou1, min1, ampm1, mon2, dat2, hou2, min2, ampm2, curren
     else:
         return "Null TS selection"
 
-    starttime, result = reservedTsList.checkPeriod(int(mon1), int(dat1), int(hou1), int(min1), int(ampm1), int(mon2), int(dat2), int(hou2), int(min2), int(ampm2))
+    period, result = reservedTsList.checkPeriod(startDate, day, hour, minute)
     if int(result) != -1:
-        isReserved = reservedTsList.reserve(starttime,currentTS,relocateTAS, returnTAS, result, reservPerson)
+        isReserved = reservedTsList.reserve(period,currentTS,relocateTAS, returnTAS, result, reservPerson)
         if isReserved is True:
             # flash message success
             flash("Reserved Successfully")
         else:
-            flash("Reserve Failed. Intergere other reservation.")
+            flash("Reserve Failed. Interfere other reservation.")
     else:
         flash("Reserve Failed. Time is not valid")
         error = "Reserve Failed"
@@ -943,9 +949,8 @@ def reserve(mon1, dat1, hou1, min1, ampm1, mon2, dat2, hou2, min2, ampm2, curren
 
     return redirect(url_for('reservePage'))
 
-@app.route('/reservePage/reserve2/<mon1>/<dat1>/<hou1>/<min1>/<ampm1>/<mon2>/<dat2>/<hou2>/<min2>/<ampm2>/<currentTS>/<currentTS2>/<relocateTAS>/<reservPerson>', methods=['GET', 'POST'])
-def reserve2(mon1, dat1, hou1, min1, ampm1, mon2, dat2, hou2, min2, ampm2, currentTS, currentTS2, relocateTAS, reservPerson):
-    print(mon1, dat1, hou1, min1, ampm1, mon2, dat2, hou2, min2, ampm2)
+@app.route('/reservePage/reserve2/<startDate>/<day>/<hour>/<minute>/<currentTS>/<currentTS2>/<relocateTAS>/<reservPerson>', methods=['GET', 'POST'])
+def reserve2(startDate, day, hour, minute, currentTS, currentTS2, relocateTAS, reservPerson):
     returnTAS = ""
     if currentTS is not None:
         temp = TSList.query.filter_by(tsAddress = currentTS).first()
@@ -959,9 +964,18 @@ def reserve2(mon1, dat1, hou1, min1, ampm1, mon2, dat2, hou2, min2, ampm2, curre
     else:
         return "Null TS selection"
 
-    starttime, result = reservedTsList.checkPeriod(int(mon1), int(dat1), int(hou1), int(min1), int(ampm1), int(mon2), int(dat2), int(hou2), int(min2), int(ampm2))
+    period, result = reservedTsList.checkPeriod(startDate, day, hour, minute)
     if int(result) != -1:
-        reservedTsList.reserve(starttime,currentTS,relocateTAS, returnTAS, result, reservPerson)
+        isReserved = reservedTsList.reserve(period,currentTS,relocateTAS, returnTAS, result, reservPerson)
+        if isReserved is True:
+            # flash message success
+            flash("Reserved Successfully")
+        else:
+            flash("Reserve Failed. Interfere other reservation.")
+    else:
+        flash("Reserve Failed. Time is not valid")
+        error = "Reserve Failed"
+        session['error'] = error # return error
 
     returnTAS = ""
     if currentTS2 is not None:
@@ -976,15 +990,33 @@ def reserve2(mon1, dat1, hou1, min1, ampm1, mon2, dat2, hou2, min2, ampm2, curre
     else:
         return "Null TS selection"
 
-    starttime, result = reservedTsList.checkPeriod(int(mon1), int(dat1), int(hou1), int(min1), int(ampm1), int(mon2), int(dat2), int(hou2), int(min2), int(ampm2))
+    period, result = reservedTsList.checkPeriod(startDate, day, hour, minute)
     if int(result) != -1:
-        reservedTsList.reserve(starttime,currentTS2,relocateTAS, returnTAS, result, reservPerson)
+        isReserved = reservedTsList.reserve(period,currentTS2,relocateTAS, returnTAS, result, reservPerson)
+        if isReserved is True:
+            # flash message success
+            flash("Reserved Successfully")
+        else:
+            flash("Reserve Failed. Interfere other reservation.")
+    else:
+        flash("Reserve Failed. Time is not valid")
+        error = "Reserve Failed"
+        session['error'] = error # return error
 
     return redirect(url_for('reservePage'))
 
-@app.route('/reservePage/cancelReserve/<currentUser>/<index>', methods=['GET', 'POST'])
-def cancelReserve(currentUser, index):
-    reservedTsList.cancelReserve(currentUser,int(index))
+@app.route('/reservePage/cancelReserve/<currentUser>/<index>/<tsAddr>', methods=['GET', 'POST'])
+def cancelReserve(currentUser, index,tsAddr):
+    result = reservedTsList.cancelReserve(currentUser,int(index),tsAddr)
+    if result is not None:
+        print(result)
+        for reservedItem in relocatedTsList:
+            if reservedItem[0] == result[0]:
+                relocatedTsList.remove(reservedItem)
+                break
+        p = Process(target=modifyTs, args=(result[0], result[1]))
+        p.start()
+        p.join(60) 
     return redirect(url_for('reservePage'))
 
 @app.context_processor
