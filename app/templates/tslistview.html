@@ -158,25 +158,20 @@
 										</div>
 										<div class = "custom-select system" >
 											<div class = "custom-select system inner">
+												{% for tas in userTAS %}
 												<div class = "custom-select system content tas">
-													<p style="margin: 0";>TAS</p>
+													<p style="margin: 0";>{{ tas }}</p>
 												</div>
+												{% endfor %}
 											</div>
 											<div class = "custom-select system inner">
+												{% for ts in userTS %}
 												<div class = "custom-select system content ts">
-													<p style="margin: 0";>TS</p>
+													<p style="margin: 0";>{{ ts }}</p>
 												</div>
+												{% endfor %}
 											</div>
 										</div>
-										<!-- <div class = "custom-select system">
-											<div class = "custom-select system button">
-												<button id="btn1">Append TAS</button>
-											</div>
-											<div class = "custom-select system button">
-												<button id="btn2">Append TS</button>
-											</div>
-										</div> -->
-										<!---------------------------------------------------------------------------------------------------->
 										<div>
 											<p class="notice notice-nav">
 												This tab is to add <strong>your TAS</strong> into TS Management system by your name.
@@ -206,8 +201,9 @@
 										</div>
 										<div>
 											<p class="notice notice-nav">
-												This tab is to allocate TS to your TAS.<br>
-												This is necessary to use reservation function and for the TS to return to its original TAS
+												Here, you set which TAS to return to after TS reserves. 
+												You must assign the TS to your TAS to user the reservation system.
+												If you want to assign only one TS, please leave the second box empty.
 											</p>
 										</div>
 										<div class="custom-select">
@@ -719,14 +715,6 @@
             "dom": 'fltp'
         });
 		$('div.dataTables_filter input').focus();
-		
-		// $("#btn1").click(function(){
-		// 	$("#btn1-content").append('<div class = "custom-select system inner"><div class = "custom-select system content tas"><p style="margin: 0";>TAS</p></div></div><div class = "custom-select system inner" id="btn2-content"><div class = "custom-select system content ts"><p style="margin: 0";>TS</p></div></div>');
-		// });
-
-		// $("#btn2").click(function(){
-		// 	$("#btn2-content").append("<div class = 'custom-select system content'><p style='margin: 0';>TS</p></div>");
-		// });
 	});
 
 	//////////////// drop-down implementation //////////////////////

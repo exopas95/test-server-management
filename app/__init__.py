@@ -402,7 +402,6 @@ def index():
     
     # get TAS/TS list from DB
     tasList, tasInfoList = TASList.getTASListFromDB()
-    print(tasInfoList)
     getTSListFromAPI()
 
     # define variables for TAS
@@ -410,6 +409,12 @@ def index():
     user = User.query.filter_by(email = email).first()
     userName = user.firstName + " " + user.lastName
     userType = user.userType
+
+    # get User's TAS list from DB
+    userTAS = TASList.query.filter_by(tasName = userName).first()
+
+    # get User's TS list from DB
+    userTS = TSList.query.filter_by(tsName = userName).first()
 
     # check if there is modifying TS
     for item in relocateTsList:
@@ -439,7 +444,9 @@ def index():
                             tasList=tasInfoList,
                             message=tempMessage,
                             userName=userName,
-                            userType=userType)
+                            userType=userType,
+                            userTAS=userTAS,
+                            userTS=userTS)
 
 # route for the about list feature
 @app.route('/error_404')
@@ -560,35 +567,51 @@ def edit_user_profile():
             try:
                 tasAddr = request.form.get('tas-server-name')
             
+                # check whether TAS exist
+                if TASList.query.filter_by(tasAddress = tasAddr).first() is None:
+                    error = "TAS not exist. Please add your TAS first."
+                    session['error'] = error
+                    return redirect(url_for('index'))                           # return error
+
                 # TS informations from website and database
                 temp_ts_1 = request.form.get('ts-server-name-1')                        # website
                 temp_ts_2 = request.form.get('ts-server-name-2')                        # website
                 selected_ts_1 = TSList.query.filter_by(tsAddress=temp_ts_1).first()     # database
-                selected_ts_2 = TSList.query.filter_by(tsAddress=temp_ts_2).first()     # database
 
-                # check whether TAS exist
-                if TASList.query.filter_by(tasAddress = tasAddr).first() is None:
-                    error = "TAS not exist. Please use 'Edit TAS' to add your TAS and use this function."
-                    session['error'] = error
-                    return redirect(url_for('index'))                           # return error
+                if temp_ts_2 == "" or temp_ts_2 == None:
+                    # check wheter TS exist
+                    if selected_ts_1 is None or selected_ts_1 == "":
+                        error = "TS not exist. Please mount your TS to TAS manually using LandSlide Application."
+                        session['error'] = error
+                        return redirect(url_for('index'))                           # return error
+                    else:
+                        # update origin TAS information
+                        selected_ts_1.originTAS = tasAddr
 
-                # check wheter TS exist
-                if selected_ts_1 is None or selected_ts_2 is None:
-                    error = "TS not exist. Please mount your TS to TAS manually using LandSlide Application."
-                    session['error'] = error
-                    return redirect(url_for('index'))                           # return error
+                        # update database
+                        db.session.add(selected_ts_1)
+                        db.session.commit()
+                else:
+                    selected_ts_2 = TSList.query.filter_by(tsAddress=temp_ts_2).first()     # database
 
-                # update origin TAS information
-                selected_ts_1.originTAS = tasAddr
-                selected_ts_2.originTAS = tasAddr
+                    if selected_ts_2 is None or selected_ts_2 == "" or selected_ts_1 is None or selected_ts_1 == "":
+                        error = "TS not exist. Please mount your TS to TAS manually using LandSlide Application."
+                        session['error'] = error
+                        return redirect(url_for('index'))                           # return error
+                    else:
+                        # update origin TAS information
+                        selected_ts_1.originTAS = tasAddr
+                        selected_ts_2.originTAS = tasAddr
 
-                # update database
-                db.session.add(selected_ts_1)
-                db.session.add(selected_ts_2)
-                db.session.commit()
+                        # update database
+                        db.session.add(selected_ts_1)
+                        db.session.add(selected_ts_2)
+                        db.session.commit()
 
                 # flash message success
                 flash("Allocated TS successfully")
+                return redirect(url_for('index'))
+
             except Exception:
                 error = "Allocate TS Failed. Please try again."
                 session['error'] = error
