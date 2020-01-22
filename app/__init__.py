@@ -91,10 +91,8 @@ def getTSListFromAPI():
 
             # set the target URL to use API
             URL = 'http://'+ tasAddr +':8080/api/testServers'
-
             # get the tas data to send API request. Get data by json format
             _tasData = requests.get(URL, headers=headers).json()
-
             # loop in ts list
             for ts in _tasData['testServers']:
                 # send API request again for the ts data. Also get data by json format
@@ -406,7 +404,6 @@ def index():
     tasList, tasInfoList = TASList.getTASListFromDB()
     print(tasInfoList)
     getTSListFromAPI()
-    print("EUM")
 
     # define variables for TAS
     email = session['email']
@@ -498,152 +495,108 @@ def tasmodification(ts, user, tas):
 
     return redirect(url_for('index'))
 
-#route for edit TAS feature
-@app.route('/edit_tas_server', methods=['GET', 'POST'])
-def edit_tas_server():
-    error = None
-    tasList, tasInfoList = TASList.getTASListFromDB()                   # get TAS information form the database
-    if request.method == 'POST':
-        # get user information from the database
-        user_email = session['email']                                   # logged in user email information
-        user = User.query.filter_by(email = user_email).first()         # get user information from the database
-        user_team = user.team                                           # user's team information (San Jose / Plano / BDC)
-        user_type = user.userType                                       # user's type information (admin / guest)
-        tasAddr = request.form.get('server-name')                       # TAS addressed typed from the website
-
-        # When you are adding new TAS to the system: you can add common TAS and other user's TAS
-        if request.form.get('tas-action-type') == 'add':
-            # When user logged in as admin
-            userName = user.firstName + " " + user.lastName
-            
-            # Check whether TAS is already registered
-            if TASList.query.filter_by(tasAddress = tasAddr).first() is not None:
-                error = "TAS is already registered. Please check."
-                session['error'] = error
-                return redirect(url_for('index'))                       # return error
-            else:
-                # update database
-                new_tas = TASList(tasAddress=tasAddr, tasUsername=userName, tasTeam=user_team)
-                db.session.add(new_tas)
-                db.session.commit()
-
-                # flash message success
-                flash("TAS edited successfully")
-                return redirect(url_for('index'))
-
-        # When you are removing TAS from the system
-        elif request.form.get('tas-action-type') == 'remove':
-            # Check whether TAS exist
-            if TASList.query.filter_by(tasAddress = tasAddr).first() is None:
-                error = "TAS doesn't exist. Please use 'Edit TAS' to add your TAS and use this function."
-                session['error'] = error
-                return redirect(url_for('index'))                       # return error
-
-            else:
-                # update database
-                delete_tas = TASList.query.filter_by(tasAddress=tasAddr).first()
-                db.session.delete(delete_tas)
-                db.session.commit()
-
-                # flash message success
-                flash("TAS removed successfully")
-                return redirect(url_for('index'))
-        else:
-            error = "Edit TAS Failed. Please try again."
-            session['error'] = error
-            return redirect(url_for('index'))                           # return error
-    else:
-        error = "Edit TAS Failed. Please try again."
-        session['error'] = error
-        return redirect(url_for('index'))                               # return error
-
-    return redirect(url_for('index'))
-
-#route for edit TS feature
-@app.route('/edit_ts_server', methods=['GET', 'POST'])
-def edit_ts_server():
-    error = None
-    if request.method == 'POST':
-        tasAddr = request.form.get('tas-server-name')
-    
-        # TS informations from website and database
-        temp_ts_1 = request.form.get('ts-server-name-1')                        # website
-        temp_ts_2 = request.form.get('ts-server-name-2')                        # website
-        selected_ts_1 = TSList.query.filter_by(tsAddress=temp_ts_1).first()     # database
-        selected_ts_2 = TSList.query.filter_by(tsAddress=temp_ts_2).first()     # database
-
-        # check whether TAS exist
-        if TASList.query.filter_by(tasAddress = tasAddr).first() is None:
-            error = "TAS not exist. Please use 'Edit TAS' to add your TAS and use this function."
-            session['error'] = error
-            return redirect(url_for('index'))                           # return error
-
-        # check wheter TS exist
-        if selected_ts_1 is None or selected_ts_2 is None:
-            error = "TS not exist. Please mount your TS to TAS manually using LandSlide Application."
-            session['error'] = error
-            return redirect(url_for('index'))                           # return error
-
-        # update origin TAS information
-        selected_ts_1.originTAS = tasAddr
-        selected_ts_2.originTAS = tasAddr
-
-        # update database
-        db.session.add(selected_ts_1)
-        db.session.add(selected_ts_2)
-        db.session.commit()
-
-        # flash message success
-        flash("Allocated TS successfully")
-    else:
-        error = "Allocate TS Failed. Please try again."
-        session['error'] = error
-        return redirect(url_for('index'))                               # return error
-
-    return redirect(url_for('index'))
-
 #route for edit TS feature
 @app.route('/edit_user_profile', methods=['GET', 'POST'])
 def edit_user_profile():
     error = None
     if request.method == 'POST':
-        tasAddr = request.form.get('tas-server-name')
-    
-        # TS informations from website and database
-        temp_ts_1 = request.form.get('ts-server-name-1')                        # website
-        temp_ts_2 = request.form.get('ts-server-name-2')                        # website
-        selected_ts_1 = TSList.query.filter_by(tsAddress=temp_ts_1).first()     # database
-        selected_ts_2 = TSList.query.filter_by(tsAddress=temp_ts_2).first()     # database
+        #Add TAS to database
+        if request.form.get("ts-server-name-1") == "" or request.form.get("ts-server-name-1") == None:
+            try:
+                tasList, tasInfoList = TASList.getTASListFromDB()                   # get TAS information form the database
+                # get user information from the database
+                user_email = session['email']                                   # logged in user email information
+                user = User.query.filter_by(email = user_email).first()         # get user information from the database
+                user_team = user.team                                           # user's team information (San Jose / Plano / BDC)
+                user_type = user.userType                                       # user's type information (admin / guest)
+                tasAddr = request.form.get('server-name')                       # TAS addressed typed from the website
+                # When you are adding new TAS to the system: you can add common TAS and other user's TAS
+                if request.form.get('tas-action-type') == 'add':
+                    # When user logged in as admin
+                    userName = user.firstName + " " + user.lastName
+                
+                    # Check whether TAS is already registered
+                    if TASList.query.filter_by(tasAddress = tasAddr).first() is not None:
+                        error = "TAS is already registered. Please check."
+                        session['error'] = error
+                        return redirect(url_for('index'))                       # return error
+                    else:
+                        # update database
+                        new_tas = TASList(tasAddress=tasAddr, tasUsername=userName, tasTeam=user_team)
+                        db.session.add(new_tas)
+                        db.session.commit()
 
-        # check whether TAS exist
-        if TASList.query.filter_by(tasAddress = tasAddr).first() is None:
-            error = "TAS not exist. Please use 'Edit TAS' to add your TAS and use this function."
-            session['error'] = error
-            return redirect(url_for('index'))                           # return error
+                        # flash message success
+                        flash("TAS edited successfully")
+                        return redirect(url_for('index'))
 
-        # check wheter TS exist
-        if selected_ts_1 is None or selected_ts_2 is None:
-            error = "TS not exist. Please mount your TS to TAS manually using LandSlide Application."
-            session['error'] = error
-            return redirect(url_for('index'))                           # return error
+                # When you are removing TAS from the system
+                elif request.form.get('tas-action-type') == 'remove':
+                    # Check whether TAS exist
+                    if TASList.query.filter_by(tasAddress = tasAddr).first() is None:
+                        error = "TAS doesn't exist. Please use 'Edit TAS' to add your TAS and use this function."
+                        session['error'] = error
+                        return redirect(url_for('index'))                       # return error
 
-        # update origin TAS information
-        selected_ts_1.originTAS = tasAddr
-        selected_ts_2.originTAS = tasAddr
+                    else:
+                        # update database
+                        delete_tas = TASList.query.filter_by(tasAddress=tasAddr).first()
+                        db.session.delete(delete_tas)
+                        db.session.commit()
 
-        # update database
-        db.session.add(selected_ts_1)
-        db.session.add(selected_ts_2)
-        db.session.commit()
+                        # flash message success
+                        flash("TAS removed successfully")
+                        return redirect(url_for('index'))
+                else:
+                    error = "Edit TAS Failed. Please try again."
+                    session['error'] = error
+                    return redirect(url_for('index'))                           # return error
+            except Exception:
+                error = "Edit TAS Failed. Please try again."
+                session['error'] = error
+                return redirect(url_for('index'))                           # return error
+        #Allocate TS to TAS
+        elif request.form.get("server-name") == "" or request.form.get("server-name") == None:
+            try:
+                tasAddr = request.form.get('tas-server-name')
+            
+                # TS informations from website and database
+                temp_ts_1 = request.form.get('ts-server-name-1')                        # website
+                temp_ts_2 = request.form.get('ts-server-name-2')                        # website
+                selected_ts_1 = TSList.query.filter_by(tsAddress=temp_ts_1).first()     # database
+                selected_ts_2 = TSList.query.filter_by(tsAddress=temp_ts_2).first()     # database
 
-        # flash message success
-        flash("Allocated TS successfully")
+                # check whether TAS exist
+                if TASList.query.filter_by(tasAddress = tasAddr).first() is None:
+                    error = "TAS not exist. Please use 'Edit TAS' to add your TAS and use this function."
+                    session['error'] = error
+                    return redirect(url_for('index'))                           # return error
+
+                # check wheter TS exist
+                if selected_ts_1 is None or selected_ts_2 is None:
+                    error = "TS not exist. Please mount your TS to TAS manually using LandSlide Application."
+                    session['error'] = error
+                    return redirect(url_for('index'))                           # return error
+
+                # update origin TAS information
+                selected_ts_1.originTAS = tasAddr
+                selected_ts_2.originTAS = tasAddr
+
+                # update database
+                db.session.add(selected_ts_1)
+                db.session.add(selected_ts_2)
+                db.session.commit()
+
+                # flash message success
+                flash("Allocated TS successfully")
+            except Exception:
+                error = "Allocate TS Failed. Please try again."
+                session['error'] = error
+                return redirect(url_for('index'))                               # return error
+        else:
+            return redirect(url_for('index'))
     else:
-        error = "Allocate TS Failed. Please try again."
-        session['error'] = error
-        return redirect(url_for('index'))                               # return error
-
-    return redirect(url_for('index'))
+        return redirect(url_for('error_404'))
 
 #route for edit TS feature
 @app.route('/edit_common_server', methods=['GET', 'POST'])
@@ -1085,14 +1038,8 @@ def relocateReservedTS():
                         temp_lastName = temp_[1]                    
                     ReceiverName = User.query.filter_by(firstName = temp_firstName).filter_by(lastName = temp_lastName).first()
                     if ReceiverName is not None:
-                        print("try to send mail to ", ReceiverName, " and ", ReceiverName.email)
                         Context = "The TS : " + relocatedTs[0] + " is reserved for now.\nPlease relocate TS to TAS : " + relocatedTs[1] +"\n\nThank you"
                         sendMail.send_mail(temp_lastName +"."+ temp_firstName +"@spirent.com", Context)
-                        print("send mail successfully")
-                    else:
-                        print("Receiver is None")
-                else:
-                    print("wrongTAS is None")
 
         relocateTSList = reservedTsList.display_list()
         print(relocateTSList)
@@ -1101,18 +1048,15 @@ def relocateReservedTS():
             print(element[2])
             if element[2] == True:
                 relocatedTsList.append((element[0], element[1])) #ts addr, tas addr
-                print ("add true case")
                 print (relocatedTsList)
                 #locking(element[0])
             else:
-                print ("before delete false case")
                 print (relocatedTsList)
                 #unlocking(element[0])
                 for reservedItem in relocatedTsList:
                     if reservedItem[0] == element[0]:
                         relocatedTsList.remove(reservedItem)
                         break
-                print ("after delete false case")
                 print (relocatedTsList)
 
             fromTAS = tsList[element[0]]['tas']
@@ -1128,10 +1072,7 @@ def relocateReservedTS():
     #         if temp.tasAddress != relocatedTs[1]:
     #             #if ts is not belongs to reserved tas, relocate again
     #             tasmodification(relocatedTs[0], temp.tasAddress, relocatedTs[1])
-    print("minute : " , datetime.datetime.now().minute)
-    print ("relocated are")
-    print (relocatedTsList)
-    reservedTsList.showList()
+
     threading.Timer(60, relocateReservedTS).start()
 
 def send_email(senders, receiver, content):
