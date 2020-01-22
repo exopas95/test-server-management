@@ -97,7 +97,6 @@ def getTSListFromAPI():
             for ts in _tasData['testServers']:
                 # send API request again for the ts data. Also get data by json format
                 ts['info'] = requests.get(ts['url'], headers=headers).json()
-
                 # store necessary data in the dictionary
                 if 'NOT_READY' not in ts['state'] or ts['info']['managementIp'] not in tsList:
                     if 'NOT_READY (NO COMM)' != ts['state']:
@@ -106,33 +105,34 @@ def getTSListFromAPI():
                         if TSList.query.filter_by(tsAddress = ts['info']['managementIp']).first():
                             # bring TS information from database
                             ts_database = TSList.query.filter_by(tsAddress = ts['info']['managementIp']).first()
-                            
+                            ts_origin_address = ts_database.originTAS
+                            if ts_origin_address is None or ts_origin_address == "":
+                                ts_origin_address = "Unknown"
                             # If TS is a common TS
                             if ts_database.tsCommon == 1:
                                 ts_user_name = "Common TS"
+                                
                                 # update Common TS List                   
-                                if ts_database.tsCommon == 1:
-                                    tsList_common[ts['info']['managementIp']] = {}
-                                    tsList_common[ts['info']['managementIp']]['state'] = ts['state']
-                                    tsList_common[ts['info']['managementIp']]['name'] = ts_user_name
-                                    tsList_common[ts['info']['managementIp']]['version'] = ts['version']
-                                    tsList_common[ts['info']['managementIp']]['info'] = ts['info']
-                                    tsList_common[ts['info']['managementIp']]['tas'] = tasAddr
-                                    tsList_common[ts['info']['managementIp']]['owner'] = tasOwner
+                                tsList_common[ts['info']['managementIp']] = {}
+                                tsList_common[ts['info']['managementIp']]['state'] = ts['state']
+                                tsList_common[ts['info']['managementIp']]['name'] = ts_user_name
+                                tsList_common[ts['info']['managementIp']]['version'] = ts['version']
+                                tsList_common[ts['info']['managementIp']]['info'] = ts['info']
+                                tsList_common[ts['info']['managementIp']]['tas'] = tasAddr
+                                tsList_common[ts['info']['managementIp']]['owner'] = tasOwner
+                                tsList_common[ts['info']['managementIp']]['origin'] = ts_origin_address
 
                             # If TS is a private TS
                             else:
                                 # If TS doesn't have origin TAS, TS user name is set to located TAS user name
-                                if ts_database.originTAS is None:
+                                if ts_database.originTAS is None or ts_database.originTAS == "":
                                     ts_user_name = "Unknown"
 
                                 # If TS has origin TAS information
                                 else:
-                                    ts_origin_tas = ts_database.originTAS
-                                    tas_database = TASList.query.filter_by(tasAddress = ts_origin_tas).first()
-
+                                    tas_database = TASList.query.filter_by(tasAddress = ts_database.originTAS).first()
                                     # if origin TAS is not registered to TS Management
-                                    if tas_database is None:
+                                    if tas_database is None or tas_database == "":
                                         ts_user_name = "Unknown"      
 
                                     # if origin TAS is already registered to TS Management               
@@ -146,7 +146,6 @@ def getTSListFromAPI():
                         # If there is no TS List in the database
                         else:
                             ts_user_name = "Unknown"
-
                         # update TS List
                         tsList[ts['info']['managementIp']] = {}
                         tsList[ts['info']['managementIp']]['state'] = ts['state']
@@ -155,7 +154,7 @@ def getTSListFromAPI():
                         tsList[ts['info']['managementIp']]['info'] = ts['info']
                         tsList[ts['info']['managementIp']]['tas'] = tasAddr
                         tsList[ts['info']['managementIp']]['owner'] = tasOwner
-                                
+                        tsList[ts['info']['managementIp']]['origin'] = ts_origin_address
                         # update TS List for team San Jose
                         if tasTeam == 'San Jose':
                             tsList_sanJose[ts['info']['managementIp']] = {}
@@ -165,6 +164,7 @@ def getTSListFromAPI():
                             tsList_sanJose[ts['info']['managementIp']]['info'] = ts['info']
                             tsList_sanJose[ts['info']['managementIp']]['tas'] = tasAddr
                             tsList_sanJose[ts['info']['managementIp']]['owner'] = tasOwner
+                            tsList_sanJose[ts['info']['managementIp']]['origin'] = ts_origin_address
                         # update TS List for team Plano
                         elif tasTeam == "Plano":
                             tsList_plano[ts['info']['managementIp']] = {}
@@ -174,6 +174,7 @@ def getTSListFromAPI():
                             tsList_plano[ts['info']['managementIp']]['info'] = ts['info']
                             tsList_plano[ts['info']['managementIp']]['tas'] = tasAddr
                             tsList_plano[ts['info']['managementIp']]['owner'] = tasOwner
+                            tsList_plano[ts['info']['managementIp']]['origin'] = ts_origin_address
                         # update TS List for team BDC
                         elif tasTeam == "BDC":
                             tsList_bdc[ts['info']['managementIp']] = {}
@@ -183,6 +184,7 @@ def getTSListFromAPI():
                             tsList_bdc[ts['info']['managementIp']]['info'] = ts['info']
                             tsList_bdc[ts['info']['managementIp']]['tas'] = tasAddr
                             tsList_bdc[ts['info']['managementIp']]['owner'] = tasOwner
+                            tsList_bdc[ts['info']['managementIp']]['origin'] = ts_origin_address
                         else:
                             return redirect(url_for('error_404'))
 
@@ -200,7 +202,6 @@ def getTSListFromAPI():
 
                             if ts_user_name == "Common TS":
                                 edit_ts.tsCommon = 1
-                            
                             # update database
                             db.session.commit()
                         
@@ -325,67 +326,6 @@ def modifyTs(ts, targetTas):
     for HOST in relocateTsList:
         relocateTsList.remove(HOST)
 
-def logging(ts, targetTas, user):
-    # set log entry data
-    logEntry = {}
-    logEntry['Time'] = str(datetime.datetime.now())
-    logEntry['TS'] = ts
-    logEntry['Version'] = tsList[ts]['version']
-    logEntry['Platform'] = tsList[ts]['info']['platform']
-    logEntry['User'] = user
-    logEntry['From'] = tsList[ts]['tas'] + '(' + tsList[ts]['owner'] + ')' 
-    logEntry['To'] = targetTas.replace(',', '(') + ')'
-
-    # if history.csv is already exist, read it and append
-    if os.path.isfile('history.csv'):
-        history = {}
-        with open('history.csv') as csvfile:
-            reader = csv.reader(csvfile)
-            field = next(reader)
-            for readerIdx, line in enumerate(reader):
-                log = {}
-                for lineIdx, eachTsLogs in enumerate(line):
-                    log[field[lineIdx]] = eachTsLogs
-                if log['TS'] not in history:
-                    history[log['TS']] = []
-                history[log['TS']].append(log)
-        if ts not in history:
-            history[ts] = []
-        history[ts].append(logEntry)
-
-        if len(history[ts]) >= 5:
-            # don't need to sort because of the order of file. but leave it to make sure
-            # history[ts] = sorted(history[ts], key=lambda k: k['Time'])
-            del history[ts][0]
-
-        # after append, re-write to the file
-        with open('history.csv', 'wb') as csv_file:
-            csvwriter = csv.writer(csv_file, delimiter=',')
-            csvwriter.writerow(['Time', 'TS', 'Version', 'Platform', 'User', 'From', 'To'])
-            for eachTsLogs in history.values():
-                for item in eachTsLogs:
-                    csvwriter.writerow([item['Time'],
-                                        item['TS'],
-                                        item['Version'],
-                                        item['Platform'],
-                                        item['User'],
-                                        item['From'],
-                                        item['To']
-                                        ])
-    else:
-        print('initial creating log file')
-        with open('history.csv', 'wb') as csv_file:
-            csvwriter = csv.writer(csv_file, delimiter=',')
-            csvwriter.writerow(['Time', 'TS', 'Version', 'Platform', 'User', 'From', 'To'])
-            csvwriter.writerow([logEntry['Time'],
-                                logEntry['TS'],
-                                logEntry['Version'],
-                                logEntry['Platform'],
-                                logEntry['User'],
-                                logEntry['From'],
-                                logEntry['To']
-                                ])
-
 # main index dashboard
 @app.route('/')
 def index():
@@ -411,10 +351,10 @@ def index():
     userType = user.userType
 
     # get User's TAS list from DB
-    userTAS = TASList.query.filter_by(tasName = userName).first()
+    userTAS = TASList.query.filter_by(tasName = userName).all()
 
     # get User's TS list from DB
-    userTS = TSList.query.filter_by(tsName = userName).first()
+    userTS = TSList.query.filter_by(tsName = userName).all()\
 
     # check if there is modifying TS
     for item in relocateTsList:
@@ -493,7 +433,6 @@ def tasmodification(ts, user, tas):
             if user in tas:
                 user = tas.split(',')[1]
                 break
-        logging(ts, tas, user)
     else:
         # if same TS is already in relocation process, do nothing and send alert message
         print ("WARNING: same TS is already in use!")
@@ -510,7 +449,7 @@ def edit_user_profile():
         #Add TAS to database
         if request.form.get("ts-server-name-1") == "" or request.form.get("ts-server-name-1") == None:
             try:
-                tasList, tasInfoList = TASList.getTASListFromDB()                   # get TAS information form the database
+                tasList, tasInfoList = TASList.getTASListFromDB()               # get TAS information form the database
                 # get user information from the database
                 user_email = session['email']                                   # logged in user email information
                 user = User.query.filter_by(email = user_email).first()         # get user information from the database
@@ -524,9 +463,19 @@ def edit_user_profile():
                 
                     # Check whether TAS is already registered
                     if TASList.query.filter_by(tasAddress = tasAddr).first() is not None:
-                        error = "TAS is already registered. Please check."
-                        session['error'] = error
-                        return redirect(url_for('index'))                       # return error
+                        tas_db = TASList.query.filter_by(tasAddress = tasAddr).first()
+                        if tas_db.tasName == userName:
+                            error = "TAS is already registered. Please check."
+                            session['error'] = error
+                            return redirect(url_for('index'))                       # return error
+                        else:
+                            tas_db.tasName = userName
+                            tas_db.tasTeam = user_team
+                            db.session.commit()
+
+                            # flash message success
+                            flash("TAS owner successfully changed")
+                            return redirect(url_for('index'))
                     else:
                         # update database
                         new_tas = TASList(tasAddress=tasAddr, tasUsername=userName, tasTeam=user_team)
@@ -782,24 +731,6 @@ def edit_common_server():
         return redirect(url_for('index'))                               # return error
 
     return redirect(url_for('index'))
-
-# route for the history list feature
-@app.route('/history')
-def history():
-    error = None
-    history = []
-
-    # get data from the file
-    with open('history.csv') as csvfile:
-        reader = csv.reader(csvfile)
-        field = next(reader)
-        for readerIdx, line in enumerate(reader):
-            log = {}
-            for lineIdx, item in enumerate(line):
-                log[field[lineIdx]] = item
-            history.append(log)
-
-    return render_template('history.html', error=error, history=history)
 
 # route for the about list feature
 @app.route('/about')

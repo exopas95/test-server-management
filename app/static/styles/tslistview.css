@@ -66,10 +66,9 @@ body {
 .custom-select.system.inner {
     margin: 0;
     flex-direction: column;
-    padding: 5px;
+    text-align: center;
 }
 .custom-select.system.title {
-    width: 45%;
     background-color: #31b0d5;
     padding: 5px;
     border-radius: 1rem;
@@ -78,10 +77,9 @@ body {
     text-align: center;
 }
 .custom-select.system.content {
-    width: 100%;
-    border-bottom: 1px solid rgb(185, 185, 185);
     padding: 5px;
     text-align: center;
+    width: 194px;
 }
 .select-selected {
     background-color: White;
