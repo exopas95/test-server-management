@@ -419,113 +419,6 @@
             <div id="navbar" class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
                     <li [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
-                        <button type="button" class="edit-button" data-toggle="modal" data-target="#tasModal">Edit TAS</button>
-                        <div class="modal fade" id="tasModal" role="dialog">
-                              <div class="modal-dialog">
-                                <div class="modal-content">
-                                      <div class="modal-header">
-                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                        <h4 class="modal-title">Edit TAS</h4>
-                                      </div>
-                                    <form action="/edit_tas_server" method="POST">
-                                        <div class="modal-body">
-                                            <div>
-                                                <p class="notice notice-nav">
-                                                    This tab is to add <strong>your TAS</strong> into TS Management system by your name.
-                                                    This is necessary if you want to use your TAS on the system.
-                                                </p>
-                                            </div>
-                                            <div class="custom-select">
-                                                <div class="form-check">
-                                                    <p>Action:</p>
-                                                </div>
-                                                <div class="form-check form-check-inline">    
-                                                    <input class="form-check-input" type="radio" name="tas-action-type" value="add" checked="checked" onclick="ableField()">
-                                                    <label class="form-check-label" for="inlineRadio1">Add</label>
-                                                </div>
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio" name="tas-action-type" value="remove" onclick="disableField()">
-                                                    <label class="form-check-label" for="inlineRadio2">Remove</label>
-                                                </div>
-                                            </div>
-                                            <div class="custom-select">
-                                                <div class="form-check">
-                                                    <p>TAS Address:</p>
-                                                </div>
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-control" type="text" name="server-name" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx" required>
-                                                </div>
-                                            </div>
-                                            <div class="custom-select">
-                                                <div class="form-check">
-                                                    <p>TAS Owner:</p>
-                                                </div>
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-control" type="text" name="server-name" placeholder={{userName}} required disabled=true>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <input type="submit" class="btn btn-info" value="Edit">
-                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                        </div>
-                                    </form>
-                                </div>
-                              </div>
-                        </div>
-                    </li>
-                    <li [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
-                        <button type="button" class="edit-button" data-toggle="modal" data-target="#tsModal">Allocate TS</button>
-                        <div class="modal fade" id="tsModal" role="dialog">
-                              <div class="modal-dialog">
-                                <div class="modal-content">
-                                      <div class="modal-header">
-                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                        <h4 class="modal-title">Allocate TS</h4>
-                                      </div>
-                                    <form action="/edit_ts_server" method="POST">
-                                        <div class="modal-body">
-                                            <div>
-                                                <p class="notice notice-nav">
-                                                    This tab is to allocate TS to your TAS.<br>
-                                                    This is necessary to use reservation function and for the TS to return to its original TAS
-                                                </p>
-                                            </div>
-                                            <div class="custom-select">
-                                                <div class="form-check">
-                                                    <p>TAS Address:</p>
-                                                </div>
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-control" type="text" name="tas-server-name" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx" required>
-                                                </div>
-                                            </div>
-                                            <div class="custom-select">
-                                                <div class="form-check">
-                                                    <p>TS Address #1:</p>
-                                                </div>
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-control" type="text" name="ts-server-name-1" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx" required>							
-                                                </div>
-                                            </div>
-                                            <div class="custom-select">
-                                                <div class="form-check">
-                                                    <p>TS Address #2:</p>
-                                                </div>
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-control" type="text" name="ts-server-name-2" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx" required>						
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <input type="submit" class="btn btn-info" value="Edit">
-                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                        </div>
-                                    </form>
-                                </div>
-                              </div>
-                        </div>
-                    </li>
-                    <li [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
                         <button type="button" class="edit-button" data-toggle="modal" data-target="#commonModal">Edit Commmon TAS/TS</button>
                         <div class="modal fade" id="commonModal" role="dialog">
                               <div class="modal-dialog">
@@ -612,13 +505,125 @@
                         <a href="/reservePage" [routerLink]="['/reservePage']">Resevation</a>
                     </li>
                     <li [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
-                        <a href="/history" [routerLink]="['/home']">History</a>
-                    </li>
-                    <li [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
                         <a href="/about" [routerLink]="['/about']">About</a>
                     </li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
+                    <li [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
+                        <button type="button" class="edit-button" data-toggle="modal" data-target="#userProfile">User Profile</button>
+                        <div class="modal fade" id="userProfile" role="dialog">
+                              <div class="modal-dialog">
+                                <div class="modal-content">
+                                      <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">User Profile</h4>
+                                      </div>
+                                    <form action="/edit_user_profile" method="POST">
+                                        <div class="modal-body">
+                                            <div class="custom-select">
+                                                <div class="form-check">
+                                                    <div>
+                                                        <p style="display: inline-block";>Name: </p>
+                                                        <h5 style="display: inline-block";>{{ userName }}</h5>
+                                                    </div>
+                                                    <div>
+                                                        <p style="display: inline-block";>Email: </p>
+                                                        <h5 style="display: inline-block";>{{ session['email'] }}</h5>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class = "custom-select system">
+                                                <div class = "custom-select system title">
+                                                    <p style="margin: 0";>TAS List</p>
+                                                </div>
+                                                <div class = "custom-select system title">
+                                                    <p style="margin: 0";>TS List</p>
+                                                </div>
+                                            </div>
+                                            <div class = "custom-select system" >
+                                                <div class = "custom-select system inner">
+                                                    {% for tas in userTAS %}
+                                                    <div class = "custom-select system content tas">
+                                                        <p style="margin: 0";>{{ tas.tasAddress }}</p>
+                                                    </div>
+                                                    {% endfor %}
+                                                </div>
+                                                <div class = "custom-select system inner">
+                                                    {% for ts in userTS %}
+                                                    <div class = "custom-select system content ts">
+                                                        <p style="margin: 0";>{{ ts.tsAddress }}</p>
+                                                    </div>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <p class="notice notice-nav">
+                                                    This tab is to add <strong>your TAS</strong> into TS Management system by your name.
+                                                    This is necessary if you want to use your TAS on the system.
+                                                </p>
+                                            </div>
+                                            <div class="custom-select">
+                                                <div class="form-check">
+                                                    <p>Action:</p>
+                                                </div>
+                                                <div class="form-check form-check-inline">    
+                                                    <input class="form-check-input" type="radio" name="tas-action-type" value="add" checked="checked">
+                                                    <label class="form-check-label" for="inlineRadio1">Add</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="tas-action-type" value="remove">
+                                                    <label class="form-check-label" for="inlineRadio2">Remove</label>
+                                                </div>
+                                            </div>
+                                            <div class="custom-select">
+                                                <div class="form-check">
+                                                    <p>TAS Address:</p>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input id="list_content1" class="form-control" type="text" name="server-name" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx" onchange="blockFunction_ts()">
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <p class="notice notice-nav">
+                                                    Here, you set which TAS to return to after TS reserves. 
+                                                    You must assign the TS to your TAS to user the reservation system.
+                                                    If you want to assign only one TS, please leave the second box empty.
+                                                </p>
+                                            </div>
+                                            <div class="custom-select">
+                                                <div class="form-check">
+                                                    <p>TAS Address:</p>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input id="list_content2" class="form-control" type="text" name="tas-server-name" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx" onchange="blockFunction_tas()">
+                                                </div>
+                                            </div>
+                                            <div class="custom-select">
+                                                <div class="form-check">
+                                                    <p>TS Address #1:</p>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input id="list_content3" class="form-control" type="text" name="ts-server-name-1" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx">							
+                                                </div>
+                                            </div>
+                                            <div class="custom-select">
+                                                <div class="form-check">
+                                                    <p>TS Address #2:</p>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input id="list_content4" class="form-control" type="text" name="ts-server-name-2" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx">						
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <input type="submit" class="btn btn-info" value="Confirm">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </form>
+                                </div>
+                              </div>
+                        </div>
+                    </li>
                     {% if session['email'] %}
                     <li [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
                           <a href="/logout" [routerLink]="['/logout']"><span class="glyphicon glyphicon-log-in"></span> Log out</a>

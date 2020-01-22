@@ -7,251 +7,14 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	
 	<link rel="icon" type="image/x-icon" href="favicon.ico">
-
+	
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
-          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css?family=Comfortaa" rel="stylesheet">
     <link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet"/>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/3.1.3/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
-
-	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-	<script src="https://code.jquery.com/jquery-2.2.4.min.js"
-            integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
-			crossorigin="anonymous"></script>
-			
-	<!-- Latest compiled and minified JavaScript -->
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
-	        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
-			crossorigin="anonymous"></script>
-			
-	<!-- DataTable script libarary -->
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/js/jquery.dataTables.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/js/dataTables.bootstrap.min.js"></script>
-	<script src="https://cdn.datatables.net/plug-ins/1.10.15/sorting/stringMonthYear.js"></script>
-
-	<style>
-		/* You can add global styles to this file, and also import other style files */
-		body {
-			padding-top: 60px;
-			font-family: 'Comfortaa', cursive;
-		}
-		.modal-content {
-			margin: 15% auto;
-			padding: 20px;
-			border: 1px solid #888;
-			width: 80%;
-		}
-		.modalbox .box {
-			background-color:white;
-		}
-		.modal-backdrop {
-			z-index: 3;
-		}
-		.btn btn-info btn-lg {
-			height:40px;
-			width:80px;
-		}
-		.notice {
-			width: 100%;
-			display: block;
-			font-size: 12px;
-			background-color: rgb(185, 185, 185);
-			padding: 10px;
-			border-radius: 1rem;
-		}
-		.gear {
-			transition: transform 2s ease-in-out
-		}
-		.gear:hover{
-			transform: rotate(5turn);
-		}
-
-		.edit-button {
-			color: #9d9d9d;
-			padding-top: 15px;
-			padding-bottom: 15px;
-			background-color: transparent;
-			border-color: transparent;
-			border: none;
-			margin-left: 5px;
-		}
-		.edit-button:hover {
-			color: White;
-		}
-		.custom-select {
-			position: relative;
-			font-family: 'Comfortaa', cursive;
-			margin: 5px;
-			padding-top: 5px;
-		}
-		/* the container must be positioned relative*/
-		.custom-select select {
-			z-index:2;
-		}
-		.select-selected {
-			background-color: White;
-			display:inline-block;
-		}
-		.select-selected:after {
-			position:absolute;
-			content:"";
-			top:14px;
-			right:10px;
-			width:0;
-			height:0;
-			border:6px solid transparent;
-			border-color: #fff transparent transparent transparent;
-		}
-		/* style the arrow inside the select element */
-		.select-selected.select-arrow-active:after {
-			border-color: transparent transparent #fff transparent;
-			top: 7px;
-		}
-		/* style the items, including the selected item */
-		.select-items div,.select-selected {
-			color: #000000;
-			padding: 8px 16px;
-			border: 1px solid transparent;
-			border-color: transparent transparent rgba(0,0,0,0.1) transparent;
-			cursor: pointer;
-		}
-		/* style items */
-		.select-items {
-			background-color: White;
-			top: 100%;
-			left: 0;
-			right: 0;
-			z-index: 99;
-		}
-		/* hide the items when the select box is closed */
-		.select-hide {
-			display: none;
-		}
-		.select-items div:hover, .same-as-selected {
-			background-color: rgba(0,0,0,0.1);
-		}
-		.dataTables_wrapper .dataTables_paginate {
-			width: 100%;
-			float: none;
-			text-align: center;
-		}
-		.form-check {
-			display: inline-block;
-			font-weight: bold;
-		}
-		.form-check-label {
-			font-weight: normal;
-		}
-		.form-check-inline {
-			margin-left: 10px;
-		}
-		.glyphicon-plus {
-			font-size: 10px;
-		}
-		.form-control {
-			display: inline-block;
-			width: 70%;
-		}
-		.table-list td {
-			font-size: 14px; 
-			height: 100%;
-		}
-		.navbar {
-			margin-bottom: 0px;
-		}
-
-		/* style tab */
-		.tabinator {
-			background: #fff;
-			padding: 10px;
-		}
-		.tabinator input {
-			display: none;
-		}
-		.tabinator label.tab-list {
-			box-sizing: border-box;
-			display: inline-block;
-			padding: 15px 25px;
-			color: #ccc;
-			margin-bottom: -1px;
-			margin-left: -1px;
-		}
-		.tabinator label.tab-list:before {
-			content:'';
-			display:block;
-			width:100%;
-			height:15px;
-			background-color:#fff;
-			position:absolute;
-			bottom:-11px;
-			left:0;
-			z-index:2;  
-		}
-		.tabinator label.tab-list:hover {
-			color: #888;
-			cursor: pointer;
-		}
-		.tabinator input:checked + label.tab-list {
-			position: relative;
-			color: #000;
-			background: #fff;
-			border: 1px solid #bbb;
-			border-bottom: 1px solid #fff;
-			border-radius: 5px 5px 0 0;
-		}
-		.tabinator input:checked + label.tab-list:after {
-			display: block;
-			content: '';
-			position: absolute;
-			top: 0; right: 0; bottom: 0; left: 0;
-		}
-		#content1, #content2, #content3, #content4 {
-			display: none;
-			border-top: 1px solid #bbb;
-			padding: 15px;
-			z-index: -10;
-		}
-		#tab1:checked ~ #content1,
-		#tab2:checked ~ #content2,
-		#tab3:checked ~ #content3,
-		#tab4:checked ~ #content4 {
-			display: block;
-			box-shadow: 0 0 15px #939393;
-		}
-		.alert {
-			width: 100%;
-			padding-right: 4rem;
-			position: relative;
-			padding: .75rem 1.25rem;
-			margin-bottom: 1rem;
-			border: 1px solid transparent;
-			border-radius: .25rem;
-			transition: opacity .15s linear;
-			font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
-			font-size: 16px;
-			font-weight: 400;
-			line-height: 1.5;
-			text-align: left;
-		}
-		.alert-error {
-			color: #721c24;
-    		background-color: #f8d7da;
-			border-color: #f5c6cb;
-		}
-		.alert-primary {
-			color: #004085;
-			background-color: #cce5ff;
-			border-color: #b8daff;
-		}
-		.flashes {
-        	padding-inline-start: 0px;
-		}
-		.notice-nav {
-			font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
-			font-size: 13px;
-		}
-	</style>
+	<link rel="stylesheet" type="text/css" href="/static/styles/tslistview.css">
 </head>
 <body onload="showMessage('{{ message }}');">
 <nav class="navbar navbar-inverse navbar-fixed-top">
@@ -268,113 +31,6 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-				<li [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
-					<button type="button" class="edit-button" data-toggle="modal" data-target="#tasModal">Edit TAS</button>
-					<div class="modal fade" id="tasModal" role="dialog">
-					  	<div class="modal-dialog">
-							<div class="modal-content">
-						  		<div class="modal-header">
-									<button type="button" class="close" data-dismiss="modal">&times;</button>
-									<h4 class="modal-title">Edit TAS</h4>
-						  		</div>
-								<form action="/edit_tas_server" method="POST">
-									<div class="modal-body">
-										<div>
-											<p class="notice notice-nav">
-												This tab is to add <strong>your TAS</strong> into TS Management system by your name.
-												This is necessary if you want to use your TAS on the system.
-											</p>
-										</div>
-										<div class="custom-select">
-											<div class="form-check">
-												<p>Action:</p>
-											</div>
-											<div class="form-check form-check-inline">    
-												<input class="form-check-input" type="radio" name="tas-action-type" value="add" checked="checked" onclick="ableField()">
-												<label class="form-check-label" for="inlineRadio1">Add</label>
-											</div>
-											<div class="form-check form-check-inline">
-												<input class="form-check-input" type="radio" name="tas-action-type" value="remove" onclick="disableField()">
-												<label class="form-check-label" for="inlineRadio2">Remove</label>
-											</div>
-										</div>
-										<div class="custom-select">
-											<div class="form-check">
-												<p>TAS Address:</p>
-											</div>
-											<div class="form-check form-check-inline">
-												<input class="form-control" type="text" name="server-name" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx" required>
-											</div>
-										</div>
-										<div class="custom-select">
-											<div class="form-check">
-												<p>TAS Owner:</p>
-											</div>
-											<div class="form-check form-check-inline">
-												<input class="form-control" type="text" name="server-name" placeholder={{userName}} required disabled=true>
-											</div>
-										</div>
-									</div>
-									<div class="modal-footer">
-										<input type="submit" class="btn btn-info" value="Edit">
-										<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-									</div>
-								</form>
-							</div>
-					  	</div>
-					</div>
-				</li>
-				<li [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
-					<button type="button" class="edit-button" data-toggle="modal" data-target="#tsModal">Allocate TS</button>
-					<div class="modal fade" id="tsModal" role="dialog">
-					  	<div class="modal-dialog">
-							<div class="modal-content">
-						  		<div class="modal-header">
-									<button type="button" class="close" data-dismiss="modal">&times;</button>
-									<h4 class="modal-title">Allocate TS</h4>
-						  		</div>
-								<form action="/edit_ts_server" method="POST">
-									<div class="modal-body">
-										<div>
-											<p class="notice notice-nav">
-												This tab is to allocate TS to your TAS.<br>
-												This is necessary to use reservation function and for the TS to return to its original TAS
-											</p>
-										</div>
-										<div class="custom-select">
-											<div class="form-check">
-												<p>TAS Address:</p>
-											</div>
-											<div class="form-check form-check-inline">
-												<input class="form-control" type="text" name="tas-server-name" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx" required>
-											</div>
-										</div>
-										<div class="custom-select">
-											<div class="form-check">
-												<p>TS Address #1:</p>
-											</div>
-											<div class="form-check form-check-inline">
-												<input class="form-control" type="text" name="ts-server-name-1" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx" required>							
-											</div>
-										</div>
-										<div class="custom-select">
-											<div class="form-check">
-												<p>TS Address #2:</p>
-											</div>
-											<div class="form-check form-check-inline">
-												<input class="form-control" type="text" name="ts-server-name-2" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx" required>						
-											</div>
-										</div>
-									</div>
-									<div class="modal-footer">
-										<input type="submit" class="btn btn-info" value="Edit">
-										<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-									</div>
-								</form>
-							</div>
-					  	</div>
-					</div>
-				</li>
 				<li [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
 					<button type="button" class="edit-button" data-toggle="modal" data-target="#commonModal">Edit Commmon TAS/TS</button>
 					<div class="modal fade" id="commonModal" role="dialog">
@@ -462,13 +118,125 @@
                     <a href="/reservePage" [routerLink]="['/reservePage']">Resevation</a>
                 </li>
 				<li [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
-					<a href="/history" [routerLink]="['/home']">History</a>
-				</li>
-				<li [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
                     <a href="/about" [routerLink]="['/about']">About</a>
                 </li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
+				<li [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
+					<button type="button" class="edit-button" data-toggle="modal" data-target="#userProfile">User Profile</button>
+					<div class="modal fade" id="userProfile" role="dialog">
+					  	<div class="modal-dialog">
+							<div class="modal-content">
+						  		<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal">&times;</button>
+									<h4 class="modal-title">User Profile</h4>
+						  		</div>
+								<form action="/edit_user_profile" method="POST">
+									<div class="modal-body">
+										<div class="custom-select">
+											<div class="form-check">
+												<div>
+													<p style="display: inline-block";>Name: </p>
+													<h5 style="display: inline-block";>{{ userName }}</h5>
+												</div>
+												<div>
+													<p style="display: inline-block";>Email: </p>
+													<h5 style="display: inline-block";>{{ session['email'] }}</h5>
+												</div>
+											</div>
+										</div>
+										<div class = "custom-select system">
+											<div class = "custom-select system title">
+												<p style="margin: 0";>TAS List</p>
+											</div>
+											<div class = "custom-select system title">
+												<p style="margin: 0";>TS List</p>
+											</div>
+										</div>
+										<div class = "custom-select system" >
+											<div class = "custom-select system inner">
+												{% for tas in userTAS %}
+												<div class = "custom-select system content tas">
+													<p style="margin: 0";>{{ tas.tasAddress }}</p>
+												</div>
+												{% endfor %}
+											</div>
+											<div class = "custom-select system inner">
+												{% for ts in userTS %}
+												<div class = "custom-select system content ts">
+													<p style="margin: 0";>{{ ts.tsAddress }}</p>
+												</div>
+												{% endfor %}
+											</div>
+										</div>
+										<div>
+											<p class="notice notice-nav">
+												This tab is to add <strong>your TAS</strong> into TS Management system by your name.
+												This is necessary if you want to use your TAS on the system.
+											</p>
+										</div>
+										<div class="custom-select">
+											<div class="form-check">
+												<p>Action:</p>
+											</div>
+											<div class="form-check form-check-inline">    
+												<input class="form-check-input" type="radio" name="tas-action-type" value="add" checked="checked">
+												<label class="form-check-label" for="inlineRadio1">Add</label>
+											</div>
+											<div class="form-check form-check-inline">
+												<input class="form-check-input" type="radio" name="tas-action-type" value="remove">
+												<label class="form-check-label" for="inlineRadio2">Remove</label>
+											</div>
+										</div>
+										<div class="custom-select">
+											<div class="form-check">
+												<p>TAS Address:</p>
+											</div>
+											<div class="form-check form-check-inline">
+												<input id="list_content1" class="form-control" type="text" name="server-name" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx" onchange="blockFunction_ts()">
+											</div>
+										</div>
+										<div>
+											<p class="notice notice-nav">
+												Here, you set which TAS to return to after TS reserves. 
+												You must assign the TS to your TAS to user the reservation system.
+												If you want to assign only one TS, please leave the second box empty.
+											</p>
+										</div>
+										<div class="custom-select">
+											<div class="form-check">
+												<p>TAS Address:</p>
+											</div>
+											<div class="form-check form-check-inline">
+												<input id="list_content2" class="form-control" type="text" name="tas-server-name" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx" onchange="blockFunction_tas()">
+											</div>
+										</div>
+										<div class="custom-select">
+											<div class="form-check">
+												<p>TS Address #1:</p>
+											</div>
+											<div class="form-check form-check-inline">
+												<input id="list_content3" class="form-control" type="text" name="ts-server-name-1" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx">							
+											</div>
+										</div>
+										<div class="custom-select">
+											<div class="form-check">
+												<p>TS Address #2:</p>
+											</div>
+											<div class="form-check form-check-inline">
+												<input id="list_content4" class="form-control" type="text" name="ts-server-name-2" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="xx.xxx.xx.xxx">						
+											</div>
+										</div>
+									</div>
+									<div class="modal-footer">
+										<input type="submit" class="btn btn-info" value="Confirm">
+										<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+									</div>
+								</form>
+							</div>
+					  	</div>
+					</div>
+				</li>
 				{% if session['email'] %}
                 <li [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
                   	<a href="/logout" [routerLink]="['/logout']"><span class="glyphicon glyphicon-log-in"></span> Log out</a>
@@ -518,7 +286,7 @@
 				<thead>
 				<tr>
 					<th>TS</th>
-					<th>TS Owner</th>
+					<th>TS Owner (Allocated TAS)</th>
 					<th>Located TAS</th>
 					<th>TAS Owner</th>
 					<th>Platform</th>
@@ -533,7 +301,7 @@
 				{% for TS in tsList_sanJose.values() %}
 					<tr>
 						<th>{{ TS['info']['managementIp'] }}</th>
-						<td>{{ TS['name'] }}</td>
+						<td>{{ TS['name'] }} ({{ TS['origin'] }})</td>
 						<td><span id="TAS_sanjose">{{ TS['tas'] }}</span></td>
 						<td>{{ TS['owner'] }}</td>
 						<td>{{ TS['info']['platform'] }}</td>
@@ -616,7 +384,7 @@
 				<thead>
 				<tr>
 					<th>TS</th>
-					<th>TS Owner</th>
+					<th>TS Owner (Allocated TAS)</th>
 					<th>Located TAS</th>
 					<th>TAS Owner</th>
 					<th>Platform</th>
@@ -631,7 +399,7 @@
 				{% for TS in tsList_plano.values() %}
 					<tr>
 						<th>{{ TS['info']['managementIp'] }}</th>
-						<td>{{ TS['name'] }}</td>
+						<td>{{ TS['name'] }} ({{ TS['origin'] }})</td>
 						<td><span id="TAS_plano">{{ TS['tas'] }}</span></td>
 						<td>{{ TS['owner'] }}</td>
 						<td>{{ TS['info']['platform'] }}</td>
@@ -714,7 +482,7 @@
 				<thead>
 				<tr>
 					<th>TS</th>
-					<th>TS Owner</th>
+					<th>TS Owner (Allocated TAS)</th>
 					<th>Located TAS</th>
 					<th>TAS Owner</th>
 					<th>Platform</th>
@@ -729,7 +497,7 @@
 				{% for TS in tsList_bdc.values() %}
 					<tr>
 						<th>{{ TS['info']['managementIp'] }}</th>
-						<td>{{ TS['name'] }}</td>
+						<td>{{ TS['name'] }} ({{ TS['origin'] }})</td>
 						<td><span id="TAS_bdc">{{ TS['tas'] }}</span></td>
 						<td>{{ TS['owner'] }}</td>
 						<td>{{ TS['info']['platform'] }}</td>
@@ -811,7 +579,7 @@
 				<thead>
 				<tr>
 					<th>TS</th>
-					<th>TS Owner</th>
+					<th>TS Owner (Allocated TAS)</th>
 					<th>Located TAS</th>
 					<th>TAS Owner</th>
 					<th>Platform</th>
@@ -826,7 +594,7 @@
 				{% for TS in tsList_common.values() %}
 					<tr>
 						<th>{{ TS['info']['managementIp'] }}</th>
-						<td>{{ TS['name'] }}</td>
+						<td>{{ TS['name'] }} ({{ TS['origin'] }})</td>
 						<td><span id="TAS_common">{{ TS['tas'] }}</span></td>
 						<td>{{ TS['owner'] }}</td>
 						<td>{{ TS['info']['platform'] }}</td>
@@ -903,6 +671,20 @@
 		</div>
 	</div>
 </div>
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="https://code.jquery.com/jquery-2.2.4.min.js"
+		integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+		crossorigin="anonymous"></script>
+		
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+		integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+		crossorigin="anonymous"></script>
+		
+<!-- DataTable script libarary -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/js/jquery.dataTables.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/js/dataTables.bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/plug-ins/1.10.15/sorting/stringMonthYear.js"></script>
 <script type="text/javascript">
     $(document).ready(function () {
         $("#sortedTable").DataTable({
@@ -1014,6 +796,28 @@
 	}
 	function ableTASField() {
 		document.getElementById("tas").disabled = false;
+	}
+	function blockFunction_ts() {
+		var dis1 = document.getElementById("list_content1");
+		if (dis1.value.length > 0) {
+			document.getElementById("list_content2").disabled = true;
+			document.getElementById("list_content3").disabled = true;
+			document.getElementById("list_content4").disabled = true;
+		}
+		else  {
+			document.getElementById("list_content2").disabled = false;
+			document.getElementById("list_content3").disabled = false;
+			document.getElementById("list_content4").disabled = false;
+		}
+	}
+	function blockFunction_tas() {
+		var dis1 = document.getElementById("list_content2");
+		if (dis1.value.length > 0) {
+			document.getElementById("list_content1").disabled = true;
+		}
+		else {
+			document.getElementById("list_content1").disabled = false;
+		}
 	}
 </script>
 </body>

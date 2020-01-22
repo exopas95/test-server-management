@@ -1,0 +1,245 @@
+/* You can add global styles to this file, and also import other style files */
+body {
+    padding-top: 60px;
+    font-family: 'Comfortaa', cursive;
+}
+.modal-content {
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+}
+.modalbox .box {
+    background-color:white;
+}
+.modal-backdrop {
+    z-index: 3;
+}
+.btn btn-info btn-lg {
+    height:40px;
+    width:80px;
+}
+.notice {
+    width: 100%;
+    display: block;
+    font-size: 12px;
+    background-color: rgb(185, 185, 185);
+    padding: 10px;
+    border-radius: 1rem;
+}
+.gear {
+    transition: transform 2s ease-in-out
+}
+.gear:hover{
+    transform: rotate(5turn);
+}
+
+.edit-button {
+    color: #9d9d9d;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    background-color: transparent;
+    border-color: transparent;
+    border: none;
+    margin-left: 5px;
+}
+.edit-button:hover {
+    color: White;
+}
+.custom-select {
+    position: relative;
+    font-family: 'Comfortaa', cursive;
+    margin: 5px;
+    padding-top: 5px;
+}
+/* the container must be positioned relative*/
+.custom-select select {
+    z-index:2;
+}
+.custom-select.system {
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    padding: 0;
+    width: 100%;
+}
+.custom-select.system.inner {
+    margin: 0;
+    flex-direction: column;
+    text-align: center;
+}
+.custom-select.system.title {
+    background-color: #31b0d5;
+    padding: 5px;
+    border-radius: 1rem;
+    font-weight: bold;
+    color: white;
+    text-align: center;
+}
+.custom-select.system.content {
+    padding: 5px;
+    text-align: center;
+    width: 194px;
+}
+.select-selected {
+    background-color: White;
+    display:inline-block;
+}
+.select-selected:after {
+    position:absolute;
+    content:"";
+    top:14px;
+    right:10px;
+    width:0;
+    height:0;
+    border:6px solid transparent;
+    border-color: #fff transparent transparent transparent;
+}
+/* style the arrow inside the select element */
+.select-selected.select-arrow-active:after {
+    border-color: transparent transparent #fff transparent;
+    top: 7px;
+}
+/* style the items, including the selected item */
+.select-items div,.select-selected {
+    color: #000000;
+    padding: 8px 16px;
+    border: 1px solid transparent;
+    border-color: transparent transparent rgba(0,0,0,0.1) transparent;
+    cursor: pointer;
+}
+/* style items */
+.select-items {
+    background-color: White;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 99;
+}
+/* hide the items when the select box is closed */
+.select-hide {
+    display: none;
+}
+.select-items div:hover, .same-as-selected {
+    background-color: rgba(0,0,0,0.1);
+}
+.dataTables_wrapper .dataTables_paginate {
+    width: 100%;
+    float: none;
+    text-align: center;
+}
+.form-check {
+    display: inline-block;
+    font-weight: bold;
+}
+.form-check-label {
+    font-weight: normal;
+}
+.form-check-inline {
+    margin-left: 10px;
+}
+.glyphicon-plus {
+    font-size: 10px;
+}
+.form-control {
+    display: inline-block;
+    width: 70%;
+}
+.table-list td {
+    font-size: 14px; 
+    height: 100%;
+}
+.navbar {
+    margin-bottom: 0px;
+}
+
+/* style tab */
+.tabinator {
+    background: #fff;
+    padding: 10px;
+}
+.tabinator input {
+    display: none;
+}
+.tabinator label.tab-list {
+    box-sizing: border-box;
+    display: inline-block;
+    padding: 15px 25px;
+    color: #ccc;
+    margin-bottom: -1px;
+    margin-left: -1px;
+}
+.tabinator label.tab-list:before {
+    content:'';
+    display:block;
+    width:100%;
+    height:15px;
+    background-color:#fff;
+    position:absolute;
+    bottom:-11px;
+    left:0;
+    z-index:2;  
+}
+.tabinator label.tab-list:hover {
+    color: #888;
+    cursor: pointer;
+}
+.tabinator input:checked + label.tab-list {
+    position: relative;
+    color: #000;
+    background: #fff;
+    border: 1px solid #bbb;
+    border-bottom: 1px solid #fff;
+    border-radius: 5px 5px 0 0;
+}
+.tabinator input:checked + label.tab-list:after {
+    display: block;
+    content: '';
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+}
+#content1, #content2, #content3, #content4 {
+    display: none;
+    border-top: 1px solid #bbb;
+    padding: 15px;
+    z-index: -10;
+}
+#tab1:checked ~ #content1,
+#tab2:checked ~ #content2,
+#tab3:checked ~ #content3,
+#tab4:checked ~ #content4 {
+    display: block;
+    box-shadow: 0 0 15px #939393;
+}
+.alert {
+    width: 100%;
+    padding-right: 4rem;
+    position: relative;
+    padding: .75rem 1.25rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    border-radius: .25rem;
+    transition: opacity .15s linear;
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.5;
+    text-align: left;
+}
+.alert-error {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+.alert-primary {
+    color: #004085;
+    background-color: #cce5ff;
+    border-color: #b8daff;
+}
+.flashes {
+    padding-inline-start: 0px;
+}
+.notice-nav {
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+    font-size: 13px;
+}
