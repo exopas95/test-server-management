@@ -146,6 +146,7 @@ def getTSListFromAPI():
                         # If there is no TS List in the database
                         else:
                             ts_user_name = "Unknown"
+                            ts_origin_address = "Unknown"
                         # update TS List
                         tsList[ts['info']['managementIp']] = {}
                         tsList[ts['info']['managementIp']]['state'] = ts['state']
