@@ -842,17 +842,19 @@
     
         <script>
         var timetable = new Timetable();
-        var d = new Date();
-        var dPlus12 = d.getHours() + 12;
+        var d = parseInt('{{currentHour}}');
+        var dPlus12 = d + 12;
+        console.log(dPlus12);
         if(dPlus12 >= 24){dPlus12 = dPlus12 - 24};
-        timetable.setScope(d.getHours(),dPlus12);
+        console.log(d);
+        console.log(dPlus12);
+        timetable.setScope(d,dPlus12);
         var todaysList = '{{todayList|tojson}}';
         var items = todaysList.replace(/\[/g, "").replace(/\]/g, "").replace(/ /g, "").replace(/\"/g, "").split(",");
         var TSaddrs = [];
         var tsListlen = '{{tslen}}';
         var tsList = '{{reservedTSAddrs|tojson}}';
         var tsListItems = tsList.replace(/\[/g, "").replace(/\]/g, "").replace(/ /g, "").replace(/\"/g, "").split(",");
-        console.log(tsListItems);
         for(var i=0; i < tsListItems.length; i++){
             console.log(tsListItems[i]);
             TSaddrs.push(tsListItems[i]);

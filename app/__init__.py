@@ -842,11 +842,12 @@ def reservePage():
     else:
         myTasAddress = "10.140.92.212"
 
-    todayList = reservedTsList.getTodayReservedList()
-    # todayList = []
-    # todayList.append((1,3))
-    # todayList.append((1,5))
-    # todayList.append((2,35))
+    currentHour = datetime.datetime.now().hour
+    currentHour = currentHour + reserveTS.getTimeMoveAmountByTeam(user.team)
+    if currentHour >= 24:
+        currentHour -= 24
+
+    todayList = reservedTsList.getTodayReservedList(user.team)
     
     reservedTSAddrs = []
     for index in range(len(todayList)/12):
@@ -866,11 +867,15 @@ def reservePage():
                             userName=userName, 
                             myTasAddress=myTasAddress,
                             todayList=todayList,
-                            allTsList=allTsList
+                            allTsList=allTsList,
+                            currentHour = currentHour
                             )
                             
 @app.route('/reservePage/reserve/<startDate>/<day>/<hour>/<minute>/<currentTS>/<relocateTAS>/<reservPerson>', methods=['GET', 'POST'])
 def reserve(startDate, day, hour, minute, currentTS, relocateTAS, reservPerson):
+    email = session['email']
+    user = User.query.filter_by(email = email).first()
+    userTeam = user.team
     returnTAS = ""
     print(currentTS)
     if currentTS is not None:
@@ -885,7 +890,7 @@ def reserve(startDate, day, hour, minute, currentTS, relocateTAS, reservPerson):
     else:
         return "Null TS selection"
 
-    period, result = reservedTsList.checkPeriod(startDate, day, hour, minute)
+    period, result = reservedTsList.checkPeriod(startDate, day, hour, minute, userTeam)
     if int(result) != -1:
         isReserved = reservedTsList.reserve(period,currentTS,relocateTAS, returnTAS, result, reservPerson)
         if isReserved is True:
@@ -902,6 +907,9 @@ def reserve(startDate, day, hour, minute, currentTS, relocateTAS, reservPerson):
 
 @app.route('/reservePage/reserve2/<startDate>/<day>/<hour>/<minute>/<currentTS>/<currentTS2>/<relocateTAS>/<reservPerson>', methods=['GET', 'POST'])
 def reserve2(startDate, day, hour, minute, currentTS, currentTS2, relocateTAS, reservPerson):
+    email = session['email']
+    user = User.query.filter_by(email = email).first()
+    userTeam = user.team
     returnTAS = ""
     if currentTS is not None:
         temp = TSList.query.filter_by(tsAddress = currentTS).first()
@@ -915,7 +923,7 @@ def reserve2(startDate, day, hour, minute, currentTS, currentTS2, relocateTAS, r
     else:
         return "Null TS selection"
 
-    period, result = reservedTsList.checkPeriod(startDate, day, hour, minute)
+    period, result = reservedTsList.checkPeriod(startDate, day, hour, minute, userTeam)
     if int(result) != -1:
         isReserved = reservedTsList.reserve(period,currentTS,relocateTAS, returnTAS, result, reservPerson)
         if isReserved is True:
@@ -941,7 +949,7 @@ def reserve2(startDate, day, hour, minute, currentTS, currentTS2, relocateTAS, r
     else:
         return "Null TS selection"
 
-    period, result = reservedTsList.checkPeriod(startDate, day, hour, minute)
+    period, result = reservedTsList.checkPeriod(startDate, day, hour, minute, userTeam)
     if int(result) != -1:
         isReserved = reservedTsList.reserve(period,currentTS2,relocateTAS, returnTAS, result, reservPerson)
         if isReserved is True:
@@ -980,7 +988,10 @@ def getBookedList():
 @app.context_processor
 def getMybooklist():
     def getMybooklist(userName):
-        mybookedList = reservedTsList.countTsReservationListByName(userName)
+        email = session['email']
+        user = User.query.filter_by(email = email).first()
+        userTeam = user.team
+        mybookedList = reservedTsList.countTsReservationListByName(userName, userTeam)
         return mybookedList
     return dict(getMybooklist=getMybooklist)
 
@@ -997,9 +1008,13 @@ def getTeamResevinglist():
         elif team == "Common":
             teamTslist = tsList_common
 
+        email = session['email']
+        user = User.query.filter_by(email = email).first()
+        userTeam = user.team
+
         tempState = "on going" #0 = on going , 1 = waiting (reservetime) 2 = available
         for TS in teamTslist.values():
-            tempState = reservedTsList.getIsOnGoing(TS['info']['managementIp'])
+            tempState = reservedTsList.getIsOnGoing(TS['info']['managementIp'], userTeam)
             teamReservedList.append(tempState)
         return teamReservedList
     return dict(getTeamResevinglist=getTeamResevinglist)

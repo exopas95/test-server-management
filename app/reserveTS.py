@@ -219,9 +219,10 @@ class LinkedList:
             print("data = {0} {1} {2} {3} {4}".format(temp.data, temp.TSaddress, temp.TASToMove, temp.StartingFlg, temp.ReservePeriod))
             temp = temp.next
 
-    def checkPeriod(self, startDate, day, hour, minute):
-        print("day=",day, "hour=",hour,"minute=",minute)
+    def checkPeriod(self, startDate, day, hour, minute, team):
+        print("day=",day, " hour=",hour," minute=",minute, " team=", team)
         parsedStartDate = datetime.datetime.strptime(startDate, "%Y-%m-%d %H:%M")
+        parsedStartDate = parsedStartDate - datetime.timedelta(hours=getTimeMoveAmountByTeam(team))
         parsedEndDate = parsedStartDate + datetime.timedelta(days=int(day), hours=int(hour), minutes=int(minute))
         print("parse is ", parsedStartDate)
         print("after is ", parsedEndDate)
@@ -279,17 +280,19 @@ class LinkedList:
         
         return countedReservedTsList
 
-    def countTsReservationListByName(self, userName):
+    def countTsReservationListByName(self, userName, team):
         countedReservedTsList = []
         if self.head is None:
             return countedReservedTsList
-            
+        
+        timeMoveAmount = getTimeMoveAmountByTeam(team)
+        timevalMoveAmount = timeMoveAmount*12
         temp = self.head
         while temp is not None:
             if(temp.reservingPerson == str(userName)) and (temp.StartingFlg == False):
                 #Since the node delete from the start.
-                startRealTime = getRealTimeFromTimeval(temp.data - temp.ReservePeriod)
-                endRealTime = getRealTimeFromTimeval(temp.data)
+                startRealTime = getRealTimeFromTimeval(temp.data + timevalMoveAmount - temp.ReservePeriod)
+                endRealTime = getRealTimeFromTimeval(temp.data + timevalMoveAmount)
                 if temp.data - temp.ReservePeriod <= 0:
                     isMiddleOfReservedPeriod = True
                 else:
@@ -384,35 +387,36 @@ class LinkedList:
                 return result
         return None
 
-    def getTodayReservedList(self):
+    def getTodayReservedList(self, team):
         #todayDate = datetime.datetime.now().date()
-        todayDate = datetime.datetime.now()
-        currentHour = datetime.datetime.now().hour
+        timeMoveAmount = getTimeMoveAmountByTeam(team)
+        timevalMoveAmount = timeMoveAmount*12
+        todayDate = datetime.datetime.now() + datetime.timedelta(hours=timeMoveAmount)
         bookedList = []
         tempstarttime = None
         tempendtime = None
         temp = self.head
         while temp is not None:
-            tempDate = datetime.datetime.strptime(getRealTimeFromTimeval(temp.data), "%Y-%m-%d %H:%M")
+            tempDate = datetime.datetime.strptime(getRealTimeFromTimeval(temp.data + timevalMoveAmount), "%Y-%m-%d %H:%M")
             #if todayDate != tempDate.date() or tempDate.hour >= currentHour + 12:
             if (tempDate - todayDate).seconds > 43200:
                 if temp.StartingFlg == False:
-                    tempStarttime = datetime.datetime.strptime(getRealTimeFromTimeval(temp.data - temp.ReservePeriod), "%Y-%m-%d %H:%M")
+                    tempStarttime = datetime.datetime.strptime(getRealTimeFromTimeval(temp.data + timevalMoveAmount - temp.ReservePeriod), "%Y-%m-%d %H:%M")
                     if (tempStarttime - todayDate).seconds <= 43200:
                         #check if the reservation is valid in 12 hours from now
                         #if valid, display on timetable
                         if(temp.data - temp.ReservePeriod > 0):
-                            tempstarttime = datetime.datetime.strptime(getRealTimeFromTimeval(temp.data - temp.ReservePeriod), "%Y-%m-%d %H:%M")
+                            tempstarttime = datetime.datetime.strptime(getRealTimeFromTimeval(temp.data + timevalMoveAmount - temp.ReservePeriod), "%Y-%m-%d %H:%M")
                         else:
-                            tempstarttime = datetime.datetime.strptime(getRealTimeFromTimeval(0), "%Y-%m-%d %H:%M")
-                        tempendtime = datetime.datetime.strptime(getRealTimeFromTimeval(144 - (todayDate.minute/5)), "%Y-%m-%d %H:%M")
+                            tempstarttime = datetime.datetime.strptime(getRealTimeFromTimeval(timevalMoveAmount), "%Y-%m-%d %H:%M")
+                        tempendtime = datetime.datetime.strptime(getRealTimeFromTimeval(144 + timevalMoveAmount - (todayDate.minute/5)), "%Y-%m-%d %H:%M")
 
             elif temp.StartingFlg is False:
                 if(temp.data - temp.ReservePeriod > 0):
-                    tempstarttime = datetime.datetime.strptime(getRealTimeFromTimeval(temp.data - temp.ReservePeriod), "%Y-%m-%d %H:%M")
+                    tempstarttime = datetime.datetime.strptime(getRealTimeFromTimeval(temp.data + timevalMoveAmount - temp.ReservePeriod), "%Y-%m-%d %H:%M")
                 else:
-                    tempstarttime = datetime.datetime.strptime(getRealTimeFromTimeval(0), "%Y-%m-%d %H:%M")
-                tempendtime = datetime.datetime.strptime(getRealTimeFromTimeval(temp.data), "%Y-%m-%d %H:%M")
+                    tempstarttime = datetime.datetime.strptime(getRealTimeFromTimeval(timevalMoveAmount), "%Y-%m-%d %H:%M")
+                tempendtime = datetime.datetime.strptime(getRealTimeFromTimeval(temp.data + timevalMoveAmount), "%Y-%m-%d %H:%M")
 
             if(tempstarttime is not None) and (tempendtime is not None):
                 #bookedList.append((temp.reservingPerson, temp.TSaddress, tempstarttime.year,tempstarttime.month,tempstarttime.day,tempstarttime.hour,tempstarttime.minute, tempendtime.year,tempendtime.month,tempendtime.day,tempendtime.hour,tempendtime.minute))
@@ -435,16 +439,19 @@ class LinkedList:
         print(bookedList)
         return bookedList
     
-    def getIsOnGoing(self, tsaddrToSearch):
+    def getIsOnGoing(self, tsaddrToSearch, team):
         #0 = on going , 1 = waiting (reservetime) 2 = available
         if self.head is None:
             return "Available"
-            
+        
+        timeMoveAmount = getTimeMoveAmountByTeam(team)
+        timevalMoveAmount = timeMoveAmount*12
+
         temp = self.head
         isMiddleOfReservedPeriod = "Available"
         while temp is not None:
             if(temp.TSaddress == str(tsaddrToSearch)) and (temp.StartingFlg == True):
-                isMiddleOfReservedPeriod = getRealTimeFromTimeval(temp.data)
+                isMiddleOfReservedPeriod = getRealTimeFromTimeval(temp.data + timevalMoveAmount)
                 break #it is not started yet
             elif(temp.TSaddress == str(tsaddrToSearch)) and (temp.StartingFlg == False):
                 #Since the node delete from the start
@@ -465,25 +472,14 @@ def getRealTimeFromTimeval(timeval_):
 
     return realTime
 
+def getTimeMoveAmountByTeam(team):
+    #time control
+    timeMoveAmount = 0
+    if team == "San Jose":
+        timeMoveAmount = -2
+    elif team == "BDC":
+        timeMoveAmount = 14
+    else: #Plano is considered as standard
+        timeMoveAmount = 0
 
-# print( datetime.datetime.strptime(getRealTimeFromTimeval(0), "%Y-%m-%d %H:%M").date())
-# print(datetime.datetime.now().date())
-# print(datetime.datetime.strptime(getRealTimeFromTimeval(0), "%Y-%m-%d %H:%M").date() == datetime.datetime.now().date())
-#llist = LinkedList()
-#llist.reserve(23,4,56,23,3,12)
-# print(llist.display_list())
-#llist.getTodayReservedList()
-# llist.cancelReserve(4,1)
-# print(llist.display_list())
-
-# todayDate = datetime.datetime.now()
-# todayDate = todayDate.strftime('%Y-%m-%d %H:%M')
-# todayDate = datetime.datetime.strptime(todayDate, "%Y-%m-%d %H:%M")
-# somedate = datetime.datetime.now() + datetime.timedelta(hours=12)
-# somedate = somedate.strftime('%Y-%m-%d %H:%M')
-# somedate = datetime.datetime.strptime(somedate, "%Y-%m-%d %H:%M")
-# print((somedate - todayDate))
-# offset = (somedate - todayDate)
-# print(offset.seconds)
-
-print(42/5)
+    return timeMoveAmount
